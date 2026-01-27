@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Comparison - Fashion Recommendation System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-header">
+                <h1 class="logo">Fashion Recommendation</h1>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="image-search.html" class="nav-link">Image Search</a>
+                    <a href="price-comparison.html" class="nav-link active">Price Comparison</a>
+                    <a href="recommendations.html" class="nav-link">Recommendations</a>
+                    <a href="size-estimation.html" class="nav-link">Size Estimation</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h2>Price Comparison</h2>
+            <p class="mt-2 mb-4">Compare prices for fashion items across different retailers</p>
+
+            <form id="searchForm" class="mb-4">
+                <div class="form-group">
+                    <label for="productId">Product ID</label>
+                    <input type="text" id="productId" placeholder="Enter product ID" required>
+                </div>
+                <button type="submit" class="btn">Compare Prices</button>
+            </form>
+
+            <div id="results" class="hidden">
+                <h3>Price Comparison Results</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead>
+                        <tr style="background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 0.75rem; text-align: left;">Retailer</th>
+                            <th style="padding: 0.75rem; text-align: left;">Price</th>
+                            <th style="padding: 0.75rem; text-align: left;">Stock Status</th>
+                            <th style="padding: 0.75rem; text-align: left;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Results will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p class="mt-2">Comparing prices...</p>
+            </div>
+
+            <div id="error" class="alert alert-error hidden mt-3"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Fashion Recommendation System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const productIdInput = document.getElementById('productId');
+        const resultsDiv = document.getElementById('results');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const resultsTable = document.getElementById('resultsTable');
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            comparePrice(productIdInput.value);
+        });
+
+        function comparePrice(productId) {
+            resultsDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+
+            // Simulate API call - replace with actual API endpoint
+            setTimeout(() => {
+                loadingDiv.classList.add('hidden');
+
+                const mockResults = [
+                    { retailer: 'Fashion Store A', price: '$45.99', stock: 'In Stock' },
+                    { retailer: 'Fashion Store B', price: '$49.99', stock: 'In Stock' },
+                    { retailer: 'Fashion Store C', price: '$42.99', stock: 'Low Stock' },
+                    { retailer: 'Fashion Store D', price: '$51.99', stock: 'Out of Stock' },
+                ];
+
+                resultsTable.innerHTML = mockResults.map(result => `
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 0.75rem;">${result.retailer}</td>
+                        <td style="padding: 0.75rem; font-weight: 600; color: #2563eb;">${result.price}</td>
+                        <td style="padding: 0.75rem;">${result.stock}</td>
+                        <td style="padding: 0.75rem;">
+                            <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">View</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                resultsDiv.classList.remove('hidden');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

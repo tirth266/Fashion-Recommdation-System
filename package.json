@@ -1,0 +1,21 @@
+{
+  "name": "fashion-recommendation-system",
+  "version": "1.0.0",
+  "description": "AI-powered fashion recommendation system with smart sizing",
+  "private": true,
+  "scripts": {
+    "frontend": "cd frontend && npm run dev",
+    "backend": "cd backend && python -m flask run",
+    "dev": "npm run frontend",
+    "build": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview"
+  },
+  "keywords": [
+    "fashion",
+    "recommendation",
+    "ai",
+    "machine-learning"
+  ],
+  "author": "",
+  "license": "MIT"
+}

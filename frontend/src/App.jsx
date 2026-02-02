@@ -5,6 +5,8 @@ import ImageSearch from './pages/ImageSearch'
 import PriceComparison from './pages/PriceComparison'
 import Recommendations from './pages/Recommendations'
 import SizeEstimation from './pages/SizeEstimation'
+import Profile from './pages/Profile'
+import APITest from './pages/APITest'
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/price-comparison" element={<PriceComparison />} />
           <Route path="/recommendations" element={<Recommendations />} />
           <Route path="/size-estimation" element={<SizeEstimation />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/api-test" element={<APITest />} />
         </Routes>
       </div>
     </Router>

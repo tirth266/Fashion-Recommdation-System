@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import JWTManager
+from flask_session import Session
 import os
 from datetime import timedelta
 
@@ -10,25 +9,30 @@ app = Flask(__name__)
 
 # Configuration
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///fashion.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-string')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
+
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_COOKIE_SECURE'] = False # Important for localhost (HTTP)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # Important for localhost
 
 # Initialize extensions
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# db = SQLAlchemy(app) # Database disabled for session-based auth
+# jwt = JWTManager(app) # JWT disabled for session-based auth
+server_session = Session(app)
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}})
+
+print("Server configured with Session (Filesystem)")
 
 # Import routes after app initialization to avoid circular imports
-from app.routes import auth, profile, recommendations, search, size_estimation
+from app.routes import auth
 
 # Register blueprints
 app.register_blueprint(auth.bp)
-app.register_blueprint(profile.bp)
-app.register_blueprint(recommendations.bp)
-app.register_blueprint(search.bp)
-app.register_blueprint(size_estimation.bp)
+# app.register_blueprint(profile.bp)
+# app.register_blueprint(recommendations.bp)
+# app.register_blueprint(search.bp)
+# app.register_blueprint(size_estimation.bp)
 
 @app.route('/')
 def home():
@@ -39,6 +43,6 @@ def health_check():
     return {"status": "healthy", "message": "API is running"}
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5000)

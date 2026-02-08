@@ -1,403 +1,348 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
+import MainLayout from '../components/MainLayout'
+
+// --- ICONS (Lucide style for premium feel) ---
+const SaveIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+const UploadIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+const InfoIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+
+// --- SUB-COMPONENTS ---
+
+// 1. MEASUREMENT INPUT
+const MeasurementInput = ({ label, value, onChange, placeholder, unit = "cm" }) => (
+  <div className="group">
+    <label className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+      {label}
+      <div className="relative group/tooltip cursor-help">
+        <InfoIcon />
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-800 text-white text-[10px] rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none">
+          Measure around the widest part
+        </span>
+      </div>
+    </label>
+    <div className="relative">
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:bg-white transition-all font-medium placeholder:text-gray-300"
+      />
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">{unit}</span>
+    </div>
+  </div>
+)
+
+// 2. COLOR SWATCH
+const ColorSwatch = ({ color, hex, selected, onClick }) => (
+  <button
+    onClick={() => onClick(color)}
+    className={`group relative w-12 h-12 rounded-full border border-gray-100 shadow-sm transition-transform hover:scale-110 focus:outline-none ${selected ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}
+    title={color}
+  >
+    <span
+      className="absolute inset-1 rounded-full border border-black/5"
+      style={{ backgroundColor: hex }}
+    />
+    {selected && (
+      <span className="absolute inset-0 flex items-center justify-center text-white/90 drop-shadow-md">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </span>
+    )}
+  </button>
+)
+
+// 3. BRAND TAG
+const BrandTag = ({ name, active, onClick }) => (
+  <button
+    onClick={() => onClick(name)}
+    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${active
+      ? 'bg-gray-900 text-white border-gray-900 shadow-md transform -translate-y-0.5'
+      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+      }`}
+  >
+    {name}
+  </button>
+)
+
+// 4. FIT CARD
+const FitCard = ({ type, description, active, onClick }) => (
+  <div
+    onClick={() => onClick(type)}
+    className={`cursor-pointer rounded-2xl p-5 border transition-all duration-300 ${active
+      ? 'border-gray-900 bg-gray-50 shadow-md ring-1 ring-gray-900'
+      : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm'
+      }`}
+  >
+    <div className="flex items-center justify-between mb-2">
+      <h4 className={`font-serif font-bold text-lg ${active ? 'text-gray-900' : 'text-gray-600'}`}>{type}</h4>
+      <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${active ? 'border-gray-900 bg-gray-900' : 'border-gray-300'}`}>
+        {active && <div className="w-2 h-2 rounded-full bg-white" />}
+      </div>
+    </div>
+    <p className="text-xs text-gray-500 leading-relaxed max-w-[80%]">{description}</p>
+  </div>
+)
 
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState('profile')
-  const [user, setUser] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@email.com',
-    phone: '+1 (555) 123-4567',
-    location: 'New York, NY',
-    joinDate: 'March 2024',
-    avatar: null
+  const { currentUser } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  // -- STATE --
+  const [profile, setProfile] = useState({
+    name: 'Fashionista User',
+    email: 'user@example.com',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop',
+    measurements: {
+      shoulder: '',
+      chest: '',
+      height: '',
+      wrist: ''
+    },
+    preferences: {
+      colors: ['Black', 'Navy'],
+      brands: ['Nike', 'Zara'],
+      fit: 'Regular Fit'
+    }
   })
 
-  const [preferences, setPreferences] = useState({
-    style: 'Casual Elegance',
-    budget: '$$',
-    favoriteColors: ['Navy', 'White', 'Black'],
-    categories: ['Denim', 'Blazers', 'Sneakers', 'Dresses'],
-    brands: ['Urban Outfitters', 'Zara', 'H&M', 'Nike'],
-    occasions: ['Work', 'Casual', 'Party', 'Sports']
-  })
+  // Initialize with Auth Data
+  useEffect(() => {
+    if (currentUser) {
+      setProfile(prev => ({
+        ...prev,
+        name: currentUser.displayName || prev.name,
+        email: currentUser.email || prev.email,
+        avatar: currentUser.photoURL || prev.avatar
+      }))
+    }
+  }, [currentUser])
 
-  const [measurements, setMeasurements] = useState({
-    chest: '38',
-    waist: '32',
-    hips: '40',
-    height: '70',
-    size: 'M'
-  })
-
-  const handleUserUpdate = (field, value) => {
-    setUser(prev => ({ ...prev, [field]: value }))
+  // -- HANDLERS --
+  const handleMeasurementChange = (key, val) => {
+    setProfile(prev => ({ ...prev, measurements: { ...prev.measurements, [key]: val } }))
   }
 
-  const handlePreferenceUpdate = (field, value) => {
-    setPreferences(prev => ({ ...prev, [field]: value }))
+  const toggleColor = (color) => {
+    setProfile(prev => {
+      const colors = prev.preferences.colors.includes(color)
+        ? prev.preferences.colors.filter(c => c !== color)
+        : [...prev.preferences.colors, color]
+      return { ...prev, preferences: { ...prev.preferences, colors } }
+    })
   }
 
-  const handleMeasurementUpdate = (field, value) => {
-    setMeasurements(prev => ({ ...prev, [field]: value }))
+  const toggleBrand = (brand) => {
+    setProfile(prev => {
+      const brands = prev.preferences.brands.includes(brand)
+        ? prev.preferences.brands.filter(b => b !== brand)
+        : [...prev.preferences.brands, brand]
+      return { ...prev, preferences: { ...prev.preferences, brands } }
+    })
   }
 
-  const tabs = [
-    { id: 'profile', label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-    { id: 'preferences', label: 'Preferences', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.544-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.544-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.544.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.544.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
-    { id: 'measurements', label: 'Measurements', icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z' },
-    { id: 'security', label: 'Security', icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' }
+  const handleSave = () => {
+    setLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    }, 1500)
+  }
+
+  // -- DATA CONSTANTS --
+  const AVAILABLE_COLORS = [
+    { name: 'Black', hex: '#000000' },
+    { name: 'White', hex: '#FFFFFF' },
+    { name: 'Beige', hex: '#F5F5DC' },
+    { name: 'Navy', hex: '#000080' },
+    { name: 'Olive', hex: '#556B2F' },
+    { name: 'Red', hex: '#8B0000' }
   ]
 
-  return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 py-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Your Profile</span>
-          </h1>
-          <p className="text-lg text-gray-600">Manage your account settings and preferences</p>
-        </div>
+  const AVAILABLE_BRANDS = ['Nike', 'Adidas', 'Zara', 'H&M', 'Uniqlo', 'Levi\'s', 'Gucci', 'Prada']
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-          {/* Tabs Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="flex overflow-x-auto">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
-                  </svg>
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+  return (
+    <MainLayout>
+      <div className="min-h-screen bg-[#F9F9F9] py-12 lg:py-20">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+
+          {/* PAGE HEADER */}
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-serif font-bold text-[#1A1A1A] mb-4">Your Profile</h1>
+            <p className="text-[#6B6B6B] text-lg max-w-lg mx-auto">Manage your measurements and style preferences for AI-powered recommendations.</p>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6">
-            {activeTab === 'profile' && (
-              <div className="space-y-8">
-                <div className="text-center">
-                  <div className="relative inline-block">
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <button className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors">
-                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-                  <p className="text-gray-600">Member since {user.joinDate}</p>
-                </div>
+          <div className="space-y-8">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name</label>
-                    <input
-                      type="text"
-                      value={user.name}
-                      onChange={(e) => handleUserUpdate('name', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={user.email}
-                      onChange={(e) => handleUserUpdate('email', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={user.phone}
-                      onChange={(e) => handleUserUpdate('phone', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Location</label>
-                    <input
-                      type="text"
-                      value={user.location}
-                      onChange={(e) => handleUserUpdate('location', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
+            {/* SECTION 1: PROFILE HEADER */}
+            <section className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+              <div className="relative group cursor-pointer">
+                <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                  <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover" />
                 </div>
+                <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <UploadIcon />
+                </div>
+                <div className="absolute bottom-0 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md text-gray-600 p-1.5">
+                  <UploadIcon />
+                </div>
+              </div>
 
-                <div className="flex justify-end">
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Save Changes
+              <div className="flex-1 w-full max-w-sm space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Display Name</label>
+                  <input
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full text-2xl font-serif font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-gray-900 focus:outline-none pb-1 transition-colors text-center md:text-left"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={profile.email}
+                    disabled
+                    className="w-full text-gray-400 bg-transparent border-none p-0 text-center md:text-left focus:ring-0 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* SECTION 2: BODY MEASUREMENTS */}
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-2xl font-serif font-bold text-gray-900">Body Measurements</h2>
+                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">For AI Sizing</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <MeasurementInput
+                  label="Shoulder Width"
+                  value={profile.measurements.shoulder}
+                  onChange={(v) => handleMeasurementChange('shoulder', v)}
+                  placeholder="45"
+                />
+                <MeasurementInput
+                  label="Height"
+                  value={profile.measurements.height}
+                  onChange={(v) => handleMeasurementChange('height', v)}
+                  placeholder="180"
+                />
+                <MeasurementInput
+                  label="Chest Size"
+                  value={profile.measurements.chest}
+                  onChange={(v) => handleMeasurementChange('chest', v)}
+                  placeholder="100"
+                />
+                <MeasurementInput
+                  label="Wrist Size"
+                  value={profile.measurements.wrist}
+                  onChange={(v) => handleMeasurementChange('wrist', v)}
+                  placeholder="18"
+                />
+              </div>
+            </section>
+
+            {/* SECTION 3: STYLE PREFERENCES */}
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 space-y-10">
+
+              {/* COLORS */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Favorite Colors</h3>
+                <div className="flex flex-wrap gap-4">
+                  {AVAILABLE_COLORS.map((color) => (
+                    <ColorSwatch
+                      key={color.name}
+                      {...color}
+                      selected={profile.preferences.colors.includes(color.name)}
+                      onClick={toggleColor}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* BRANDS */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Preferred Brands</h3>
+                <div className="flex flex-wrap gap-3">
+                  {AVAILABLE_BRANDS.map((brand) => (
+                    <BrandTag
+                      key={brand}
+                      name={brand}
+                      active={profile.preferences.brands.includes(brand)}
+                      onClick={toggleBrand}
+                    />
+                  ))}
+                  <button className="px-4 py-2 rounded-full text-sm font-medium border border-dashed border-gray-300 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors">
+                    + Add Brand
                   </button>
                 </div>
               </div>
-            )}
+            </section>
 
-            {activeTab === 'preferences' && (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Style Preference</label>
-                    <select
-                      value={preferences.style}
-                      onChange={(e) => handlePreferenceUpdate('style', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      <option>Casual Elegance</option>
-                      <option>Streetwear</option>
-                      <option>Business Professional</option>
-                      <option>Bohemian</option>
-                      <option>Minimalist</option>
-                      <option>Athleisure</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Budget Range</label>
-                    <select
-                      value={preferences.budget}
-                      onChange={(e) => handlePreferenceUpdate('budget', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    >
-                      <option>$ (Budget)</option>
-                      <option>$$ (Mid-range)</option>
-                      <option>$$$ (Premium)</option>
-                      <option>$$$$ (Luxury)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-3">Favorite Colors</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Navy', 'White', 'Black', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple', 'Orange', 'Gray', 'Brown'].map(color => (
-                      <button
-                        key={color}
-                        onClick={() => {
-                          const newColors = preferences.favoriteColors.includes(color)
-                            ? preferences.favoriteColors.filter(c => c !== color)
-                            : [...preferences.favoriteColors, color]
-                          handlePreferenceUpdate('favoriteColors', newColors)
-                        }}
-                        className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                          preferences.favoriteColors.includes(color)
-                            ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {color}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-3">Preferred Categories</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Denim', 'Blazers', 'Sneakers', 'Dresses', 'Tops', 'Bottoms', 'Outerwear', 'Accessories', 'Footwear'].map(category => (
-                      <button
-                        key={category}
-                        onClick={() => {
-                          const newCategories = preferences.categories.includes(category)
-                            ? preferences.categories.filter(c => c !== category)
-                            : [...preferences.categories, category]
-                          handlePreferenceUpdate('categories', newCategories)
-                        }}
-                        className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                          preferences.categories.includes(category)
-                            ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-3">Favorite Brands</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Urban Outfitters', 'Zara', 'H&M', 'Nike', 'Adidas', 'Uniqlo', 'COS', 'Everlane', 'Madewell'].map(brand => (
-                      <button
-                        key={brand}
-                        onClick={() => {
-                          const newBrands = preferences.brands.includes(brand)
-                            ? preferences.brands.filter(b => b !== brand)
-                            : [...preferences.brands, brand]
-                          handlePreferenceUpdate('brands', newBrands)
-                        }}
-                        className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                          preferences.brands.includes(brand)
-                            ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {brand}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-3">Occasions</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Work', 'Casual', 'Party', 'Sports', 'Formal', 'Travel', 'Weekend', 'Date Night'].map(occasion => (
-                      <button
-                        key={occasion}
-                        onClick={() => {
-                          const newOccasions = preferences.occasions.includes(occasion)
-                            ? preferences.occasions.filter(o => o !== occasion)
-                            : [...preferences.occasions, occasion]
-                          handlePreferenceUpdate('occasions', newOccasions)
-                        }}
-                        className={`px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                          preferences.occasions.includes(occasion)
-                            ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {occasion}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Save Preferences
-                  </button>
-                </div>
+            {/* SECTION 4: FIT PREFERENCE */}
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-8">Fit Preference</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { type: 'Slim Fit', desc: 'Closer to the body with tailored lines.' },
+                  { type: 'Regular Fit', desc: 'Classic comfortable cut with room to move.' },
+                  { type: 'Loose Fit', desc: 'Relaxed and oversized silhouette.' }
+                ].map((fit) => (
+                  <FitCard
+                    key={fit.type}
+                    {...fit}
+                    active={profile.preferences.fit === fit.type}
+                    onClick={(t) => setProfile(prev => ({ ...prev, preferences: { ...prev.preferences, fit: t } }))}
+                  />
+                ))}
               </div>
-            )}
+            </section>
 
-            {activeTab === 'measurements' && (
-              <div className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Chest (inches)</label>
-                    <input
-                      type="number"
-                      value={measurements.chest}
-                      onChange={(e) => handleMeasurementUpdate('chest', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Waist (inches)</label>
-                    <input
-                      type="number"
-                      value={measurements.waist}
-                      onChange={(e) => handleMeasurementUpdate('waist', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Hips (inches)</label>
-                    <input
-                      type="number"
-                      value={measurements.hips}
-                      onChange={(e) => handleMeasurementUpdate('hips', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Height (inches)</label>
-                    <input
-                      type="number"
-                      value={measurements.height}
-                      onChange={(e) => handleMeasurementUpdate('height', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-purple-50 rounded-xl p-6 text-center">
-                  <div className="text-6xl font-bold text-purple-600 mb-2">{measurements.size}</div>
-                  <div className="text-lg font-semibold text-purple-800 mb-1">Your Size</div>
-                  <p className="text-purple-600">Based on your current measurements</p>
-                </div>
-
-                <div className="flex justify-end space-x-3">
-                  <button 
-                    onClick={() => window.location.href = '/size-estimation'}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
-                  >
-                    Recalculate Size
-                  </button>
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Save Measurements
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'security' && (
-              <div className="space-y-8">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-                  <div className="flex">
-                    <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            {/* SECTION 5: ACTIONS */}
+            <div className="sticky bottom-6 z-10 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-gray-100 flex items-center justify-between max-w-xl mx-auto">
+              <button
+                className="text-gray-500 font-medium px-6 py-3 hover:text-gray-900 transition-colors"
+                onClick={() => window.location.reload()}
+              >
+                Reset Changes
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="bg-[#1A1A1A] text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-black hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <div>
-                      <h3 className="font-semibold text-yellow-800 mb-1">Security Notice</h3>
-                      <p className="text-yellow-700 text-sm">For security reasons, password changes must be done through our secure authentication system.</p>
-                    </div>
-                  </div>
-                </div>
+                    Saving...
+                  </>
+                ) : saved ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    Saved!
+                  </>
+                ) : (
+                  <>
+                    <SaveIcon />
+                    Save Profile
+                  </>
+                )}
+              </button>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Current Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter current password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Enter new password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Confirm New Password</label>
-                    <input
-                      type="password"
-                      placeholder="Confirm new password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    Update Password
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </main>
+    </MainLayout>
   )
 }

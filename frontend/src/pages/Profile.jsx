@@ -35,11 +35,11 @@ const MeasurementInput = ({ label, value, onChange, placeholder, unit = "cm" }) 
 )
 
 // 2. COLOR SWATCH
-const ColorSwatch = ({ color, hex, selected, onClick }) => (
+const ColorSwatch = ({ name, hex, selected, onClick }) => (
   <button
-    onClick={() => onClick(color)}
+    onClick={() => onClick(name)}
     className={`group relative w-12 h-12 rounded-full border border-gray-100 shadow-sm transition-transform hover:scale-110 focus:outline-none ${selected ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}
-    title={color}
+    title={name}
   >
     <span
       className="absolute inset-1 rounded-full border border-black/5"
@@ -86,9 +86,10 @@ const FitCard = ({ type, description, active, onClick }) => (
 )
 
 export default function Profile() {
-  const { currentUser } = useAuth()
+  const { currentUser, updateUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [pendingColor, setPendingColor] = useState(null)
 
   // -- STATE --
   const [profile, setProfile] = useState({
@@ -108,17 +109,34 @@ export default function Profile() {
     }
   })
 
-  // Initialize with Auth Data
+  // Initialize with Auth Data and Fetch Profile
   useEffect(() => {
-    if (currentUser) {
-      setProfile(prev => ({
-        ...prev,
-        name: currentUser.displayName || prev.name,
-        email: currentUser.email || prev.email,
-        avatar: currentUser.photoURL || prev.avatar
-      }))
+    async function fetchProfile() {
+      if (!currentUser) return;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/profile/', {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const backendProfile = data.profile;
+
+          setProfile(prev => ({
+            ...prev,
+            name: backendProfile.name || currentUser.displayName || prev.name,
+            email: currentUser.email || prev.email,
+            avatar: backendProfile.avatar || currentUser.photoURL || prev.avatar,
+            measurements: { ...prev.measurements, ...backendProfile.measurements },
+            preferences: { ...prev.preferences, ...backendProfile.preferences }
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      }
     }
-  }, [currentUser])
+    fetchProfile();
+  }, [currentUser]);
 
   // -- HANDLERS --
   const handleMeasurementChange = (key, val) => {
@@ -127,30 +145,54 @@ export default function Profile() {
 
   const toggleColor = (color) => {
     setProfile(prev => {
-      const colors = prev.preferences.colors.includes(color)
+      const colors = prev.preferences.colors?.includes(color)
         ? prev.preferences.colors.filter(c => c !== color)
-        : [...prev.preferences.colors, color]
+        : [...(prev.preferences.colors || []), color]
       return { ...prev, preferences: { ...prev.preferences, colors } }
     })
   }
 
   const toggleBrand = (brand) => {
     setProfile(prev => {
-      const brands = prev.preferences.brands.includes(brand)
+      const brands = prev.preferences.brands?.includes(brand)
         ? prev.preferences.brands.filter(b => b !== brand)
-        : [...prev.preferences.brands, brand]
+        : [...(prev.preferences.brands || []), brand]
       return { ...prev, preferences: { ...prev.preferences, brands } }
     })
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: profile.name,
+          measurements: profile.measurements,
+          preferences: profile.preferences,
+          completed_onboarding: true
+        }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user) {
+          updateUser(data.user); // Sync global user state
+        }
+        setSaved(true)
+        setTimeout(() => setSaved(false), 3000)
+      } else {
+        console.error("Failed to save");
+        alert("Failed to save profile");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Error saving profile");
+    } finally {
       setLoading(false)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    }, 1500)
+    }
   }
 
   // -- DATA CONSTANTS --
@@ -180,7 +222,7 @@ export default function Profile() {
 
             {/* SECTION 1: PROFILE HEADER */}
             <section className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
-              <div className="relative group cursor-pointer">
+              <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload').click()}>
                 <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
                   <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover" />
                 </div>
@@ -190,6 +232,42 @@ export default function Profile() {
                 <div className="absolute bottom-0 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md text-gray-600 p-1.5">
                   <UploadIcon />
                 </div>
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                      // Show temporary loading state or preview if desired
+                      const response = await fetch('http://localhost:5000/api/profile/upload-avatar', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                      });
+
+                      if (response.ok) {
+                        const data = await response.json();
+                        setProfile(prev => ({ ...prev, avatar: data.avatar_url }));
+                        // Update Auth Context to ensure persistence
+                        if (currentUser) {
+                          updateUser({ ...currentUser, photoURL: data.avatar_url });
+                        }
+                      } else {
+                        alert("Failed to upload image");
+                      }
+                    } catch (err) {
+                      console.error("Upload failed", err);
+                      alert("Error uploading image");
+                    }
+                  }}
+                />
               </div>
 
               <div className="flex-1 w-full max-w-sm space-y-4">
@@ -264,6 +342,75 @@ export default function Profile() {
                       onClick={toggleColor}
                     />
                   ))}
+
+                  {/* Custom Selected Colors */}
+                  {profile.preferences.colors
+                    ?.filter(c => !AVAILABLE_COLORS.some(ac => ac.name === c))
+                    .map(hex => (
+                      <ColorSwatch
+                        key={hex}
+                        name={hex}
+                        hex={hex}
+                        selected={true}
+                        onClick={toggleColor}
+                      />
+                    ))
+                  }
+
+                  {/* Custom Color Area: Picker + Pending Save */}
+                  <div className="flex items-center gap-3">
+
+                    {/* 1. Picker Button */}
+                    <div className="relative group">
+                      <button
+                        className="w-12 h-12 rounded-full border border-gray-100 shadow-sm flex items-center justify-center bg-white hover:bg-gray-50 transition-colors focus:outline-none text-gray-400 hover:text-gray-900"
+                        title="Pick Custom Color"
+                        onClick={() => document.getElementById('custom-color-input').click()}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 22a8 8 0 0 0 8-8c0-3.144-2.52-5.5-6-5.5A6 6 0 0 0 6 12.5c0 .16.012.316.035.47l.465 3.03z"></path><path d="M12 22a5 5 0 0 0 5-5v-.5"></path></svg>
+                      </button>
+                      <input
+                        type="color"
+                        id="custom-color-input"
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                        onChange={(e) => setPendingColor(e.target.value)}
+                      />
+                    </div>
+
+                    {/* 2. Pending Color Actions */}
+                    {pendingColor && (
+                      <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4 duration-300">
+                        {/* Preview */}
+                        <div className="w-10 h-10 rounded-full border-2 border-white shadow-md" style={{ backgroundColor: pendingColor }} />
+
+                        {/* Save Button */}
+                        <button
+                          onClick={() => {
+                            setProfile(prev => {
+                              const colors = prev.preferences.colors?.includes(pendingColor)
+                                ? prev.preferences.colors
+                                : [...(prev.preferences.colors || []), pendingColor];
+                              return { ...prev, preferences: { ...prev.preferences, colors } }
+                            });
+                            setPendingColor(null);
+                          }}
+                          className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:scale-105 transition-transform shadow-md"
+                          title="Save Color"
+                        >
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        </button>
+
+                        {/* Cancel Button */}
+                        <button
+                          onClick={() => setPendingColor(null)}
+                          className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-red-500 transition-colors shadow-sm"
+                          title="Cancel"
+                        >
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

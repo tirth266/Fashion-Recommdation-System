@@ -36,7 +36,12 @@ def google_auth():
             'user_id': user_id,
             'email': email,
             'name': name,
-            'picture': picture
+            'picture': picture,
+            'profile': {
+                'completed_onboarding': False,
+                'measurements': {},
+                'preferences': {}
+            }
         }
         print(f"Session created: {session['user']}") # DEBUG
         
@@ -47,10 +52,15 @@ def google_auth():
 
     except ValueError as e:
         # Invalid token
-        print(f"Token verification failed: {e}") # DEBUG
+        import sys
+        print(f"Token verification failed: {e}", file=sys.stderr) # DEBUG to stderr
+        print(f"Token received (first 20 chars): {token[:20] if token else 'None'}", file=sys.stderr)
         return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
     except Exception as e:
-        print(f"Unexpected error in /google: {e}") # DEBUG
+        import sys
+        print(f"Unexpected error in /google: {e}", file=sys.stderr) # DEBUG to stderr
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
 
 @bp.route('/user', methods=['GET'])
@@ -62,5 +72,5 @@ def get_current_user():
 
 @bp.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user', None)
+    session.clear()
     return jsonify({'message': 'Logged out successfully'}), 200

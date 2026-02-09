@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
 
                const data = await response.json();
                setCurrentUser(data.user); // Set user from backend response
-               return true;
+               return data.user;
           } catch (err) {
                console.error("Login Error:", err);
                setError('Failed to login with Google');
@@ -78,6 +78,7 @@ export function AuthProvider({ children }) {
 
      const value = {
           currentUser,
+          updateUser: setCurrentUser,
           loginWithGoogle,
           logout,
           loading,

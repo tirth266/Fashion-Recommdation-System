@@ -11,6 +11,7 @@ import SizeEstimation from './pages/SizeEstimation'
 import Profile from './pages/Profile'
 import APITest from './pages/APITest'
 
+
 // Protected Route Component
 function ProtectedRoute({ children }) {
   const { currentUser, loading } = useAuth();
@@ -47,6 +48,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
             <Route path="/image-search" element={<ImageSearch />} />
             <Route path="/price-comparison" element={<PriceComparison />} />
             <Route path="/recommendations" element={<Recommendations />} />

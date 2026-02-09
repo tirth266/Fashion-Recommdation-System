@@ -1,61 +1,42 @@
-import { useEffect, useRef } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-const GOOGLE_CLIENT_ID = "737685649419-2b6lgqusjcrqdusipt5o8ngn1orpdodr.apps.googleusercontent.com";
 
 export default function GoogleLoginButton() {
      const { loginWithGoogle } = useAuth();
      const navigate = useNavigate();
-     const buttonRef = useRef(null);
 
-     useEffect(() => {
-          // Load Google Script if not already loaded
-          const script = document.createElement('script');
-          script.src = "https://accounts.google.com/gsi/client";
-          script.async = true;
-          script.defer = true;
-          document.body.appendChild(script);
-
-          script.onload = () => {
-               if (window.google) {
-                    window.google.accounts.id.initialize({
-                         client_id: GOOGLE_CLIENT_ID,
-                         callback: handleCredentialResponse
-                    });
-
-                    // Render the button
-                    window.google.accounts.id.renderButton(
-                         buttonRef.current,
-                         { theme: "outline", size: "large", text: "continue_with", shape: "pill", width: "100%" }
-                    );
-               }
-          };
-
-          return () => {
-               // Cleanup script? Usually not necessary for single page apps 
-               // but we might want to avoid duplicates
-          }
-     }, []);
-
-     const handleCredentialResponse = async (response) => {
-          console.log("Encoded JWT ID token: " + response.credential);
+     const handleSuccess = async (credentialResponse) => {
+          console.log("Google Login Success:", credentialResponse);
           try {
-               const success = await loginWithGoogle(response.credential);
-               if (success) {
-                    navigate('/recommendations');
+               const user = await loginWithGoogle(credentialResponse.credential);
+               if (user) {
+                    if (user.profile && user.profile.completed_onboarding) {
+                         navigate('/recommendations');
+                    } else {
+                         navigate('/profile');
+                    } // Or dashboard
                } else {
-                    console.error("Login failed in handleCredentialResponse");
+                    console.error("Login failed after Google success");
                }
           } catch (err) {
-               console.error("Exception in handleCredentialResponse:", err);
+               console.error("Exception in handleSuccess:", err);
           }
+     };
+
+     const handleError = () => {
+          console.error("Google Login Failed");
      };
 
      return (
           <div className="w-full flex justify-center">
-               <div ref={buttonRef} className="w-full"></div>
-               {/* Fallback styling/loading if script delays */}
+               <GoogleLogin
+                    onSuccess={handleSuccess}
+                    onError={handleError}
+                    theme="outline"
+                    size="large"
+                    shape="pill"
+               />
           </div>
      );
 }

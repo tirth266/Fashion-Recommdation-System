@@ -10,7 +10,7 @@
   }
 
   body {
-    @apply bg-background text-primary font-sans antialiased;
+    @apply bg-background text-primary font-sans antialiased dark:bg-black dark:text-white;
   }
 
   h1,

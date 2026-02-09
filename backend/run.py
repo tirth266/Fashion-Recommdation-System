@@ -1,6 +1,10 @@
+from dotenv import load_dotenv
 import os
 import sys
 from app.main import app
+
+# Load environment variables
+load_dotenv()
 
 if __name__ == '__main__':
     # Set environment variables for development

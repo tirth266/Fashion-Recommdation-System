@@ -10,3 +10,7 @@ pandas
 scikit-learn
 requests
 Werkzeug
+flask-session
+google-auth
+google-auth-oauthlib
+google-auth-httplib2

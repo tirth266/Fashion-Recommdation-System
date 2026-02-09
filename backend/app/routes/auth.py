@@ -1,103 +1,76 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from ..database.init_db import User, db
-from datetime import datetime
+from flask import Blueprint, request, jsonify, session
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import os
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-@bp.route('/register', methods=['POST'])
-def register():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['username', 'email', 'password']
-        for field in required_fields:
-            if field not in data or not data[field]:
-                return jsonify({'error': f'{field} is required'}), 400
-        
-        # Check if user already exists
-        if User.query.filter_by(username=data['username']).first():
-            return jsonify({'error': 'Username already exists'}), 409
-        
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'error': 'Email already exists'}), 409
-        
-        # Create new user
-        user = User(
-            username=data['username'],
-            email=data['email'],
-            full_name=data.get('full_name', ''),
-            phone=data.get('phone', ''),
-            location=data.get('location', '')
-        )
-        user.set_password(data['password'])
-        
-        db.session.add(user)
-        db.session.commit()
-        
-        # Create access token
-        access_token = create_access_token(identity=user.id)
-        
-        return jsonify({
-            'message': 'User registered successfully',
-            'access_token': access_token,
-            'user': user.to_dict()
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '737685649419-2b6lgqusjcrqdusipt5o8ngn1orpdodr.apps.googleusercontent.com')
 
-@bp.route('/login', methods=['POST'])
-def login():
+@bp.route('/google', methods=['POST'])
+def google_auth():
+    print("Received /api/auth/google request") # DEBUG
+    data = request.get_json()
+    token = data.get('token')
+    
+    if not token:
+        print("Error: Missing token") # DEBUG
+        return jsonify({'error': 'Missing token'}), 400
+
     try:
-        data = request.get_json()
-        
-        # Validate required fields
-        if not data.get('username') or not data.get('password'):
-            return jsonify({'error': 'Username and password are required'}), 400
-        
-        # Find user
-        user = User.query.filter_by(username=data['username']).first()
-        if not user or not user.check_password(data['password']):
-            return jsonify({'error': 'Invalid username or password'}), 401
-        
-        # Create access token
-        access_token = create_access_token(identity=user.id)
+        print(f"Verifying token with Client ID: {GOOGLE_CLIENT_ID[:10]}...") # DEBUG
+        # Specify the CLIENT_ID of the app that accesses the backend:
+        id_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+
+        # ID token is valid. Get the user's Google Account information from the decoded token.
+        user_id = id_info['sub']
+        email = id_info['email']
+        name = id_info.get('name')
+        picture = id_info.get('picture')
+
+        print(f"Token verified! User: {email}") # DEBUG
+
+        # Create a user session
+        session.permanent = True
+        session['user'] = {
+            'user_id': user_id,
+            'email': email,
+            'name': name,
+            'picture': picture,
+            'profile': {
+                'completed_onboarding': False,
+                'measurements': {},
+                'preferences': {}
+            }
+        }
+        print(f"Session created: {session['user']}") # DEBUG
         
         return jsonify({
             'message': 'Login successful',
-            'access_token': access_token,
-            'user': user.to_dict()
+            'user': session['user']
         }), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@bp.route('/me', methods=['GET'])
-@jwt_required()
+    except ValueError as e:
+        # Invalid token
+        import sys
+        print(f"Token verification failed: {e}", file=sys.stderr) # DEBUG to stderr
+        print(f"Token received (first 20 chars): {token[:20] if token else 'None'}", file=sys.stderr)
+        return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
+    except Exception as e:
+        import sys
+        print(f"Unexpected error in /google: {e}", file=sys.stderr) # DEBUG to stderr
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Internal server error'}), 500
+
+@bp.route('/user', methods=['GET'])
 def get_current_user():
-    try:
-        current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
-        
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
-            
-        return jsonify({'user': user.to_dict()}), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    user = session.get('user')
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    return jsonify({'user': user}), 200
 
-@bp.route('/refresh', methods=['POST'])
-@jwt_required(refresh=True)
-def refresh():
-    try:
-        current_user_id = get_jwt_identity()
-        access_token = create_access_token(identity=current_user_id)
-        
-        return jsonify({'access_token': access_token}), 200
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@bp.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'message': 'Logged out successfully'}), 200

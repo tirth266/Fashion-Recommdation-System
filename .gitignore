@@ -19,3 +19,17 @@ backend/app/static/uploads/
 *.keras
 *.pt
 *.pth
+# --------------------
+# Frontend (React/Vite)
+# --------------------
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Vite / React cache
+*.map
+*.chunk.js
+*.chunk.js.map
+
+# Package lock (optional – team decision)
+package-lock.json

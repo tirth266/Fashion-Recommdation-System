@@ -33,3 +33,6 @@ frontend/build/
 
 # Package lock (optional – team decision)
 package-lock.json
+
+*.pkl
+

@@ -36,3 +36,9 @@ package-lock.json
 
 *.pkl
 
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

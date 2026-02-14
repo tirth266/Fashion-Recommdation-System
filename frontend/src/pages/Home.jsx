@@ -146,7 +146,9 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <button className="btn-primary mt-8">Try Size Estimation</button>
+            <Link to="/size-estimation">
+              <button className="btn-primary mt-8">Try Size Estimation</button>
+            </Link>
           </div>
 
           {/* Visual Mock of Body Scanning */}

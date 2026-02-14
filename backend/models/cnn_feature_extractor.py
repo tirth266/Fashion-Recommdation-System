@@ -28,23 +28,35 @@ def extract_features(img_path,model):
 
     return normalized_result
 
+# Define base paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
+images_path = os.path.join(PROJECT_ROOT, 'data', 'datasets', 'images')
+
 filenames = []
 
-images_path = '../../data/datasets/images'
+if os.path.exists(images_path):
+    for file in os.listdir(images_path):
+        if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+            filenames.append(os.path.join(images_path,file))
+else:
+    print(f"Error: Image directory not found at {images_path}")
+    exit(1)
 
-for file in os.listdir(images_path):
-    filenames.append(os.path.join(images_path,file))
-
-
-# Limit to first 1000 images
+# Limit to first 1000 images for speed, remove suffix if you want all
 filenames = filenames[:1000]
 
 feature_list = []
 
+print(f"Extracting features for {len(filenames)} images...")
 for file in tqdm(filenames):
-    feature_list.append(extract_features(file,model))
+    try:
+        feature_list.append(extract_features(file,model))
+    except Exception as e:
+        print(f"Error processing {file}: {e}")
 
 # Save to the current directory (backend/models)
-pickle.dump(feature_list,open('embeddings.pkl','wb'))
-pickle.dump(filenames,open('filenames.pkl','wb'))
+pickle.dump(feature_list,open(os.path.join(BASE_DIR, 'embeddings.pkl'),'wb'))
+pickle.dump(filenames,open(os.path.join(BASE_DIR, 'filenames.pkl'),'wb'))
 print(f"Features extracted for {len(feature_list)} images.")
+

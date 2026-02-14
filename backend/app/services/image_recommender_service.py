@@ -98,7 +98,9 @@ def recommend_image(img_path, top_k=5):
         results = []
         for i in top_indices:
             if i < len(filenames):
-                path = str(filenames[i]).replace("../../data/datasets/images", "/static/dataset_images")
+                # Use basename to get just the filename, then construct the static path
+                filename = os.path.basename(str(filenames[i]))
+                path = f"/static/dataset_images/{filename}"
                 results.append(path)
         
         return {

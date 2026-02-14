@@ -30,5 +30,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+backend/flask_session/
 dataset/
 backend/flask_session/

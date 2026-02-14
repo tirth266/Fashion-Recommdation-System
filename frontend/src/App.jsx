@@ -53,7 +53,14 @@ function App() {
             <Route path="/price-comparison" element={<PriceComparison />} />
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/size-estimation" element={<SizeEstimation />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/api-test" element={<APITest />} />
           </Routes>
         </div>

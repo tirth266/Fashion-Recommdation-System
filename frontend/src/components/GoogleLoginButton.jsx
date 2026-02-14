@@ -11,11 +11,7 @@ export default function GoogleLoginButton() {
           try {
                const user = await loginWithGoogle(credentialResponse.credential);
                if (user) {
-                    if (user.profile && user.profile.completed_onboarding) {
-                         navigate('/recommendations');
-                    } else {
-                         navigate('/profile');
-                    } // Or dashboard
+                    navigate('/profile');
                } else {
                     console.error("Login failed after Google success");
                }

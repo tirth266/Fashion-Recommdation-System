@@ -35,10 +35,16 @@ images_path = '../../data/datasets/images'
 for file in os.listdir(images_path):
     filenames.append(os.path.join(images_path,file))
 
+
+# Limit to first 1000 images
+filenames = filenames[:1000]
+
 feature_list = []
 
 for file in tqdm(filenames):
     feature_list.append(extract_features(file,model))
 
+# Save to the current directory (backend/models)
 pickle.dump(feature_list,open('embeddings.pkl','wb'))
 pickle.dump(filenames,open('filenames.pkl','wb'))
+print(f"Features extracted for {len(feature_list)} images.")

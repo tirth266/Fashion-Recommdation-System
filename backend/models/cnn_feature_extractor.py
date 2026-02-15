@@ -44,7 +44,7 @@ else:
     exit(1)
 
 # Limit to first 1000 images for speed, remove suffix if you want all
-filenames = filenames[:1000]
+filenames = filenames[:44400]
 
 feature_list = []
 
@@ -56,7 +56,11 @@ for file in tqdm(filenames):
         print(f"Error processing {file}: {e}")
 
 # Save to the current directory (backend/models)
-pickle.dump(feature_list,open(os.path.join(BASE_DIR, 'embeddings.pkl'),'wb'))
-pickle.dump(filenames,open(os.path.join(BASE_DIR, 'filenames.pkl'),'wb'))
+with open(os.path.join(BASE_DIR, 'embeddings.pkl'), 'wb') as f:
+    pickle.dump(feature_list, f)
+with open(os.path.join(BASE_DIR, 'filenames.pkl'), 'wb') as f:
+    pickle.dump(filenames, f)
 print(f"Features extracted for {len(feature_list)} images.")
+print(f"Saved to {os.path.join(BASE_DIR, 'embeddings.pkl')}")
+print(f"Saved to {os.path.join(BASE_DIR, 'filenames.pkl')}")
 

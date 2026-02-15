@@ -1,12 +1,7 @@
 # Dependencies
 node_modules/
-# Dependencies
-node_modules/
 package-lock.json
-<<<<<<< HEAD
-=======
 yarn.lock
->>>>>>> origin/main
 
 *.pkl
 
@@ -18,11 +13,13 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-<<<<<<< HEAD
-=======
+
 backend/flask_session/
 dataset/
 backend/venv/
 venv/
-backend/flask_session/
->>>>>>> origin/main
+
+# Environment variables
+.env
+backend/.env
+frontend/.env

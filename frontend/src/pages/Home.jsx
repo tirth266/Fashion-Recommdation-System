@@ -20,9 +20,11 @@ export default function Home() {
               Experience the future of style with our Deep Learning engine. Get outfit suggestions tailored to your body type, occasion, and current trends.
             </p>
             <div className="flex space-x-4 pt-4">
-              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
-                Get Recommendations
-              </button>
+              <Link to="/get-recommendations">
+                <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                  Get Recommendations
+                </button>
+              </Link>
               <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300">
                 Explore Styles
               </button>

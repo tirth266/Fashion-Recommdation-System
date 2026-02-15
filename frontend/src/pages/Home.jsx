@@ -163,7 +163,6 @@ export default function Home() {
           </button>
         </Link>
       </section>
-    </div >
-    </main >
+    </MainLayout>
   )
 }

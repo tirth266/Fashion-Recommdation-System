@@ -151,20 +151,19 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-        {/* CTA Section */ }
-  <section className="text-center pb-20">
-    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to Transform Your Fashion Experience?</h2>
-    <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">Join thousands of users who are already discovering their perfect style with our AI-powered platform</p>
-    <Link to="/recommendations">
-      <button className="px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-lg">
-        Start Your Fashion Journey
-      </button>
-    </Link>
-  </section>
-      </div >
+      {/* CTA Section */}
+      <section className="text-center pb-20">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to Transform Your Fashion Experience?</h2>
+        <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">Join thousands of users who are already discovering their perfect style with our AI-powered platform</p>
+        <Link to="/recommendations">
+          <button className="px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-lg">
+            Start Your Fashion Journey
+          </button>
+        </Link>
+      </section>
+    </div >
     </main >
   )
 }

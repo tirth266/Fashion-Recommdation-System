@@ -53,3 +53,7 @@ logs/
 # Uploads
 backend/app/static/uploads/
 uploads/
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/

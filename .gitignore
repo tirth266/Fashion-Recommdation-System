@@ -1,44 +1,26 @@
-# --------------------
-# Python / ML ignores
-# --------------------
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environment
-venv/
-.env/
-
-# Dataset & runtime files
-data/datasets/images/
-backend/app/static/uploads/
-
-# Model files (optional – if large)
-*.h5
-*.keras
-*.pt
-*.pth
-# --------------------
-# Frontend (React/Vite)
-# --------------------
-frontend/node_modules/
-frontend/dist/
-frontend/build/
-
-# Vite / React cache
-*.map
-*.chunk.js
-*.chunk.js.map
-
-# Package lock (optional – team decision)
+# Dependencies
+node_modules/
 package-lock.json
+<<<<<<< HEAD
+=======
+yarn.lock
+>>>>>>> origin/main
 
 *.pkl
 
-
+data/
+datasets/images
+ 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+<<<<<<< HEAD
+=======
+backend/flask_session/
+dataset/
+backend/venv/
+venv/
+backend/flask_session/
+>>>>>>> origin/main

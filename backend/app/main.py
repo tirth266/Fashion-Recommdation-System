@@ -25,8 +25,7 @@ CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": ["http://
 print("Server configured with Session (Filesystem)")
 
 # Import routes after app initialization to avoid circular imports
-
-from app.routes import auth, profile
+from app.routes import auth, profile, size_estimation
 from app.routes import image_recommadtions as recommendations
 
 # Register blueprints
@@ -35,7 +34,7 @@ app.register_blueprint(profile.bp)
 app.register_blueprint(recommendations.bp)
 
 # app.register_blueprint(search.bp)
-# app.register_blueprint(size_estimation.bp)
+app.register_blueprint(size_estimation.bp)
 
 @app.route('/')
 def home():

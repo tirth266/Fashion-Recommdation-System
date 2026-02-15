@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import GetRecommendation from './pages/GetRecommendation'
 import SizeEstimation from './pages/SizeEstimation'
+import APITest from './pages/APITest'
 
 
 // Protected Route Component

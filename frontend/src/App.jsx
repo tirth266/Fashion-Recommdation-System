@@ -7,7 +7,11 @@ import Recommendations from './pages/Recommendations'
 
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
-import APITest from './pages/APITest'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import GetRecommendation from './pages/GetRecommendation'
+import SizeEstimation from './pages/SizeEstimation'
 
 
 // Protected Route Component
@@ -34,7 +38,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-          {/* Navbar removed to avoid duplication */}
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

@@ -7,10 +7,12 @@ import Dashboard from './pages/Dashboard'
 import ImageSearch from './pages/ImageSearch'
 import PriceComparison from './pages/PriceComparison'
 import Recommendations from './pages/Recommendations'
-import SizeEstimation from './pages/SizeEstimation'
+
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
 import APITest from './pages/APITest'
+import GetRecommendation from './pages/GetRecommendation'
+import SizeEstimation from './pages/SizeEstimation'
 
 
 // Protected Route Component
@@ -37,7 +39,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-          {/* Navbar removed to avoid duplication */}
+
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -53,8 +55,9 @@ function App() {
             <Route path="/image-search" element={<ImageSearch />} />
             <Route path="/price-comparison" element={<PriceComparison />} />
             <Route path="/recommendations" element={<Recommendations />} />
-            <Route path="/size-estimation" element={<SizeEstimation />} />
             <Route path="/smart-size-estimation" element={<SmartSize />} />
+            <Route path="/get-recommendations" element={<GetRecommendation />} />
+            <Route path="/size-estimation" element={<SizeEstimation />} />
             <Route
               path="/profile"
               element={

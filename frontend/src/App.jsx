@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import ImageSearch from './pages/ImageSearch'
@@ -8,6 +8,21 @@ import SizeEstimation from './pages/SizeEstimation'
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
 import APITest from './pages/APITest'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import { AuthProvider, useAuth } from './context/AuthContext'
+
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const { currentUser, loading } = useAuth()
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  }
+
+  return currentUser ? children : <Navigate to="/login" />
+}
+
 
 function App() {
   return (

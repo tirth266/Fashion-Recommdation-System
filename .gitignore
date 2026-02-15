@@ -1,28 +1,55 @@
 # Dependencies
 node_modules/
-# Dependencies
-node_modules/
 package-lock.json
-<<<<<<< HEAD
-=======
 yarn.lock
->>>>>>> origin/main
 
-*.pkl
-
-data/
-datasets/images
- 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-<<<<<<< HEAD
-=======
-backend/flask_session/
-dataset/
-backend/venv/
+*.pkl
+
+# Virtual environments
 venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Flask session
 backend/flask_session/
->>>>>>> origin/main
+
+# Data and datasets
+data/
+datasets/
+dataset/
+backend/data/
+backend/datasets/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Uploads
+backend/app/static/uploads/
+uploads/

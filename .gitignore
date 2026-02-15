@@ -14,6 +14,12 @@ __pycache__/
 venv/
 .venv/
 backend/venv/
+venv/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
 backend/.venv/
 
 # Flask session

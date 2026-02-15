@@ -1,7 +1,25 @@
 import { Link } from 'react-router-dom'
-import MainLayout from '../components/MainLayout' // Might not exist or be needed if we don't use it, but keeping if main used it. Actually I will NOT use MainLayout to avoid Navbar duplication.
+import { useState } from 'react'
+import MainLayout from '../components/MainLayout'
+
+// Mock Data for Occasion Styling
+const occasionOutfits = {
+  Casual: [
+    { id: 1, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop", name: "Weekend Brunch" },
+    { id: 2, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=2005&auto=format&fit=crop", name: "City Walk" },
+  ],
+  Office: [
+    { id: 3, image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=1995&auto=format&fit=crop", name: "Executive Meeting" },
+    { id: 4, image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=1957&auto=format&fit=crop", name: "Workday Chic" },
+  ],
+  Party: [
+    { id: 5, image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=2108&auto=format&fit=crop", name: "Evening Gala" },
+    { id: 6, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2083&auto=format&fit=crop", name: "Cocktail Hour" },
+  ],
+};
 
 export default function Home() {
+  const [activeOccasion, setActiveOccasion] = useState('Casual');
   return (
     <MainLayout>
 
@@ -20,9 +38,11 @@ export default function Home() {
               Experience the future of style with our Deep Learning engine. Get outfit suggestions tailored to your body type, occasion, and current trends.
             </p>
             <div className="flex space-x-4 pt-4">
-              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
-                Get Recommendations
-              </button>
+              <Link to="/get-recommendations">
+                <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                  Get Recommendations
+                </button>
+              </Link>
               <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300">
                 Explore Styles
               </button>
@@ -41,8 +61,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Features Grid - Moved outside the hero grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16 lg:mt-24">
           {[
             { title: "AI Outfit Recs", desc: "Deep learning algorithms match your style.", icon: "🧥" },
             { title: "Smart Sizing", desc: "Computer vision body measurement analysis.", icon: "📏" },
@@ -124,7 +143,7 @@ export default function Home() {
               ))}
             </ul>
             <Link to="/size-estimation">
-              <button className="btn-primary mt-8">Try Size Estimation</button>
+              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8">Try Size Estimation</button>
             </Link>
           </div>
 
@@ -152,16 +171,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="text-center pb-20 px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Ready to Transform Your Fashion Experience?</h2>
-        <p className="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">Join thousands of users who are already discovering their perfect style with our AI-powered platform</p>
-        <Link to="/recommendations">
-          <button className="px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-lg">
-            Start Your Fashion Journey
-          </button>
-        </Link>
+
+      {/* SECTION 5: OCCASION-BASED STYLING */}
+      <section className="px-6 lg:px-8 py-24 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-bold mb-4">Style For Every Occasion</h2>
+            <div className="flex justify-center space-x-2 md:space-x-4 overflow-x-auto pb-4">
+              {Object.keys(occasionOutfits).map((occasion) => (
+                <button
+                  key={occasion}
+                  onClick={() => setActiveOccasion(occasion)}
+                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeOccasion === occasion
+                    ? 'bg-black text-white shadow-lg'
+                    : 'bg-white border border-gray-200 text-secondary hover:bg-gray-50'
+                    }`}
+                >
+                  {occasion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+            {occasionOutfits[activeOccasion].map((outfit) => (
+              <div key={outfit.id} className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden group cursor-pointer shadow-sm">
+                <img src={outfit.image} alt={outfit.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div className="absolute bottom-6 left-6 text-white">
+                  <span className="text-xs uppercase tracking-wider font-semibold opacity-80">{activeOccasion}</span>
+                  <h3 className="text-2xl font-serif font-bold">{outfit.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
-    </MainLayout>
+
+      {/* SECTION 6: VIRTUAL WARDROBE MOCKUP */}
+      <section id="wardrobe" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-10">
+            <h2 className="text-3xl font-serif font-bold">Virtual Wardrobe</h2>
+            <button className="text-sm font-medium border-b border-black hover:opacity-70 transition-opacity">View My Closet</button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            {/* Upload Card */}
+            <div className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50">
+              <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v16m8-8H4" /></svg>
+              <span className="text-sm font-medium">Add Item</span>
+            </div>
+
+            {/* Wardrobe Items */}
+            {[
+              "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1936&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=1897&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1964&auto=format&fit=crop",
+              "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1935&auto=format&fit=crop"
+            ].map((img, i) => (
+              <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group">
+                <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
+                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: LATEST TRENDS */}
+      <section id="trends" className="px-6 lg:px-8 py-24 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-serif font-bold mb-12">Latest Trends</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: "The Return of Y2K", desc: "Why early 2000s fashion is dominating the runway again.", img: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop" },
+              { title: "Sustainable Footwear", desc: "Top brands pivoting to mushroom leather and recycled plastics.", img: "https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?q=80&w=2098&auto=format&fit=crop" },
+              { title: "Color of the Year", desc: "How to style 'Digital Lavender' for maximum impact.", img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1976&auto=format&fit=crop" },
+            ].map((trend, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4">
+                  <img src={trend.img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Trend Report</p>
+                <h3 className="text-xl font-serif font-bold mb-2 group-hover:text-secondary transition-colors">{trend.title}</h3>
+                <p className="text-secondary text-sm leading-relaxed mb-3">{trend.desc}</p>
+                <span className="text-xs font-bold uppercase border-b border-black pb-0.5">Read Article</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
+    </MainLayout >
   )
 }

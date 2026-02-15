@@ -4,9 +4,14 @@ import Home from './pages/Home'
 import ImageSearch from './pages/ImageSearch'
 import PriceComparison from './pages/PriceComparison'
 import Recommendations from './pages/Recommendations'
-import SizeEstimation from './pages/SizeEstimation'
+
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import GetRecommendation from './pages/GetRecommendation'
+import SizeEstimation from './pages/SizeEstimation'
 import APITest from './pages/APITest'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -23,6 +28,26 @@ function ProtectedRoute({ children }) {
   return currentUser ? children : <Navigate to="/login" />
 }
 
+
+
+// Protected Route Component
+function ProtectedRoute({ children }) {
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+}
 
 function App() {
   return (
@@ -45,8 +70,9 @@ function App() {
             <Route path="/image-search" element={<ImageSearch />} />
             <Route path="/price-comparison" element={<PriceComparison />} />
             <Route path="/recommendations" element={<Recommendations />} />
-            <Route path="/size-estimation" element={<SizeEstimation />} />
             <Route path="/smart-size-estimation" element={<SmartSize />} />
+            <Route path="/get-recommendations" element={<GetRecommendation />} />
+            <Route path="/size-estimation" element={<SizeEstimation />} />
             <Route
               path="/profile"
               element={

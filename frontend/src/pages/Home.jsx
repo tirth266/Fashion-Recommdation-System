@@ -3,98 +3,128 @@ import MainLayout from '../components/MainLayout' // Might not exist or be neede
 
 export default function Home() {
   return (
-    <main className="min-h-screen pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero Section */}
-        <section className="text-center py-24 mb-20 relative overflow-hidden">
-          {/* Animated Background Elements */}
-          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float"></div>
-          <div className="absolute top-40 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" style={{ animationDelay: '4s' }}></div>
+    <MainLayout>
 
-          <div className="relative z-10 max-w-5xl mx-auto">
-            <div className="inline-flex items-center px-4 py-2 glass rounded-full text-sm font-bold text-purple-700 mb-8 border border-purple-200/50 backdrop-blur-md animate-slide-up">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse-glow"></span>
-              ✨ AI-Powered Fashion Intelligence
-            </div>
-            <h1 className="text-6xl md:text-7xl font-black text-gray-900 mb-8 leading-tight animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              Redefine Your
-              <span className="block gradient-text mt-2">Fashion Journey</span>
+      {/* SECTION 1: HERO SECTION */}
+      <section className="relative px-6 lg:px-8 py-12 lg:py-24 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+          {/* Left Content */}
+          <div className="space-y-8 animate-fade-in">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs font-semibold tracking-wide uppercase text-secondary">
+              ✨ AI-Powered Fashion
+            </span>
+            <h1 className="text-5xl lg:text-7xl font-serif font-bold leading-[1.1] tracking-tight text-primary">
+              Personalized Fashion <br /> Recommendations <br /> Using AI
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              Discover personalized fashion recommendations powered by cutting-edge AI and advanced computer vision technology
+            <p className="text-lg text-secondary max-w-md leading-relaxed">
+              Experience the future of style with our Deep Learning engine. Get outfit suggestions tailored to your body type, occasion, and current trends.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <Link to="/recommendations">
-                <button className="group px-10 py-5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-2xl hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-2xl flex items-center justify-center gap-2">
-                  <span>🚀</span> Get Started Now
-                  <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </Link>
-              <button className="group px-10 py-5 glass text-gray-900 font-bold rounded-2xl border-2 border-gray-200 hover:border-purple-400 transform hover:scale-105 transition-all duration-300 hover:shadow-lg flex items-center justify-center gap-2">
-                <span>📚</span> Learn More
+            <div className="flex space-x-4 pt-4">
+              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                Get Recommendations
+              </button>
+              <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300">
+                Explore Styles
               </button>
             </div>
           </div>
-        </section>
 
-        {/* Features Grid */}
-        <section className="mb-28">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6">Powerful Features</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Everything you need to revolutionize your fashion experience with cutting-edge technology</p>
+          {/* Right Image */}
+          <div className="relative h-[650px] rounded-[2.5rem] overflow-hidden group shadow-2xl">
+            <img
+              src="https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=2187&auto=format&fit=crop"
+              alt="Male Fashion Model in Studio"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Soft Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { icon: '🔍', title: 'Image Search', desc: 'Find similar items using advanced image recognition technology', color: 'from-purple-500 to-purple-600', link: '/image-search' },
-              { icon: '💰', title: 'Price Comparison', desc: 'Compare prices across retailers and find the best deals', color: 'from-pink-500 to-pink-600', link: '/price-comparison' },
-              { icon: '✨', title: 'Recommendations', desc: 'Get personalized suggestions tailored to your style', color: 'from-indigo-500 to-indigo-600', link: '/recommendations' },
-              { icon: '📋', title: 'Size Estimation', desc: 'Find your perfect fit with smart measurements', color: 'from-teal-500 to-teal-600', link: '/size-estimation' },
+              { title: "AI Outfit Recs", desc: "Deep learning algorithms match your style.", icon: "🧥" },
+              { title: "Smart Sizing", desc: "Computer vision body measurement analysis.", icon: "📏" },
+              { title: "Occasion Styling", desc: "Perfect looks for work, party, or casual.", icon: "📅" },
+              { title: "Trend Awareness", desc: "Real-time analysis of global fashion trends.", icon: "📈" },
             ].map((feature, idx) => (
-              <Link key={idx} to={feature.link} className="block">
-                <div className="group glass card-hover p-8 rounded-2xl border border-white/20 hover:border-white/40 h-full">
-                  <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
-                    <span className="text-3xl">{feature.icon}</span>
+              <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h3 className="font-serif text-lg font-bold mb-2 text-primary">{feature.title}</h3>
+                <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: RECOMMENDED OUTFITS */}
+      <section className="px-6 lg:px-8 py-24 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12 flex justify-between items-end">
+            <div>
+              <h2 className="text-3xl font-serif font-bold mb-2">Recommended For You</h2>
+              <p className="text-secondary text-sm">Based on your recent uploads and preferences.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {[
+              { name: "Urban Chic Set", score: "98%", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" },
+              { name: "Minimalist Coat", score: "95%", img: "https://images.unsplash.com/photo-1544923246-77307dd654cb?q=80&w=1974&auto=format&fit=crop" },
+              { name: "Evening Elegance", score: "92%", img: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=2108&auto=format&fit=crop" },
+              { name: "Weekend Casual", score: "89%", img: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=2005&auto=format&fit=crop" },
+            ].map((item, i) => (
+              <div key={i} className="group cursor-pointer relative">
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-4 bg-gray-200 relative">
+                  <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+
+                  {/* Similarity Badge */}
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-green-700 flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    {item.score} Match
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-                  <div className="mt-6 pt-6 border-t border-white/10 flex items-center text-purple-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>Explore →</span>
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      View Details
+                    </button>
                   </div>
                 </div>
-              </Link>
+                <h3 className="font-serif text-lg font-bold text-primary">{item.name}</h3>
+                <p className="text-secondary text-xs uppercase tracking-wider mt-1">AI Suggestion</p>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* SMART SIZE PREDICTION (From Main) */}
-        <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 rounded-3xl mb-20 shadow-sm">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider">
-                Computer Vision
-              </div>
-              <h2 className="text-4xl font-serif font-black leading-tight text-gray-900">
-                Smart Size <br /> Prediction
-              </h2>
-              <p className="text-gray-600 leading-relaxed text-lg">
-                Say goodbye to returns. Our computer vision technology analyzes your body measurements from a single photo to predict your perfect size with 99.5% accuracy.
-              </p>
-              <ul className="space-y-4 pt-4">
-                {['Camera-based body landmark detection', 'Height & shoulder width analysis', 'Brand-specific size mapping'].map((item, i) => (
-                  <li key={i} className="flex items-center space-x-3 text-gray-700 font-medium">
-                    <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/size-estimation">
-                <button className="px-8 py-4 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-bold rounded-xl hover:from-teal-600 hover:to-teal-700 transform hover:scale-105 transition-all shadow-lg">Try Size Estimation</button>
-              </Link>
+      {/* SECTION 4: SMART SIZE PREDICTION */}
+      <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider">
+              Computer Vision
             </div>
+            <h2 className="text-4xl font-serif font-bold leading-tight">
+              Smart Size <br /> Prediction
+            </h2>
+            <p className="text-secondary leading-relaxed text-lg">
+              Say goodbye to returns. Our computer vision technology analyzes your body measurements from a single photo to predict your perfect size with 99.5% accuracy.
+            </p>
+            <ul className="space-y-4 pt-4">
+              {['Camera-based body landmark detection', 'Height & shoulder width analysis', 'Brand-specific size mapping'].map((item, i) => (
+                <li key={i} className="flex items-center space-x-3 text-primary font-medium">
+                  <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/size-estimation">
+              <button className="btn-primary mt-8">Try Size Estimation</button>
+            </Link>
+          </div>
 
             {/* Visual Mock of Body Scanning */}
             <div className="relative h-[550px] bg-gray-50 rounded-3xl border border-gray-100 overflow-hidden flex items-center justify-center">
@@ -118,27 +148,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-3xl p-12 md:p-16 text-white mb-20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-white/5 rounded-full -ml-40 -mb-40"></div>
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { number: '10K+', label: 'Fashion Items', icon: '👔' },
-              { number: '50K+', label: 'Active Users', icon: '👥' },
-              { number: '98%', label: 'Accuracy Rate', icon: '🎯' },
-              { number: '24/7', label: 'Premium Support', icon: '🎧' },
-            ].map((stat, idx) => (
-              <div key={idx} className="group card-hover">
-                <div className="text-4xl mb-2 group-hover:scale-125 transition-transform">{stat.icon}</div>
-                <div className="text-4xl md:text-5xl font-black mb-2">{stat.number}</div>
-                <div className="text-white/80 font-semibold">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
+      </section>
 
         {/* CTA Section */}
         <section className="text-center pb-20">

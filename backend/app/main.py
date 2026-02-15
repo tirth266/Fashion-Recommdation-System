@@ -35,6 +35,7 @@ app.register_blueprint(recommendations.bp)
 
 # app.register_blueprint(search.bp)
 app.register_blueprint(size_estimation.bp)
+app.register_blueprint(size_estimation.bp)
 
 @app.route('/')
 def home():

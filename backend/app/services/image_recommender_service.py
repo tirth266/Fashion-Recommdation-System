@@ -96,12 +96,15 @@ def recommend_image(img_path, top_k=5):
         
         # Get recommended image paths
         results = []
-        for i in top_indices:
+        for idx, i in enumerate(top_indices):
             if i < len(filenames):
                 # Use basename to get just the filename, then construct the static path
                 filename = os.path.basename(str(filenames[i]))
                 path = f"/static/dataset_images/{filename}"
-                results.append(path)
+                results.append({
+                    "url": path,
+                    "similarity": float(similarities[i])  # Convert numpy float to Python float
+                })
         
         return {
             "recommended_images": results,

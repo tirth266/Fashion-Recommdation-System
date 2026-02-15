@@ -13,22 +13,6 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import GetRecommendation from './pages/GetRecommendation'
 import SizeEstimation from './pages/SizeEstimation'
 import APITest from './pages/APITest'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import { AuthProvider, useAuth } from './context/AuthContext'
-
-// Protected Route Component
-function ProtectedRoute({ children }) {
-  const { currentUser, loading } = useAuth()
-
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
-
-  return currentUser ? children : <Navigate to="/login" />
-}
-
-
 
 // Protected Route Component
 function ProtectedRoute({ children }) {

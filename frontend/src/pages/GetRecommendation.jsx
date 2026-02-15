@@ -7,6 +7,7 @@ export default function GetRecommendation() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState(null); // 'text' or 'image'
+  const [recommendedImages, setRecommendedImages] = useState(null); // Store API results
   const fileInputRef = useRef(null);
 
   // Constants
@@ -86,13 +87,32 @@ export default function GetRecommendation() {
     setIsLoading(true);
     setLoadingType('image');
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      const response = await fetch('/api/recommendations/recommend', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Recommendations received:', data);
+        // Store the recommended images to display them
+        setRecommendedImages(data.recommended_images || []);
+      } else {
+        alert(`Error: ${data.error || 'Failed to get recommendations'}`);
+        setRecommendedImages(null);
+      }
+    } catch (error) {
+      console.error('Error calling API:', error);
+      alert(`Error: ${error.message}`);
+    } finally {
       setIsLoading(false);
       setLoadingType(null);
-      alert(`Success! Analyzing image: ${selectedFile.name}`);
-      // In a real app, you would navigate to results page here
-    }, 1500);
+    }
   };
 
   // Derived state
@@ -102,7 +122,7 @@ export default function GetRecommendation() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-12">
-        
+
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">
@@ -115,7 +135,7 @@ export default function GetRecommendation() {
 
         {/* Main Content Grid */}
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
-          
+
           {/* Card 1: Text Description */}
           <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-md transition-shadow duration-300 flex flex-col">
             <div className="flex items-center space-x-3 mb-6">
@@ -149,8 +169,8 @@ export default function GetRecommendation() {
               onClick={handleTextSubmit}
               disabled={!isTextValid || isLoading}
               className={`mt-8 w-full py-3.5 px-6 rounded-xl font-semibold text-white shadow-sm transition-all duration-200 flex items-center justify-center space-x-2
-                ${!isTextValid || isLoading 
-                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                ${!isTextValid || isLoading
+                  ? 'bg-gray-300 cursor-not-allowed text-gray-500'
                   : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-200 hover:-translate-y-0.5 active:translate-y-0'
                 }`}
             >
@@ -169,7 +189,7 @@ export default function GetRecommendation() {
                 </>
               )}
             </button>
-            
+
             {/* Validation Message */}
             {!isTextValid && textInput.length > 0 && (
               <p className="mt-2 text-sm text-amber-600 text-center">
@@ -235,13 +255,13 @@ export default function GetRecommendation() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                     <button
-                        onClick={handleClearImage}
-                        className="bg-white/90 text-red-600 px-4 py-2 rounded-lg font-medium text-sm hover:bg-white transition-colors"
-                        type="button"
-                      >
-                        Remove Image
-                      </button>
+                    <button
+                      onClick={handleClearImage}
+                      className="bg-white/90 text-red-600 px-4 py-2 rounded-lg font-medium text-sm hover:bg-white transition-colors"
+                      type="button"
+                    >
+                      Remove Image
+                    </button>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-3">
                     <p className="text-white text-xs truncate text-center font-medium">
@@ -256,8 +276,8 @@ export default function GetRecommendation() {
               onClick={handleImageSubmit}
               disabled={!isImageReady || isLoading}
               className={`mt-8 w-full py-3.5 px-6 rounded-xl font-semibold text-white shadow-sm transition-all duration-200 flex items-center justify-center space-x-2
-                ${!isImageReady || isLoading 
-                  ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                ${!isImageReady || isLoading
+                  ? 'bg-gray-300 cursor-not-allowed text-gray-500'
                   : 'bg-emerald-600 hover:bg-emerald-700 hover:shadow-emerald-200 hover:-translate-y-0.5 active:translate-y-0'
                 }`}
             >
@@ -276,9 +296,9 @@ export default function GetRecommendation() {
                 </>
               )}
             </button>
-            
+
             {/* Spacing holder for alignment if needed, or error message place */}
-             {!isImageReady && (
+            {!isImageReady && (
               <p className="mt-2 text-sm text-gray-400 text-center opacity-0 select-none">
                 Placeholder for alignment
               </p>
@@ -286,6 +306,45 @@ export default function GetRecommendation() {
           </div>
 
         </div>
+
+        {/* Results Section */}
+        {recommendedImages && recommendedImages.length > 0 && (
+          <div className="mt-16 animate-fadeIn">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Similar Fashion Items Found!
+              </h2>
+              <p className="text-gray-600">
+                We found {recommendedImages.length} similar items based on your image
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {recommendedImages.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300 group"
+                >
+                  <div className="aspect-square relative overflow-hidden bg-gray-100">
+                    <img
+                      src={item.url}
+                      alt={`Recommendation ${index + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/300?text=Image+Not+Found';
+                      }}
+                    />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs text-gray-500 truncate">
+                      Similarity: {(item.similarity * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_session import Session
 import os
@@ -26,21 +26,32 @@ print("Server configured with Session (Filesystem)")
 
 # Import routes after app initialization to avoid circular imports
 from app.routes import auth, profile, size_estimation
+from app.routes import image_recommadtions as recommendations
 
 # Register blueprints
 app.register_blueprint(auth.bp)
 app.register_blueprint(profile.bp)
-# app.register_blueprint(recommendations.bp)
+app.register_blueprint(recommendations.bp)
+
 # app.register_blueprint(search.bp)
+app.register_blueprint(size_estimation.bp)
 app.register_blueprint(size_estimation.bp)
 
 @app.route('/')
 def home():
     return {"message": "Fashion Recommendation System API", "status": "running"}
 
+
+@app.route('/static/dataset_images/<path:filename>')
+def serve_dataset_images(filename):
+    # Go up two levels from app (backend/app -> backend -> root) then into data/datasets/images
+    images_dir = os.path.join(app.root_path, '..', '..', 'data', 'datasets', 'images')
+    return send_from_directory(images_dir, filename)
+
 @app.route('/api/health')
 def health_check():
     return {"status": "healthy", "message": "API is running"}
+
 
 if __name__ == '__main__':
     # with app.app_context():

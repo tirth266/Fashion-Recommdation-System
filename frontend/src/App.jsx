@@ -1,18 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
 import ImageSearch from './pages/ImageSearch'
 import PriceComparison from './pages/PriceComparison'
 import Recommendations from './pages/Recommendations'
 
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
-import APITest from './pages/APITest'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import GetRecommendation from './pages/GetRecommendation'
 import SizeEstimation from './pages/SizeEstimation'
+import APITest from './pages/APITest'
 
 
 // Protected Route Component
@@ -39,7 +39,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-
+          <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />

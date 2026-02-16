@@ -20,7 +20,6 @@ const occasionOutfits = {
 
 export default function Home() {
   const [activeOccasion, setActiveOccasion] = useState('Casual');
-
   return (
     <MainLayout>
 
@@ -61,27 +60,22 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
         </div>
-      </section>
 
-      {/* SECTION 2: AI FEATURES OVERVIEW */}
-      <section id="ai-recommendations" className="px-6 lg:px-8 py-20 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { title: "AI Outfit Recs", desc: "Deep learning algorithms match your style.", icon: "🧥" },
-              { title: "Smart Sizing", desc: "Computer vision body measurement analysis.", icon: "📏" },
-              { title: "Occasion Styling", desc: "Perfect looks for work, party, or casual.", icon: "📅" },
-              { title: "Trend Awareness", desc: "Real-time analysis of global fashion trends.", icon: "📈" },
-            ].map((feature, idx) => (
-              <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform">
-                  {feature.icon}
-                </div>
-                <h3 className="font-serif text-lg font-bold mb-2 text-primary">{feature.title}</h3>
-                <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16 lg:mt-24">
+          {[
+            { title: "AI Outfit Recs", desc: "Deep learning algorithms match your style.", icon: "🧥" },
+            { title: "Smart Sizing", desc: "Computer vision body measurement analysis.", icon: "📏" },
+            { title: "Occasion Styling", desc: "Perfect looks for work, party, or casual.", icon: "📅" },
+            { title: "Trend Awareness", desc: "Real-time analysis of global fashion trends.", icon: "📈" },
+          ].map((feature, idx) => (
+            <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform">
+                {feature.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="font-serif text-lg font-bold mb-2 text-primary">{feature.title}</h3>
+              <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -149,13 +143,13 @@ export default function Home() {
               ))}
             </ul>
             <Link to="/size-estimation">
-              <button className="btn-primary mt-8">Try Size Estimation</button>
+              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8">Try Size Estimation</button>
             </Link>
           </div>
 
           {/* Visual Mock of Body Scanning */}
           <div className="relative h-[550px] bg-gray-50 rounded-3xl border border-gray-100 overflow-hidden flex items-center justify-center">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale" />
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale" alt="Size scanning" />
 
             {/* Abstract Skeleton Overlay */}
             <div className="relative z-10 w-64 h-[400px] border-2 border-blue-500/50 rounded-xl flex flex-col items-center justify-between py-8 animate-pulse">
@@ -170,12 +164,13 @@ export default function Home() {
               </div>
               <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded px-3 py-2 shadow-lg">
                 <p className="text-xs text-gray-500 uppercase">Estimated Size</p>
-                <p className="text-lg font-bold text-primary">Medium (US 6)</p>
+                <p className="text-lg font-bold text-gray-900">Medium (US 6)</p>
               </div>
             </div>
           </div>
         </div>
       </section>
+
 
       {/* SECTION 5: OCCASION-BASED STYLING */}
       <section className="px-6 lg:px-8 py-24 bg-background">
@@ -270,6 +265,7 @@ export default function Home() {
         </div>
       </section>
 
-    </MainLayout>
+
+    </MainLayout >
   )
 }

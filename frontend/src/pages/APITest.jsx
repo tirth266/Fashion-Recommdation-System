@@ -18,11 +18,11 @@ export default function APITest() {
   const runTests = async () => {
     setLoading(true);
     setTestResults([]);
-    
+
     try {
       // Test 1: Health check
       try {
-        const health = await fetch('http://localhost:5000/api/health');
+        const health = await fetch('/api/health');
         const healthData = await health.json();
         addResult('Health Check', 'PASS', healthData);
       } catch (error) {
@@ -110,23 +110,21 @@ export default function APITest() {
 
           <div className="space-y-4">
             {testResults.map((result, index) => (
-              <div 
-                key={index} 
-                className={`p-4 rounded-lg border-l-4 ${
-                  result.status === 'PASS' ? 'bg-green-50 border-green-500' :
-                  result.status === 'FAIL' ? 'bg-red-50 border-red-500' :
-                  result.status === 'INFO' || result.status === 'EXPECTED FAIL' ? 'bg-yellow-50 border-yellow-500' :
-                  'bg-gray-50 border-gray-500'
-                }`}
+              <div
+                key={index}
+                className={`p-4 rounded-lg border-l-4 ${result.status === 'PASS' ? 'bg-green-50 border-green-500' :
+                    result.status === 'FAIL' ? 'bg-red-50 border-red-500' :
+                      result.status === 'INFO' || result.status === 'EXPECTED FAIL' ? 'bg-yellow-50 border-yellow-500' :
+                        'bg-gray-50 border-gray-500'
+                  }`}
               >
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold text-gray-900">{result.test}</h3>
-                    <p className={`text-sm ${
-                      result.status === 'PASS' ? 'text-green-700' :
-                      result.status === 'FAIL' ? 'text-red-700' :
-                      'text-yellow-700'
-                    }`}>
+                    <p className={`text-sm ${result.status === 'PASS' ? 'text-green-700' :
+                        result.status === 'FAIL' ? 'text-red-700' :
+                          'text-yellow-700'
+                      }`}>
                       Status: {result.status}
                     </p>
                     {result.error && (

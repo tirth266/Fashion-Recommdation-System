@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
      useEffect(() => {
           async function checkSession() {
                try {
-                    const response = await fetch('http://localhost:5000/api/auth/user', {
+                    const response = await fetch('/api/auth/user', {
                          // Important: Include credentials to send cookies
                          credentials: 'include'
                     });
@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
           setError('');
 
           try {
-               const response = await fetch('http://localhost:5000/api/auth/google', {
+               const response = await fetch('/api/auth/google', {
                     method: 'POST',
                     headers: {
                          'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
 
      async function logout() {
           try {
-               await fetch('http://localhost:5000/api/auth/logout', {
+               await fetch('/api/auth/logout', {
                     method: 'POST',
                     credentials: 'include'
                });
@@ -82,7 +82,8 @@ export function AuthProvider({ children }) {
           loginWithGoogle,
           logout,
           loading,
-          error
+          error,
+          setError
      };
 
      return (

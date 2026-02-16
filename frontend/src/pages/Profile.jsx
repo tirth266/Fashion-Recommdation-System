@@ -115,7 +115,7 @@ export default function Profile() {
       if (!currentUser) return;
 
       try {
-        const response = await fetch('http://localhost:5000/api/profile/', {
+        const response = await fetch('/api/profile/', {
           credentials: 'include'
         });
         if (response.ok) {
@@ -164,7 +164,7 @@ export default function Profile() {
   const handleSave = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:5000/api/profile/', {
+      const response = await fetch('/api/profile/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -246,7 +246,7 @@ export default function Profile() {
 
                     try {
                       // Show temporary loading state or preview if desired
-                      const response = await fetch('http://localhost:5000/api/profile/upload-avatar', {
+                      const response = await fetch('/api/profile/upload-avatar', {
                         method: 'POST',
                         body: formData,
                         credentials: 'include'

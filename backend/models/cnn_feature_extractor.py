@@ -28,38 +28,39 @@ def extract_features(img_path,model):
 
     return normalized_result
 
-# Define base paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
-images_path = os.path.join(PROJECT_ROOT, 'data', 'datasets', 'images')
+if __name__ == "__main__":
+    # Define base paths
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(os.path.dirname(BASE_DIR))
+    images_path = os.path.join(PROJECT_ROOT, 'data', 'datasets', 'images')
 
-filenames = []
+    filenames = []
 
-if os.path.exists(images_path):
-    for file in os.listdir(images_path):
-        if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-            filenames.append(os.path.join(images_path,file))
-else:
-    print(f"Error: Image directory not found at {images_path}")
-    exit(1)
+    if os.path.exists(images_path):
+        for file in os.listdir(images_path):
+            if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                filenames.append(os.path.join(images_path,file))
+    else:
+        print(f"Error: Image directory not found at {images_path}")
+        exit(1)
 
-# Limit to first 1000 images for speed, remove suffix if you want all
-filenames = filenames[:44400]
+    # Limit to first 1000 images for speed, remove suffix if you want all
+    filenames = filenames[:44400]
 
-feature_list = []
+    feature_list = []
 
-print(f"Extracting features for {len(filenames)} images...")
-for file in tqdm(filenames):
-    try:
-        feature_list.append(extract_features(file,model))
-    except Exception as e:
-        print(f"Error processing {file}: {e}")
+    print(f"Extracting features for {len(filenames)} images...")
+    for file in tqdm(filenames):
+        try:
+            feature_list.append(extract_features(file,model))
+        except Exception as e:
+            print(f"Error processing {file}: {e}")
 
-# Save to the current directory (backend/models)
-with open(os.path.join(BASE_DIR, 'embeddings.pkl'), 'wb') as f:
-    pickle.dump(feature_list, f)
-with open(os.path.join(BASE_DIR, 'filenames.pkl'), 'wb') as f:
-    pickle.dump(filenames, f)
-print(f"Features extracted for {len(feature_list)} images.")
-print(f"Saved to {os.path.join(BASE_DIR, 'embeddings.pkl')}")
-print(f"Saved to {os.path.join(BASE_DIR, 'filenames.pkl')}")
+    # Save to the current directory (backend/models)
+    with open(os.path.join(BASE_DIR, 'embeddings.pkl'), 'wb') as f:
+        pickle.dump(feature_list, f)
+    with open(os.path.join(BASE_DIR, 'filenames.pkl'), 'wb') as f:
+        pickle.dump(filenames, f)
+    print(f"Features extracted for {len(feature_list)} images.")
+    print(f"Saved to {os.path.join(BASE_DIR, 'embeddings.pkl')}")
+    print(f"Saved to {os.path.join(BASE_DIR, 'filenames.pkl')}")

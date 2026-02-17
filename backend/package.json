@@ -1,9 +1,12 @@
 {
-  "name": "fashion-recommendation-backend",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "start": "python run.py",
-    "dev": "python run.py"
-  }
+     "name": "fashion-recommendation-backend",
+     "version": "1.0.0",
+     "description": "Backend for Fashion Recommendation System",
+     "main": "run.py",
+     "scripts": {
+          "start": "python run.py"
+     },
+     "keywords": [],
+     "author": "",
+     "license": "ISC"
 }

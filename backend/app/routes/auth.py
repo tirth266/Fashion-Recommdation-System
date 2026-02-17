@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from datetime import datetime
 import os
 import secrets
 from ..extensions import db
@@ -27,26 +28,41 @@ def google_auth():
         id_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
 
         # ID token is valid. Get the user's Google Account information from the decoded token.
-        user_id = id_info['sub']
+        user_google_id = id_info['sub']
         email = id_info['email']
         name = id_info.get('name')
         picture = id_info.get('picture')
 
-        print(f"Token verified! User: {email}") # DEBUG
+        print(f"Token verified! User: {email}, ID: {user_google_id}") # DEBUG
 
         if not email:
              raise ValueError("Email not found in Google token")
 
         # Database integration
-        user = User.query.filter_by(email=email).first()
+        # 1. Try to find by Google ID first
+        user = User.query.filter_by(google_id=user_google_id).first()
+        
+        # 2. If not found, try by email (legacy or manual account)
+        if not user:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                # Link existing account to Google ID
+                user.google_id = user_google_id
+                if not user.profile_image and picture:
+                    user.profile_image = picture
+                db.session.commit()
+                print(f"Linked existing user {email} to Google ID")
+        
         if not user:
             # Create new user from Google info
+            from datetime import datetime
             random_password = secrets.token_urlsafe(16)
             new_user = User(
                 email=email,
                 username=email.split('@')[0], # Fallback username
                 full_name=name,
-                profile_image=picture
+                profile_image=picture,
+                google_id=user_google_id
             )
             try:
                 new_user.set_password(random_password)
@@ -54,6 +70,26 @@ def google_auth():
                 db.session.commit()
                 user = new_user
                 print(f"New Google user created: {email}")
+                
+                 # --- MongoDB Integration (New User) ---
+                from ..extensions import mongo
+                try:
+                    mongo.db.users.insert_one({
+                        "username": user.username,
+                        "email": user.email,
+                        "full_name": user.full_name,
+                        "picture": user.profile_image,
+                        "google_id": user_google_id,
+                        "created_at": datetime.utcnow(),
+                        "role": "user",
+                        "sql_user_id": user.id,
+                        "auth_provider": "google"
+                    })
+                    print(f"Google User {email} synced to MongoDB")
+                except Exception as e:
+                    print(f"MongoDB Sync Error (Google New): {e}")
+                # --------------------------------------
+
             except IntegrityError:
                 db.session.rollback()
                 # Handle race condition or username collision
@@ -64,6 +100,39 @@ def google_auth():
                      db.session.add(new_user)
                      db.session.commit()
                      user = new_user
+                     
+                     # Retry Mongo Sync? (Simplified for now)
+
+        # Update last login
+        from datetime import datetime
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        
+        # --- MongoDB Integration (Update Login Time) ---
+        from ..extensions import mongo
+        try:
+             # Ensure user exists in Mongo if they were created before Mongo integration
+            existing_mongo_user = mongo.db.users.find_one({"email": email})
+            if not existing_mongo_user:
+                 mongo.db.users.insert_one({
+                    "username": user.username,
+                    "email": email,
+                    "full_name": user.full_name,
+                    "picture": user.profile_image,
+                    "google_id": user_google_id,
+                    "created_at": user.created_at or datetime.utcnow(),
+                    "role": "user",
+                    "sql_user_id": user.id,
+                    "auth_provider": "google"
+                })
+
+            mongo.db.users.update_one(
+                {"email": email},
+                {"$set": {"last_login": datetime.utcnow()}}
+            )
+        except Exception as e:
+             print(f"MongoDB Update Error (Google Login): {e}")
+        # -----------------------------------------------
 
         # Create a user session
         session.permanent = True
@@ -89,10 +158,21 @@ def google_auth():
         return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
     except Exception as e:
         import sys
-        print(f"Unexpected error in /google: {e}", file=sys.stderr) # DEBUG to stderr
         import traceback
+        
+        # Log to file
+        try:
+            with open("auth_error.log", "a") as f:
+                f.write(f"\n[{datetime.utcnow()}] Error in /google:\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write(traceback.format_exc())
+                f.write("-" * 20 + "\n")
+        except:
+            pass
+
+        print(f"Unexpected error in /google: {e}", file=sys.stderr) # DEBUG to stderr
         traceback.print_exc()
-        return jsonify({'error': 'Internal server error', 'details': str(e), 'trace': traceback.format_exc()}), 500
+        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
 @bp.route('/register', methods=['POST'])
 def register():
@@ -117,6 +197,25 @@ def register():
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
+        
+        # --- MongoDB Integration ---
+        from ..extensions import mongo
+        try:
+            mongo.db.users.insert_one({
+                "username": username,
+                "email": email.lower(),
+                # Store rudimentary info or extended profile info here
+                "full_name": data.get('full_name'),
+                "created_at": datetime.utcnow(),
+                "role": "user",
+                # Note: We typically don't store the password twice. 
+                # The SQL DB handles authentication. Mongo can store extra profile data.
+                "sql_user_id": new_user.id
+            })
+            print(f"User {username} synced to MongoDB")
+        except Exception as e:
+            print(f"MongoDB Sync Error: {e}")
+        # ---------------------------
         
         # Auto-login
         session.permanent = True

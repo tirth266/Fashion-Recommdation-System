@@ -19,18 +19,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fashion.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
-from app.extensions import db
+from app.extensions import db, mongo
 # db = SQLAlchemy(app) # Database disabled for session-based auth
 # jwt = JWTManager(app) # JWT disabled for session-based auth
 server_session = Session(app)
 db.init_app(app)
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "mongodb://localhost:27017/fashiondb")
+mongo.init_app(app)
 
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}})
 
 print("Server configured with Session (Filesystem)")
 
 # Import routes after app initialization to avoid circular imports
-from app.routes import auth, profile, size_estimation
+from app.routes import auth, profile, size_estimation, wardrobe
 from app.routes import image_recommadtions as recommendations
 
 # Register blueprints
@@ -40,6 +42,7 @@ app.register_blueprint(recommendations.bp)
 
 # app.register_blueprint(search.bp)
 app.register_blueprint(size_estimation.bp)
+app.register_blueprint(wardrobe.bp)
 
 
 

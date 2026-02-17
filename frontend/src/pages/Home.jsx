@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import MainLayout from '../components/MainLayout'
+import { useAuth } from '../context/AuthContext'
 
 // Mock Data for Occasion Styling
 const occasionOutfits = {
@@ -20,6 +21,59 @@ const occasionOutfits = {
 
 export default function Home() {
   const [activeOccasion, setActiveOccasion] = useState('Casual');
+  const { currentUser } = useAuth();
+  const [wardrobeItems, setWardrobeItems] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (currentUser) {
+      fetch('/api/wardrobe/', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.items) setWardrobeItems(data.items);
+        })
+        .catch(err => console.error("Failed to fetch wardrobe:", err));
+    }
+  }, [currentUser]);
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validation (optional)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size too large (max 5MB)");
+      return;
+    }
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+    // formData.append('category', 'Top'); // Could add a selector later
+
+    try {
+      const res = await fetch('/api/wardrobe/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setWardrobeItems([data.item, ...wardrobeItems]);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to upload image");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading image");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
   return (
     <MainLayout>
 
@@ -218,25 +272,63 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {/* Upload Card */}
-            <div className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-white dark:hover:text-white">
-              <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v16m8-8H4" /></svg>
-              <span className="text-sm font-medium">Add Item</span>
+            <div
+              onClick={() => currentUser ? fileInputRef.current?.click() : alert("Please login to add items")}
+              className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-white dark:hover:text-white"
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                className="hidden"
+                accept="image/*"
+              />
+              {isUploading ? (
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+              ) : (
+                <>
+                  <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v16m8-8H4" /></svg>
+                  <span className="text-sm font-medium">Add Item</span>
+                </>
+              )}
             </div>
 
-            {/* Wardrobe Items */}
-            {[
-              "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1936&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=1897&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1964&auto=format&fit=crop",
-              "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1935&auto=format&fit=crop"
-            ].map((img, i) => (
-              <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group">
-                <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
-                  <div className="w-3 h-3 rounded-full bg-primary"></div>
+            {/* Wardrobe Items - Dynamic or Mock */}
+            {currentUser ? (
+              wardrobeItems.length > 0 ? (
+                wardrobeItems.map((item) => (
+                  <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group bg-gray-100">
+                    <img src={item.image_url} alt="Wardrobe item" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
+                      <div className="w-3 h-3 rounded-full bg-primary"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 md:col-span-4 flex items-center justify-center text-gray-400 italic">
+                  Your wardrobe is empty. Add some items!
                 </div>
-              </div>
-            ))}
+              )
+            ) : (
+              // Show Mock items if not logged in
+              [
+                "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1936&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=1897&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1964&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1935&auto=format&fit=crop"
+              ].map((img, i) => (
+                <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group">
+                  <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
+                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                  </div>
+                  {/* Overlay prompting login */}
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs font-bold border border-white px-2 py-1 rounded">Login to View</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>

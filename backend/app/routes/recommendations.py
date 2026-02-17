@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..database.init_db import User, Product, Recommendation, db
 import random

@@ -1,0 +1,9 @@
+{
+  "name": "fashion-recommendation-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "python run.py",
+    "dev": "python run.py"
+  }
+}

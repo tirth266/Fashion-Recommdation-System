@@ -11,7 +11,10 @@ export default function GoogleLoginButton() {
           try {
                const user = await loginWithGoogle(credentialResponse.credential);
                if (user) {
-                    navigate('/profile');
+                    const stored = sessionStorage.getItem('intendedDestination');
+                    const target = stored || '/profile';
+                    sessionStorage.removeItem('intendedDestination');
+                    navigate(target);
                } else {
                     console.error("Login failed after Google success");
                     // Error is already set inside loginWithGoogle

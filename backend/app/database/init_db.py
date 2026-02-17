@@ -13,6 +13,8 @@ class User(db.Model):
     phone = db.Column(db.String(20), nullable=True)
     location = db.Column(db.String(100), nullable=True)
     profile_image = db.Column(db.String(200), nullable=True)
+    google_id = db.Column(db.String(100), unique=True, nullable=True) # For Google OAuth
+    last_login = db.Column(db.DateTime, default=datetime.utcnow) # Track last login
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -144,3 +146,22 @@ class Recommendation(db.Model):
             'reason': self.reason,
             'created_at': self.created_at.isoformat()
         }
+
+class WardrobeItem(db.Model):
+    __tablename__ = 'wardrobe_items'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    image_url = db.Column(db.String(300), nullable=False)
+    category = db.Column(db.String(50), nullable=True) # e.g. 'top', 'bottom', 'shoes'
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'image_url': self.image_url,
+            'category': self.category,
+            'created_at': self.created_at.isoformat()
+        }
+

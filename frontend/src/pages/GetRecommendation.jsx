@@ -94,14 +94,18 @@ export default function GetRecommendation() {
       const response = await fetch('/api/recommendations/recommend', {
         method: 'POST',
         body: formData,
+        credentials: 'include'
       });
 
       const data = await response.json();
 
       if (response.ok) {
         console.log('Recommendations received:', data);
-        // Store the recommended images to display them
         setRecommendedImages(data.recommended_images || []);
+      } else if (response.status === 401) {
+        // Unauthorized - prompt user to sign in
+        alert('Unauthorized. Please sign in to get recommendations.');
+        setRecommendedImages(null);
       } else {
         alert(`Error: ${data.error || 'Failed to get recommendations'}`);
         setRecommendedImages(null);

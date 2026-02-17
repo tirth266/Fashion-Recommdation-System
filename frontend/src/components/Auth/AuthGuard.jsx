@@ -8,6 +8,13 @@ export default function AuthGuard({ children }) {
      const navigate = useNavigate();
      const location = useLocation();
      const [showModal, setShowModal] = useState(false);
+     const intendedDestination = location.pathname + location.search;
+     // Persist intended destination so it survives reloads during login flow
+     useEffect(() => {
+          if (!loading && !currentUser) {
+               sessionStorage.setItem('intendedDestination', intendedDestination);
+          }
+     }, [intendedDestination, loading, currentUser]);
 
      useEffect(() => {
           if (!loading && !currentUser) {
@@ -17,9 +24,8 @@ export default function AuthGuard({ children }) {
 
      const handleClose = () => {
           setShowModal(false);
-          // If the user dismisses the Login modal on a protected route, 
-          // they should be redirected to a safe page (Home) 
-          // because they cannot view the protected content.
+          // If the user dismisses the Login modal on a protected route,
+          // redirect to Home because they cannot view the protected content.
           navigate('/', { replace: true });
      };
 
@@ -53,7 +59,12 @@ export default function AuthGuard({ children }) {
                     isOpen={showModal}
                     onClose={handleClose}
                     initialMode="register"
-                    onSuccess={() => setShowModal(false)}
+                    intendedDestination={intendedDestination}
+                    onSuccess={() => {
+                         // After successful login/register, navigate to intended destination
+                         setShowModal(false);
+                         navigate(intendedDestination || '/', { replace: true });
+                    }}
                />
           </div>
      );

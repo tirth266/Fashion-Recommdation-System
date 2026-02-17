@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import GoogleLoginButton from '../GoogleLoginButton';
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'register', onSuccess }) {
+export default function AuthModal({ isOpen, onClose, initialMode = 'register', onSuccess, intendedDestination }) {
      const [mode, setMode] = useState(initialMode); // 'login' or 'register'
      const { login, register, error, setError } = useAuth();
      const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'register', o
      const handleSubmit = async (e) => {
           e.preventDefault();
 
-          if (mode === 'register') {
+               if (mode === 'register') {
                if (formData.password !== formData.confirmPassword) {
                     setError("Passwords don't match");
                     return;
@@ -51,9 +51,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'register', o
                     if (onSuccess) {
                          onSuccess();
                     } else {
-                         // Determine redirect path (default to dashboard or current protected route)
-                         const from = location.state?.from?.pathname || '/profile';
-                         navigate(from, { replace: true });
+                         // Redirect to intended destination (prop, sessionStorage, or fallback)
+                         const stored = sessionStorage.getItem('intendedDestination');
+                         const target = intendedDestination || stored || location.state?.from?.pathname || '/profile';
+                         navigate(target, { replace: true });
+                         sessionStorage.removeItem('intendedDestination');
                          onClose();
                     }
                }
@@ -63,8 +65,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'register', o
                     if (onSuccess) {
                          onSuccess();
                     } else {
-                         const from = location.state?.from?.pathname || '/profile';
-                         navigate(from, { replace: true });
+                         const stored = sessionStorage.getItem('intendedDestination');
+                         const target = intendedDestination || stored || location.state?.from?.pathname || '/profile';
+                         navigate(target, { replace: true });
+                         sessionStorage.removeItem('intendedDestination');
                          onClose();
                     }
                }

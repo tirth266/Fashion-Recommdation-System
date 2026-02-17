@@ -4,13 +4,17 @@ import { useAuth } from '../context/AuthContext';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 
 export default function Login() {
-     const { currentUser, error } = useAuth();
+     const { currentUser, error, register, setError } = useAuth();
      const navigate = useNavigate();
      const [step, setStep] = useState(1);
+     const [isSubmitting, setIsSubmitting] = useState(false);
 
      // Form State
      const [formData, setFormData] = useState({
           username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
           gender: 'female',
           favoriteColor: '#000000',
           chest: '',
@@ -40,14 +44,58 @@ export default function Login() {
      };
 
      const handleNext = () => {
+          // Validate step 1 fields
+          if (!formData.username || !formData.email || !formData.password) {
+               setError('Please fill in all required fields');
+               return;
+          }
+          if (formData.password !== formData.confirmPassword) {
+               setError('Passwords do not match');
+               return;
+          }
+          if (formData.password.length < 6) {
+               setError('Password must be at least 6 characters');
+               return;
+          }
+          setError('');
           setStep(2);
      };
 
      const handleComplete = async () => {
-          // Here you would typically save the extended profile data to your backend
-          console.log("Onboarding Complete:", formData);
-          // After saving, navigate to the main app
-          navigate('/profile');
+          setIsSubmitting(true);
+          setError('');
+
+          try {
+               // Call the register API
+               const success = await register({
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                    full_name: formData.username, // Can be updated later
+                    // Additional profile data can be saved separately
+                    profile_data: {
+                         gender: formData.gender,
+                         favoriteColor: formData.favoriteColor,
+                         measurements: {
+                              chest: formData.chest,
+                              shoulder: formData.shoulder,
+                              wrist: formData.wrist,
+                              height: formData.height,
+                              weight: formData.weight
+                         },
+                         brands: formData.brands
+                    }
+               });
+
+               if (success) {
+                    console.log("Registration successful!");
+                    navigate('/profile');
+               }
+          } catch (err) {
+               console.error("Registration error:", err);
+          } finally {
+               setIsSubmitting(false);
+          }
      };
 
      const colors = ['#000000', '#FFFFFF', '#F5F5DC', '#000080', '#556B2F', '#8B0000', '#FFC0CB', '#808080'];
@@ -120,11 +168,15 @@ export default function Login() {
                                         </div>
                                         <div>
                                              <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Email address</label>
-                                             <input type="email" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="you@example.com" />
+                                             <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="you@example.com" />
                                         </div>
                                         <div>
                                              <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Password</label>
-                                             <input type="password" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="••••••••" />
+                                             <input type="password" name="password" value={formData.password} onChange={handleInputChange} required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="••••••••" />
+                                        </div>
+                                        <div>
+                                             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Confirm Password</label>
+                                             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleInputChange} required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="••••••••" />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
@@ -268,9 +320,10 @@ export default function Login() {
                                              </button>
                                              <button
                                                   type="submit"
-                                                  className="flex-[2] py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                                                  disabled={isSubmitting}
+                                                  className="flex-[2] py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 dark:bg-white dark:text-black dark:hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                              >
-                                                  Complete Setup
+                                                  {isSubmitting ? 'Creating Account...' : 'Complete Setup'}
                                              </button>
                                         </div>
                                    </form>

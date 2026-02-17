@@ -10,6 +10,7 @@ export default function Login() {
 
      // Form State
      const [formData, setFormData] = useState({
+          username: '',
           gender: 'female',
           favoriteColor: '#000000',
           chest: '',
@@ -25,7 +26,7 @@ export default function Login() {
                // If user is already logged in, check if they need to complete onboarding (Step 2)
                // For now, we'll just redirect to recommendations if they are done
                // You might want to add logic here to check a 'profile.completed_onboarding' flag
-               navigate('/recommendations');
+               navigate('/');
           }
      }, [currentUser, navigate]);
 
@@ -52,7 +53,7 @@ export default function Login() {
      const colors = ['#000000', '#FFFFFF', '#F5F5DC', '#000080', '#556B2F', '#8B0000', '#FFC0CB', '#808080'];
 
      return (
-          <div className="min-h-screen flex bg-white">
+          <div className="min-h-screen flex bg-white dark:bg-black">
                {/* LEFT SIDE - HERO IMAGE */}
                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gray-900">
                     <img
@@ -81,10 +82,10 @@ export default function Login() {
                          </div>
 
                          <div className="text-center lg:text-left">
-                              <h2 className="text-3xl font-bold text-gray-900">
+                              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
                                    {step === 1 ? 'Welcome Back' : 'Get Your Perfect Fit'}
                               </h2>
-                              <p className="mt-2 text-gray-600">
+                              <p className="mt-2 text-gray-600 dark:text-gray-400">
                                    {step === 1 ? 'Please enter your details to sign in.' : 'Help us find clothes that fit you perfectly.'}
                               </p>
                          </div>
@@ -105,31 +106,35 @@ export default function Login() {
 
                                    <div className="relative">
                                         <div className="absolute inset-0 flex items-center">
-                                             <div className="w-full border-t border-gray-200"></div>
+                                             <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                                         </div>
                                         <div className="relative flex justify-center text-sm">
-                                             <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+                                             <span className="px-2 bg-white text-gray-500 dark:bg-gray-900 dark:text-gray-400">Or continue with email</span>
                                         </div>
                                    </div>
 
                                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
                                         <div>
-                                             <label className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-                                             <input type="email" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm" placeholder="you@example.com" />
+                                             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Display Name</label>
+                                             <input type="text" name="username" value={formData.username} onChange={handleInputChange} required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="Fashionista" />
                                         </div>
                                         <div>
-                                             <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                             <input type="password" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm" placeholder="••••••••" />
+                                             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Email address</label>
+                                             <input type="email" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="you@example.com" />
+                                        </div>
+                                        <div>
+                                             <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Password</label>
+                                             <input type="password" required className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all sm:text-sm dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white" placeholder="••••••••" />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                              <div>
-                                                  <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Gender</label>
                                                   <select
                                                        name="gender"
                                                        value={formData.gender}
                                                        onChange={handleInputChange}
-                                                       className="block w-full rounded-xl border-gray-300 py-3 pl-3 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent sm:text-sm border"
+                                                       className="block w-full rounded-xl border-gray-300 py-3 pl-3 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent sm:text-sm border dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                                   >
                                                        <option value="female">Female</option>
                                                        <option value="male">Male</option>
@@ -137,7 +142,7 @@ export default function Login() {
                                                   </select>
                                              </div>
                                              <div>
-                                                  <label className="block text-sm font-medium text-gray-700 mb-1">Favorite Color</label>
+                                                  <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Favorite Color</label>
                                                   <div className="flex items-center gap-2 h-[46px]">
                                                        {colors.slice(0, 5).map(c => (
                                                             <button
@@ -154,7 +159,7 @@ export default function Login() {
 
                                         <button
                                              type="submit"
-                                             className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                             className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 dark:bg-white dark:text-black dark:hover:bg-gray-200"
                                         >
                                              Next Step
                                              <svg className="ml-2 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -170,65 +175,65 @@ export default function Login() {
 
                                         <div className="grid grid-cols-2 gap-6">
                                              <div>
-                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Chest (cm)</label>
+                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Chest (cm)</label>
                                                   <input
                                                        type="number"
                                                        name="chest"
                                                        value={formData.chest}
                                                        onChange={handleInputChange}
                                                        placeholder="e.g. 90"
-                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                                   />
                                              </div>
                                              <div>
-                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Shoulder (cm)</label>
+                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Shoulder (cm)</label>
                                                   <input
                                                        type="number"
                                                        name="shoulder"
                                                        value={formData.shoulder}
                                                        onChange={handleInputChange}
                                                        placeholder="e.g. 40"
-                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                                   />
                                              </div>
                                              <div>
-                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Wrist (cm)</label>
+                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Wrist (cm)</label>
                                                   <input
                                                        type="number"
                                                        name="wrist"
                                                        value={formData.wrist}
                                                        onChange={handleInputChange}
                                                        placeholder="e.g. 16"
-                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                                   />
                                              </div>
                                              <div>
-                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Height (cm)</label>
+                                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Height (cm)</label>
                                                   <input
                                                        type="number"
                                                        name="height"
                                                        value={formData.height}
                                                        onChange={handleInputChange}
                                                        placeholder="e.g. 175"
-                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                                   />
                                              </div>
                                         </div>
 
                                         <div>
-                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Weight (kg) <span className="text-gray-400 font-normal normal-case">(Optional)</span></label>
+                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Weight (kg) <span className="text-gray-400 font-normal normal-case">(Optional)</span></label>
                                              <input
                                                   type="number"
                                                   name="weight"
                                                   value={formData.weight}
                                                   onChange={handleInputChange}
                                                   placeholder="e.g. 70"
-                                                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:focus:ring-white"
                                              />
                                         </div>
 
                                         <div>
-                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Favorite Brands</label>
+                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 dark:text-gray-400">Favorite Brands</label>
                                              <div className="flex flex-wrap gap-2">
                                                   {['Nike', 'Zara', 'H&M', 'Gucci', 'Adidas', 'Uniqlo'].map(brand => (
                                                        <button
@@ -243,8 +248,8 @@ export default function Login() {
                                                                  });
                                                             }}
                                                             className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${formData.brands.includes(brand)
-                                                                 ? 'bg-black text-white border-black'
-                                                                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                                                                 ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white'
+                                                                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:border-gray-400'
                                                                  }`}
                                                        >
                                                             {brand}
@@ -257,13 +262,13 @@ export default function Login() {
                                              <button
                                                   type="button"
                                                   onClick={() => setStep(1)}
-                                                  className="flex-1 py-3.5 px-4 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black transition-all"
+                                                  className="flex-1 py-3.5 px-4 border border-gray-300 text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black transition-all dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-white"
                                              >
                                                   Back
                                              </button>
                                              <button
                                                   type="submit"
-                                                  className="flex-[2] py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                                  className="flex-[2] py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 dark:bg-white dark:text-black dark:hover:bg-gray-200"
                                              >
                                                   Complete Setup
                                              </button>

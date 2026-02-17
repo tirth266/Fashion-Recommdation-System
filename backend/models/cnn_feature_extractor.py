@@ -63,4 +63,3 @@ with open(os.path.join(BASE_DIR, 'filenames.pkl'), 'wb') as f:
 print(f"Features extracted for {len(feature_list)} images.")
 print(f"Saved to {os.path.join(BASE_DIR, 'embeddings.pkl')}")
 print(f"Saved to {os.path.join(BASE_DIR, 'filenames.pkl')}")
-

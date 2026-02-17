@@ -1,5 +1,5 @@
 // API service for the Fashion Recommendation System
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 class FashionAPI {
   constructor() {
@@ -38,11 +38,11 @@ class FashionAPI {
     try {
       const response = await fetch(url, config);
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || 'API request failed');
       }
-      
+
       return data;
     } catch (error) {
       console.error('API Error:', error);

@@ -15,11 +15,16 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_COOKIE_SECURE'] = False # Important for localhost (HTTP)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # Important for localhost
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fashion.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
+from app.extensions import db
 # db = SQLAlchemy(app) # Database disabled for session-based auth
 # jwt = JWTManager(app) # JWT disabled for session-based auth
 server_session = Session(app)
+db.init_app(app)
+
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}})
 
 print("Server configured with Session (Filesystem)")
@@ -35,6 +40,7 @@ app.register_blueprint(recommendations.bp)
 
 # app.register_blueprint(search.bp)
 app.register_blueprint(size_estimation.bp)
+
 
 
 @app.route('/')
@@ -54,6 +60,8 @@ def health_check():
 
 
 if __name__ == '__main__':
-    # with app.app_context():
-    #     db.create_all()
+    with app.app_context():
+        # delayed import to avoid circular dep
+        from app.database.init_db import User, Product # Import models to register them
+        db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5000)

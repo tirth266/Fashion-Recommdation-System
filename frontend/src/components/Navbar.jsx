@@ -8,7 +8,7 @@ export default function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md h-[72px] border-b border-black/5 transition-all duration-300 dark:bg-gray-900/80 dark:border-white/10">
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md h-[72px] border-b border-black/5 transition-all duration-300 dark:bg-black/80 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
 
         {/* Left: Brand */}
@@ -39,7 +39,7 @@ export default function Navbar() {
         </div>
 
         {/* Right: Icons */}
-        <div className="flex items-center justify-end space-x-6 w-32">
+        <div className="flex items-center justify-end space-x-6">
           <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="text-primary hover:text-secondary transition-colors dark:text-gray-300 dark:hover:text-white">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           </button>
@@ -52,7 +52,11 @@ export default function Navbar() {
           <SettingsMenu />
 
           <Link to={currentUser ? '/profile' : '/login'} className="text-primary hover:text-secondary transition-colors dark:text-gray-300 dark:hover:text-white">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            {currentUser?.photoURL || currentUser?.picture ? (
+              <img src={currentUser.photoURL || currentUser.picture} alt="Profile" className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 object-cover" />
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            )}
           </Link>
 
           <button className="text-primary hover:text-secondary transition-colors relative dark:text-gray-300 dark:hover:text-white">

@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function GoogleLoginButton() {
-     const { loginWithGoogle } = useAuth();
+     const { loginWithGoogle, setError } = useAuth();
      const navigate = useNavigate();
 
      const handleSuccess = async (credentialResponse) => {
@@ -14,14 +14,17 @@ export default function GoogleLoginButton() {
                     navigate('/profile');
                } else {
                     console.error("Login failed after Google success");
+                    // Error is already set inside loginWithGoogle
                }
           } catch (err) {
                console.error("Exception in handleSuccess:", err);
+               setError('An unexpected error occurred during login. Please try again.');
           }
      };
 
      const handleError = () => {
           console.error("Google Login Failed");
+          setError('Google Login failed. Please check your internet connection or disable ad blockers.');
      };
 
      return (

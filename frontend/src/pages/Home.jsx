@@ -28,22 +28,22 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
           {/* Left Content */}
           <div className="space-y-8 animate-fade-in">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs font-semibold tracking-wide uppercase text-secondary">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-xs font-semibold tracking-wide uppercase text-secondary dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300">
               ✨ AI-Powered Fashion
             </span>
-            <h1 className="text-5xl lg:text-7xl font-serif font-bold leading-[1.1] tracking-tight text-primary">
+            <h1 className="text-5xl lg:text-7xl font-serif font-bold leading-[1.1] tracking-tight text-primary dark:text-white">
               Personalized Fashion <br /> Recommendations <br /> Using AI
             </h1>
-            <p className="text-lg text-secondary max-w-md leading-relaxed">
+            <p className="text-lg text-secondary max-w-md leading-relaxed dark:text-gray-400">
               Experience the future of style with our Deep Learning engine. Get outfit suggestions tailored to your body type, occasion, and current trends.
             </p>
             <div className="flex space-x-4 pt-4">
               <Link to="/get-recommendations">
-                <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 dark:bg-white dark:text-black dark:hover:bg-gray-200">
                   Get Recommendations
                 </button>
               </Link>
-              <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300">
+              <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300 dark:border-gray-600 dark:text-white dark:hover:bg-white/10">
                 Explore Styles
               </button>
             </div>
@@ -68,24 +68,24 @@ export default function Home() {
             { title: "Occasion Styling", desc: "Perfect looks for work, party, or casual.", icon: "📅" },
             { title: "Trend Awareness", desc: "Real-time analysis of global fashion trends.", icon: "📈" },
           ].map((feature, idx) => (
-            <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform">
+            <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group dark:bg-gray-800/50 dark:border-gray-700">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform dark:bg-gray-700 dark:text-white">
                 {feature.icon}
               </div>
-              <h3 className="font-serif text-lg font-bold mb-2 text-primary">{feature.title}</h3>
-              <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
+              <h3 className="font-serif text-lg font-bold mb-2 text-primary dark:text-white">{feature.title}</h3>
+              <p className="text-secondary text-sm leading-relaxed dark:text-gray-400">{feature.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* SECTION 3: RECOMMENDED OUTFITS */}
-      <section className="px-6 lg:px-8 py-24 bg-background">
+      <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto">
           <div className="mb-12 flex justify-between items-end">
             <div>
-              <h2 className="text-3xl font-serif font-bold mb-2">Recommended For You</h2>
-              <p className="text-secondary text-sm">Based on your recent uploads and preferences.</p>
+              <h2 className="text-3xl font-serif font-bold mb-2 dark:text-white">Recommended For You</h2>
+              <p className="text-secondary text-sm dark:text-gray-400">Based on your recent uploads and preferences.</p>
             </div>
           </div>
 
@@ -113,8 +113,8 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-                <h3 className="font-serif text-lg font-bold text-primary">{item.name}</h3>
-                <p className="text-secondary text-xs uppercase tracking-wider mt-1">AI Suggestion</p>
+                <h3 className="font-serif text-lg font-bold text-primary dark:text-white">{item.name}</h3>
+                <p className="text-secondary text-xs uppercase tracking-wider mt-1 dark:text-gray-400">AI Suggestion</p>
               </div>
             ))}
           </div>
@@ -122,16 +122,16 @@ export default function Home() {
       </section>
 
       {/* SECTION 4: SMART SIZE PREDICTION */}
-      <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100">
+      <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 dark:bg-black dark:border-white/10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider">
+            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider dark:bg-blue-900/40 dark:text-blue-200">
               Computer Vision
             </div>
-            <h2 className="text-4xl font-serif font-bold leading-tight">
+            <h2 className="text-4xl font-serif font-bold leading-tight dark:text-white">
               Smart Size <br /> Prediction
             </h2>
-            <p className="text-secondary leading-relaxed text-lg">
+            <p className="text-secondary leading-relaxed text-lg dark:text-gray-300">
               Say goodbye to returns. Our computer vision technology analyzes your body measurements from a single photo to predict your perfect size with 99.5% accuracy.
             </p>
             <ul className="space-y-4 pt-4">
@@ -143,12 +143,12 @@ export default function Home() {
               ))}
             </ul>
             <Link to="/size-estimation">
-              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8">Try Size Estimation</button>
+              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8 dark:bg-white dark:text-black dark:hover:bg-gray-200">Try Size Estimation</button>
             </Link>
           </div>
 
           {/* Visual Mock of Body Scanning */}
-          <div className="relative h-[550px] bg-gray-50 rounded-3xl border border-gray-100 overflow-hidden flex items-center justify-center">
+          <div className="relative h-[550px] bg-gray-50 rounded-3xl border border-gray-100 overflow-hidden flex items-center justify-center dark:bg-gray-800 dark:border-gray-700">
             <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale" alt="Size scanning" />
 
             {/* Abstract Skeleton Overlay */}
@@ -173,18 +173,18 @@ export default function Home() {
 
 
       {/* SECTION 5: OCCASION-BASED STYLING */}
-      <section className="px-6 lg:px-8 py-24 bg-background">
+      <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-bold mb-4">Style For Every Occasion</h2>
+            <h2 className="text-3xl font-serif font-bold mb-4 dark:text-white">Style For Every Occasion</h2>
             <div className="flex justify-center space-x-2 md:space-x-4 overflow-x-auto pb-4">
               {Object.keys(occasionOutfits).map((occasion) => (
                 <button
                   key={occasion}
                   onClick={() => setActiveOccasion(occasion)}
                   className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeOccasion === occasion
-                    ? 'bg-black text-white shadow-lg'
-                    : 'bg-white border border-gray-200 text-secondary hover:bg-gray-50'
+                    ? 'bg-black text-white shadow-lg dark:bg-white dark:text-black'
+                    : 'bg-white border border-gray-200 text-secondary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                 >
                   {occasion}
@@ -209,16 +209,16 @@ export default function Home() {
       </section>
 
       {/* SECTION 6: VIRTUAL WARDROBE MOCKUP */}
-      <section id="wardrobe" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100">
+      <section id="wardrobe" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 dark:bg-black dark:border-white/10">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-10">
-            <h2 className="text-3xl font-serif font-bold">Virtual Wardrobe</h2>
-            <button className="text-sm font-medium border-b border-black hover:opacity-70 transition-opacity">View My Closet</button>
+            <h2 className="text-3xl font-serif font-bold dark:text-white">Virtual Wardrobe</h2>
+            <button className="text-sm font-medium border-b border-black hover:opacity-70 transition-opacity dark:text-gray-300 dark:border-white">View My Closet</button>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {/* Upload Card */}
-            <div className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50">
+            <div className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-white dark:hover:text-white">
               <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v16m8-8H4" /></svg>
               <span className="text-sm font-medium">Add Item</span>
             </div>
@@ -242,9 +242,9 @@ export default function Home() {
       </section>
 
       {/* SECTION 7: LATEST TRENDS */}
-      <section id="trends" className="px-6 lg:px-8 py-24 bg-background">
+      <section id="trends" className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-serif font-bold mb-12">Latest Trends</h2>
+          <h2 className="text-3xl font-serif font-bold mb-12 dark:text-white">Latest Trends</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { title: "The Return of Y2K", desc: "Why early 2000s fashion is dominating the runway again.", img: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop" },
@@ -256,9 +256,9 @@ export default function Home() {
                   <img src={trend.img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Trend Report</p>
-                <h3 className="text-xl font-serif font-bold mb-2 group-hover:text-secondary transition-colors">{trend.title}</h3>
-                <p className="text-secondary text-sm leading-relaxed mb-3">{trend.desc}</p>
-                <span className="text-xs font-bold uppercase border-b border-black pb-0.5">Read Article</span>
+                <h3 className="text-xl font-serif font-bold mb-2 group-hover:text-secondary transition-colors dark:text-white dark:group-hover:text-gray-300">{trend.title}</h3>
+                <p className="text-secondary text-sm leading-relaxed mb-3 dark:text-gray-400">{trend.desc}</p>
+                <span className="text-xs font-bold uppercase border-b border-black pb-0.5 dark:text-white dark:border-white">Read Article</span>
               </div>
             ))}
           </div>

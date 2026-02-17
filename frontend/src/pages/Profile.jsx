@@ -27,9 +27,9 @@ const MeasurementInput = ({ label, value, onChange, placeholder, unit = "cm" }) 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:bg-white transition-all font-medium placeholder:text-gray-300"
+        className="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:bg-white transition-all font-medium placeholder:text-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-white dark:focus:bg-gray-800"
       />
-      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">{unit}</span>
+      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium dark:text-gray-500">{unit}</span>
     </div>
   </div>
 )
@@ -38,7 +38,7 @@ const MeasurementInput = ({ label, value, onChange, placeholder, unit = "cm" }) 
 const ColorSwatch = ({ name, hex, selected, onClick }) => (
   <button
     onClick={() => onClick(name)}
-    className={`group relative w-12 h-12 rounded-full border border-gray-100 shadow-sm transition-transform hover:scale-110 focus:outline-none ${selected ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}
+    className={`group relative w-12 h-12 rounded-full border border-gray-100 shadow-sm transition-transform hover:scale-110 focus:outline-none ${selected ? 'ring-2 ring-offset-2 ring-gray-900 dark:ring-white dark:ring-offset-gray-900' : 'dark:border-gray-700'}`}
     title={name}
   >
     <span
@@ -58,8 +58,8 @@ const BrandTag = ({ name, active, onClick }) => (
   <button
     onClick={() => onClick(name)}
     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${active
-      ? 'bg-gray-900 text-white border-gray-900 shadow-md transform -translate-y-0.5'
-      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+      ? 'bg-gray-900 text-white border-gray-900 shadow-md transform -translate-y-0.5 dark:bg-white dark:text-black dark:border-white'
+      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700'
       }`}
   >
     {name}
@@ -71,14 +71,14 @@ const FitCard = ({ type, description, active, onClick }) => (
   <div
     onClick={() => onClick(type)}
     className={`cursor-pointer rounded-2xl p-5 border transition-all duration-300 ${active
-      ? 'border-gray-900 bg-gray-50 shadow-md ring-1 ring-gray-900'
-      : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm'
+      ? 'border-gray-900 bg-gray-50 shadow-md ring-1 ring-gray-900 dark:border-white dark:bg-gray-800 dark:ring-white'
+      : 'border-gray-100 bg-white hover:border-gray-300 hover:shadow-sm dark:bg-gray-900 dark:border-gray-800 dark:hover:border-gray-600'
       }`}
   >
     <div className="flex items-center justify-between mb-2">
-      <h4 className={`font-serif font-bold text-lg ${active ? 'text-gray-900' : 'text-gray-600'}`}>{type}</h4>
-      <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${active ? 'border-gray-900 bg-gray-900' : 'border-gray-300'}`}>
-        {active && <div className="w-2 h-2 rounded-full bg-white" />}
+      <h4 className={`font-serif font-bold text-lg ${active ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>{type}</h4>
+      <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${active ? 'border-gray-900 bg-gray-900 dark:border-white dark:bg-white' : 'border-gray-300 dark:border-gray-600'}`}>
+        {active && <div className="w-2 h-2 rounded-full bg-white dark:bg-black" />}
       </div>
     </div>
     <p className="text-xs text-gray-500 leading-relaxed max-w-[80%]">{description}</p>
@@ -115,7 +115,7 @@ export default function Profile() {
       if (!currentUser) return;
 
       try {
-        const response = await fetch('http://localhost:5000/api/profile/', {
+        const response = await fetch('/api/profile/', {
           credentials: 'include'
         });
         if (response.ok) {
@@ -124,9 +124,9 @@ export default function Profile() {
 
           setProfile(prev => ({
             ...prev,
-            name: backendProfile.name || currentUser.displayName || prev.name,
+            name: backendProfile.name || currentUser.displayName || currentUser.name || prev.name,
             email: currentUser.email || prev.email,
-            avatar: backendProfile.avatar || currentUser.photoURL || prev.avatar,
+            avatar: backendProfile.avatar || currentUser.photoURL || currentUser.picture || prev.avatar,
             measurements: { ...prev.measurements, ...backendProfile.measurements },
             preferences: { ...prev.preferences, ...backendProfile.preferences }
           }));
@@ -164,7 +164,7 @@ export default function Profile() {
   const handleSave = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:5000/api/profile/', {
+      const response = await fetch('/api/profile/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -209,19 +209,19 @@ export default function Profile() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#F9F9F9] py-12 lg:py-20">
+      <div className="min-h-screen bg-[#F9F9F9] py-12 lg:py-20 dark:bg-black">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
 
           {/* PAGE HEADER */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-serif font-bold text-[#1A1A1A] mb-4">Your Profile</h1>
-            <p className="text-[#6B6B6B] text-lg max-w-lg mx-auto">Manage your measurements and style preferences for AI-powered recommendations.</p>
+            <h1 className="text-4xl font-serif font-bold text-[#1A1A1A] mb-4 dark:text-white">Your Profile</h1>
+            <p className="text-[#6B6B6B] text-lg max-w-lg mx-auto dark:text-gray-400">Manage your measurements and style preferences for AI-powered recommendations.</p>
           </div>
 
           <div className="space-y-8">
 
             {/* SECTION 1: PROFILE HEADER */}
-            <section className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <section className="bg-white rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row items-center gap-8 text-center md:text-left dark:bg-gray-800 dark:border-gray-700">
               <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload').click()}>
                 <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-lg">
                   <img src={profile.avatar} alt="Profile" className="w-full h-full object-cover" />
@@ -246,7 +246,7 @@ export default function Profile() {
 
                     try {
                       // Show temporary loading state or preview if desired
-                      const response = await fetch('http://localhost:5000/api/profile/upload-avatar', {
+                      const response = await fetch('/api/profile/upload-avatar', {
                         method: 'POST',
                         body: formData,
                         credentials: 'include'
@@ -277,7 +277,7 @@ export default function Profile() {
                     type="text"
                     value={profile.name}
                     onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full text-2xl font-serif font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-gray-900 focus:outline-none pb-1 transition-colors text-center md:text-left"
+                    className="w-full text-2xl font-serif font-bold text-gray-900 bg-transparent border-b border-gray-200 focus:border-gray-900 focus:outline-none pb-1 transition-colors text-center md:text-left dark:text-white dark:border-gray-600 dark:focus:border-white"
                   />
                 </div>
                 <div>
@@ -293,10 +293,10 @@ export default function Profile() {
             </section>
 
             {/* SECTION 2: BODY MEASUREMENTS */}
-            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-serif font-bold text-gray-900">Body Measurements</h2>
-                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">For AI Sizing</span>
+                <h2 className="text-2xl font-serif font-bold text-gray-900 dark:text-white">Body Measurements</h2>
+                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide dark:bg-green-900/30 dark:text-green-300">For AI Sizing</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -328,7 +328,7 @@ export default function Profile() {
             </section>
 
             {/* SECTION 3: STYLE PREFERENCES */}
-            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 space-y-10">
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 space-y-10 dark:bg-gray-800 dark:border-gray-700">
 
               {/* COLORS */}
               <div>
@@ -363,7 +363,7 @@ export default function Profile() {
                     {/* 1. Picker Button */}
                     <div className="relative group">
                       <button
-                        className="w-12 h-12 rounded-full border border-gray-100 shadow-sm flex items-center justify-center bg-white hover:bg-gray-50 transition-colors focus:outline-none text-gray-400 hover:text-gray-900"
+                        className="w-12 h-12 rounded-full border border-gray-100 shadow-sm flex items-center justify-center bg-white hover:bg-gray-50 transition-colors focus:outline-none text-gray-400 hover:text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:text-gray-300 dark:hover:text-white"
                         title="Pick Custom Color"
                         onClick={() => document.getElementById('custom-color-input').click()}
                       >
@@ -403,7 +403,7 @@ export default function Profile() {
                         {/* Cancel Button */}
                         <button
                           onClick={() => setPendingColor(null)}
-                          className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-red-500 transition-colors shadow-sm"
+                          className="w-10 h-10 rounded-full bg-white border border-gray-200 text-gray-500 flex items-center justify-center hover:bg-gray-50 hover:text-red-500 transition-colors shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-600"
                           title="Cancel"
                         >
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -434,8 +434,8 @@ export default function Profile() {
             </section>
 
             {/* SECTION 4: FIT PREFERENCE */}
-            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-8">Fit Preference</h2>
+            <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-8 dark:text-white">Fit Preference</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { type: 'Slim Fit', desc: 'Closer to the body with tailored lines.' },
@@ -453,9 +453,9 @@ export default function Profile() {
             </section>
 
             {/* SECTION 5: ACTIONS */}
-            <div className="sticky bottom-6 z-10 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-gray-100 flex items-center justify-between max-w-xl mx-auto">
+            <div className="sticky bottom-6 z-10 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-gray-100 flex items-center justify-between max-w-xl mx-auto dark:bg-gray-900/80 dark:border-gray-700">
               <button
-                className="text-gray-500 font-medium px-6 py-3 hover:text-gray-900 transition-colors"
+                className="text-gray-500 font-medium px-6 py-3 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"
                 onClick={() => window.location.reload()}
               >
                 Reset Changes
@@ -463,7 +463,7 @@ export default function Profile() {
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="bg-[#1A1A1A] text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-black hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-70 disabled:hover:translate-y-0"
+                className="bg-[#1A1A1A] text-white px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 hover:bg-black hover:shadow-xl hover:-translate-y-1 transition-all disabled:opacity-70 disabled:hover:translate-y-0 dark:bg-white dark:text-black dark:hover:bg-gray-200"
               >
                 {loading ? (
                   <>

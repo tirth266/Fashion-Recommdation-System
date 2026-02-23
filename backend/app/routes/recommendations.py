@@ -7,10 +7,13 @@ bp = Blueprint('recommendations', __name__, url_prefix='/api/recommendations')
 
 @bp.route('/recommend', methods=['POST'])
 def recommend():
+    print("Received recommendation request") # DEBUG
     if 'image' not in request.files:
+        print("Error: No image in request.files")
         return jsonify({'error': 'No image uploaded'}), 400
     
     file = request.files['image']
+    print(f"Processing file: {file.filename}")
     if file.filename == '':
         return jsonify({'error': 'No image selected'}), 400
 
@@ -36,15 +39,15 @@ def recommend():
             image_url = f"/static/dataset_images/{filename}"
             
             results.append({
-                'image': image_url,
-                'score': 0.0  # Placeholder as model doesn't return score yet
+                'url': image_url,
+                'similarity': 0.85 # Placeholder, model update needed for real score
             })
             
         # Clean up temp file
         if os.path.exists(temp_path):
             os.remove(temp_path)
             
-        return jsonify(results), 200
+        return jsonify({'recommended_images': results}), 200
 
     except Exception as e:
         print(f"Error in recommendation: {e}")

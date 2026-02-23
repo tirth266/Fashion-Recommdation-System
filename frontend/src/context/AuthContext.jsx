@@ -48,8 +48,16 @@ export function AuthProvider({ children }) {
                     credentials: 'include'
                });
 
+
                if (!response.ok) {
-                    throw new Error('Google Login failed');
+                    const errorText = await response.text();
+                    console.error("Server Error Response:", errorText);
+                    try {
+                         const errorJson = JSON.parse(errorText);
+                         throw new Error(errorJson.error || 'Google Login failed');
+                    } catch (e) {
+                         throw new Error(`Google Login failed: ${response.status} ${response.statusText}`);
+                    }
                }
 
                const data = await response.json();
@@ -57,7 +65,7 @@ export function AuthProvider({ children }) {
                return data.user;
           } catch (err) {
                console.error("Login Error:", err);
-               setError('Failed to login with Google');
+               setError(err.message);
                return false;
           } finally {
                setLoading(false);

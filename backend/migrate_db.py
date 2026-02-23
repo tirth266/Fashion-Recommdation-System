@@ -27,17 +27,23 @@ def migrate_database():
             print("✅ google_id column already exists!")
         else:
             print("➕ Adding google_id column...")
-            cursor.execute("ALTER TABLE users ADD COLUMN google_id VARCHAR(255)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS ix_users_google_id ON users (google_id)")
-            conn.commit()
-            print("✅ google_id column added successfully!")
-        
-        # Check if profile_picture column exists
-        if 'profile_picture' not in columns:
-            print("➕ Adding profile_picture column...")
-            cursor.execute("ALTER TABLE users ADD COLUMN profile_picture TEXT")
-            conn.commit()
-            print("✅ profile_picture column added!")
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN google_id VARCHAR(255)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS ix_users_google_id ON users (google_id)")
+                conn.commit()
+                print("✅ google_id column added successfully!")
+            except Exception as e:
+                print(f"Error adding google_id: {e}")
+
+        # Check if profile_image column exists
+        if 'profile_image' not in columns:
+            print("➕ Adding profile_image column...")
+            try:
+                cursor.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
+                conn.commit()
+                print("✅ profile_image column added!")
+            except Exception as e:
+                print(f"Error adding profile_image: {e}")
         
         print("\n✅ Database migration completed successfully!")
         

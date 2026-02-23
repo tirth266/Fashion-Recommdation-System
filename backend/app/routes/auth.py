@@ -15,7 +15,13 @@ GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '737685649419-2b6lgqusjcrq
 @bp.route('/google', methods=['POST'])
 def google_auth():
     print("Received /api/auth/google request") # DEBUG
-    data = request.get_json()
+    try:
+        data = request.get_json()
+        print(f"Payload keys: {data.keys() if data else 'None'}")
+    except Exception as e:
+        print(f"Failed to parse JSON: {e}")
+        return jsonify({'error': 'Invalid JSON'}), 400
+
     token = data.get('token')
     
     if not token:
@@ -25,7 +31,13 @@ def google_auth():
     try:
         print(f"Verifying token with Client ID: {GOOGLE_CLIENT_ID[:10]}...") # DEBUG
         # Specify the CLIENT_ID of the app that accesses the backend:
-        id_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+        # Added clock_skew_in_seconds to handle minor time discrepancies (e.g. "Token used too early")
+        id_info = id_token.verify_oauth2_token(
+            token, 
+            requests.Request(), 
+            GOOGLE_CLIENT_ID, 
+            clock_skew_in_seconds=10
+        )
 
         # ID token is valid. Get the user's Google Account information from the decoded token.
         user_google_id = id_info['sub']
@@ -273,10 +285,21 @@ def get_current_user():
         return jsonify({'user': user}), 200
     except Exception as e:
         import sys
-        print(f"Error in /user: {e}", file=sys.stderr)
         import traceback
+        
+        # Log to file
+        try:
+            with open("auth_error.log", "a") as f:
+                f.write(f"\n[{datetime.utcnow()}] Error in /user:\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write(traceback.format_exc())
+                f.write("-" * 20 + "\n")
+        except:
+            pass
+
+        print(f"Error in /user: {e}", file=sys.stderr)
         traceback.print_exc()
-        return jsonify({'error': 'Internal server error'}), 500
+        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
 @bp.route('/logout', methods=['POST'])
 def logout():

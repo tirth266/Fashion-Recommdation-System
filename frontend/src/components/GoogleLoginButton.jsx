@@ -21,6 +21,7 @@ export default function GoogleLoginButton() {
                }
           } catch (err) {
                console.error("Exception in handleSuccess:", err);
+               console.error("Full error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
                setError('An unexpected error occurred during login. Please try again.');
           }
      };

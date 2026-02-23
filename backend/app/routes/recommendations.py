@@ -25,16 +25,22 @@ def recommend():
         temp_path = os.path.join('uploads', file.filename)
         file.save(temp_path)
         
-        # Get recommendations — returns list of (abs_path, similarity_score) tuples
-        rec_results = get_recommendations(temp_path)
+        # Get recommendations
+        # recommend returns list of absolute paths
+        rec_paths = get_recommendations(temp_path)
         
         results = []
-        for abs_path, score in rec_results:
+        for abs_path in rec_paths:
+            # Convert absolute path to relative URL
             filename = os.path.basename(abs_path)
+            
+            # Construct the URL for the image
+            # Matches the static route in main.py: /static/dataset_images/<filename>
             image_url = f"/static/dataset_images/{filename}"
+            
             results.append({
                 'url': image_url,
-                'similarity': round(score, 4)  # real cosine similarity from the model
+                'similarity': 0.85 # Placeholder, model update needed for real score
             })
             
         # Clean up temp file

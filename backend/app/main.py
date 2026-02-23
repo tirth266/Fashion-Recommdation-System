@@ -7,29 +7,25 @@ from datetime import timedelta
 # Initialize Flask app
 app = Flask(__name__)
 
-# --- Configuration ---
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-prod')
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
-# Session
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_PERMANENT'] = True          # Must be True to persist across requests
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_COOKIE_SECURE'] = False     # False for HTTP localhost
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['SESSION_COOKIE_NAME'] = 'fashion_session'
-
-# Database
+app.config['SESSION_COOKIE_SECURE'] = False # Important for localhost (HTTP)
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # Important for localhost
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fashion.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/fashiondb')
 
-# Initialize extensions (MONGO_URI must be set before mongo.init_app)
+# Initialize extensions
 from app.extensions import db, mongo
-db.init_app(app)
-mongo.init_app(app)
+# db = SQLAlchemy(app) # Database disabled for session-based auth
+# jwt = JWTManager(app) # JWT disabled for session-based auth
 server_session = Session(app)
+db.init_app(app)
+app.config["MONGO_URI"] = os.environ.get("MONGO_URI", "mongodb://localhost:27017/fashiondb")
+mongo.init_app(app)
 
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}})
 

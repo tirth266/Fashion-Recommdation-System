@@ -41,7 +41,7 @@ else:
 def recommend(image_path, top_k=5):
     """
     Generate recommendations for a given image path.
-    Returns a list of image filenames (absolute paths).
+    Returns a list of (filepath, similarity_score) tuples, sorted by score descending.
     """
     if len(embeddings) == 0:
         print("❌ Embeddings not loaded, cannot recommend.")
@@ -49,20 +49,20 @@ def recommend(image_path, top_k=5):
 
     try:
         # Extract query features
-        # Note: extract_features in cnn_feature_extractor takes (img_path, model)
         query_embedding = extract_features(image_path, model)
 
-        # Compute similarity
+        # Compute cosine similarity against all embeddings
         similarities = cosine_similarity(
             [query_embedding], embeddings
         )[0]
 
-        # Get top matches
+        # Get indices of top-k most similar items (highest score first)
         indices = np.argsort(similarities)[-top_k:][::-1]
 
-        results = [filenames[i] for i in indices]
+        # Return (filepath, score) tuples so caller has access to real scores
+        results = [(filenames[i], float(similarities[i])) for i in indices]
 
-        print("✅ Recommendations generated")
+        print(f"✅ Recommendations generated — top score: {results[0][1]:.4f}")
         return results
 
     except Exception as e:

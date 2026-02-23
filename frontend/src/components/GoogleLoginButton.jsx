@@ -1,27 +1,19 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export default function GoogleLoginButton() {
      const { loginWithGoogle, setError } = useAuth();
-     const navigate = useNavigate();
 
      const handleSuccess = async (credentialResponse) => {
-          console.log("Google Login Success:", credentialResponse);
+          console.log("Google Login Success: token received");
           try {
                const user = await loginWithGoogle(credentialResponse.credential);
-               if (user) {
-                    const stored = sessionStorage.getItem('intendedDestination');
-                    const target = stored || '/profile';
-                    sessionStorage.removeItem('intendedDestination');
-                    navigate(target);
-               } else {
-                    console.error("Login failed after Google success");
-                    // Error is already set inside loginWithGoogle
+               if (!user) {
+                    console.error("Login failed after Google success - no user returned");
                }
+               // Navigation is handled by Login.jsx's useEffect when currentUser changes
           } catch (err) {
                console.error("Exception in handleSuccess:", err);
-               console.error("Full error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
                setError('An unexpected error occurred during login. Please try again.');
           }
      };

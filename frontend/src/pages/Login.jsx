@@ -27,10 +27,14 @@ export default function Login() {
 
      useEffect(() => {
           if (currentUser) {
-               // If user is already logged in, check if they need to complete onboarding (Step 2)
-               // For now, we'll just redirect to recommendations if they are done
-               // You might want to add logic here to check a 'profile.completed_onboarding' flag
-               navigate('/');
+               // Redirect to intended destination (set by AuthGuard) or dashboard
+               const stored = sessionStorage.getItem('intendedDestination');
+               if (stored && stored !== '/login') {
+                    sessionStorage.removeItem('intendedDestination');
+                    navigate(stored, { replace: true });
+               } else {
+                    navigate('/dashboard', { replace: true });
+               }
           }
      }, [currentUser, navigate]);
 

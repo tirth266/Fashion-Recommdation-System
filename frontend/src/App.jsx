@@ -11,7 +11,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import GetRecommendation from './pages/GetRecommendation'
-import SizeEstimation from './pages/SizeEstimation'
+
 import APITest from './pages/APITest'
 
 
@@ -39,7 +39,7 @@ function App() {
             <Route path="/recommendations" element={<AuthGuard><Recommendations /></AuthGuard>} />
             <Route path="/smart-size-estimation" element={<AuthGuard><SmartSize /></AuthGuard>} />
             <Route path="/get-recommendations" element={<AuthGuard><GetRecommendation /></AuthGuard>} />
-            <Route path="/size-estimation" element={<AuthGuard><SizeEstimation /></AuthGuard>} />
+
             <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
 
             <Route path="/api-test" element={<APITest />} />

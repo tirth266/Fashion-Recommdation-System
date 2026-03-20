@@ -23,7 +23,7 @@ export default function Navbar() {
           {[
             { name: 'Home', href: '/' },
             { name: 'AI Recommendations', href: '#ai-recommendations' },
-            { name: 'Smart Sizing', href: '#smart-sizing' },
+            { name: 'Body Measure', href: '/smart-size-estimation' },
             { name: 'Wardrobe', href: '#wardrobe' },
             { name: 'Trends', href: '#trends' }
           ].map((item) => (

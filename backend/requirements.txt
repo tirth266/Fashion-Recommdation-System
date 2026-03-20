@@ -15,3 +15,5 @@ google-auth
 google-auth-oauthlib
 google-auth-httplib2
 opencv-python-headless
+tensorflow
+tqdm

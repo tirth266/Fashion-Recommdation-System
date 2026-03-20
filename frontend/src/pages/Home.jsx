@@ -196,8 +196,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <Link to="/size-estimation">
-              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8 dark:bg-white dark:text-black dark:hover:bg-gray-200">Try Size Estimation</button>
+            <Link to="/smart-size-estimation">
+              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8 dark:bg-white dark:text-black dark:hover:bg-gray-200">Try Body Measurement</button>
             </Link>
           </div>
 

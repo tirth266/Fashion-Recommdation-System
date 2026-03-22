@@ -131,11 +131,11 @@ function ProgressBar({ currentStep }) {
             <div key={step.id} className="flex flex-col items-center flex-1">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 border-2
                 ${isDone ? 'bg-purple-600 border-purple-600 text-white shadow-lg shadow-purple-500/30' :
-                  isActive ? 'bg-purple-500/20 border-purple-500 text-purple-400 shadow-lg shadow-purple-500/20 animate-process-pulse' :
-                  'bg-white/5 border-white/10 text-white/30'}`}>
+                  isActive ? 'bg-purple-500/20 border-purple-500 text-purple-600 shadow-lg shadow-purple-500/20 animate-process-pulse' :
+                  'bg-gray-100 border-gray-200 text-gray-400'}`}>
                 {isDone ? '✓' : step.icon}
               </div>
-              <span className={`text-[10px] mt-1.5 font-medium transition-colors duration-300 ${isActive ? 'text-purple-400' : isDone ? 'text-purple-300' : 'text-white/20'}`}>
+              <span className={`text-[10px] mt-1.5 font-medium transition-colors duration-300 ${isActive ? 'text-purple-600' : isDone ? 'text-purple-500' : 'text-gray-400'}`}>
                 {step.label}
               </span>
             </div>
@@ -143,7 +143,7 @@ function ProgressBar({ currentStep }) {
         })}
       </div>
       {/* Track */}
-      <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+      <div className="relative h-1.5 bg-gray-200 rounded-full overflow-hidden">
         <div
           className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 animate-progress-fill transition-all duration-700 ease-out"
           style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
@@ -452,12 +452,12 @@ export default function SmartSize() {
   // RENDER
   // ═══════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 text-gray-800 overflow-hidden">
       {/* Ambient background orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl animate-gradient-bg" />
-        <div className="absolute top-1/3 -right-32 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl animate-gradient-bg" style={{ animationDelay: '4s' }} />
-        <div className="absolute -bottom-32 left-1/3 w-72 h-72 bg-blue-500/8 rounded-full blur-3xl animate-gradient-bg" style={{ animationDelay: '2s' }} />
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-200/40 rounded-full blur-3xl animate-gradient-bg" />
+        <div className="absolute top-1/3 -right-32 w-80 h-80 bg-pink-200/40 rounded-full blur-3xl animate-gradient-bg" style={{ animationDelay: '4s' }} />
+        <div className="absolute -bottom-32 left-1/3 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl animate-gradient-bg" style={{ animationDelay: '2s' }} />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 sm:py-14">
@@ -466,7 +466,7 @@ export default function SmartSize() {
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3">
             <span className="gradient-text">Body Measurement</span> Studio
           </h1>
-          <p className="text-white/40 text-sm sm:text-base max-w-xl mx-auto">
+          <p className="text-gray-500 text-sm sm:text-base max-w-xl mx-auto">
             Powered by AI pose detection — get your measurements and perfect clothing size in under 60 seconds
           </p>
         </div>
@@ -481,19 +481,19 @@ export default function SmartSize() {
           {step === 1 && (
             <div className="animate-step-in">
               <div className="max-w-md mx-auto">
-                <div className="glass-dark rounded-3xl p-8 sm:p-10 shadow-2xl shadow-purple-900/10">
+                <div className="glass-light rounded-3xl p-8 sm:p-10 shadow-xl">
                   <div className="text-center mb-8">
                     <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl mb-4 shadow-lg shadow-purple-500/30">
                       📏
                     </div>
-                    <h2 className="text-2xl font-bold">Enter Your Details</h2>
-                    <p className="text-white/40 text-sm mt-1">We need your height & weight for accurate scaling</p>
+                    <h2 className="text-2xl font-bold text-gray-800">Enter Your Details</h2>
+                    <p className="text-gray-500 text-sm mt-1">We need your height & weight for accurate scaling</p>
                   </div>
 
                   <div className="space-y-5">
                     {/* Height */}
                     <div>
-                      <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Height</label>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Height</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -502,15 +502,15 @@ export default function SmartSize() {
                           placeholder="e.g. 175"
                           min="100"
                           max="250"
-                          className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:bg-white/8 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-lg font-medium"
+                          className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:bg-white focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-lg font-medium"
                         />
-                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/30 font-medium">cm</span>
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-medium">cm</span>
                       </div>
                     </div>
 
                     {/* Weight */}
                     <div>
-                      <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Weight</label>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Weight</label>
                       <div className="relative">
                         <input
                           type="number"
@@ -519,18 +519,18 @@ export default function SmartSize() {
                           placeholder="e.g. 70"
                           min="30"
                           max="250"
-                          className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/20 focus:bg-white/8 focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-lg font-medium"
+                          className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 focus:bg-white focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all text-lg font-medium"
                         />
-                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/30 font-medium">kg</span>
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-medium">kg</span>
                       </div>
                     </div>
                   </div>
 
                   {/* BMI Preview */}
                   {height && weight && (
-                    <div className="mt-5 p-4 rounded-2xl bg-white/5 border border-white/5 animate-count-up">
+                    <div className="mt-5 p-4 rounded-2xl bg-purple-50 border border-purple-100 animate-count-up">
                       <div className="flex items-center justify-between">
-                        <span className="text-white/40 text-sm">Your BMI</span>
+                        <span className="text-gray-500 text-sm">Your BMI</span>
                         <span className="text-lg font-bold text-purple-400">
                           {(parseFloat(weight) / ((parseFloat(height) / 100) ** 2)).toFixed(1)}
                         </span>
@@ -544,7 +544,7 @@ export default function SmartSize() {
                     className={`w-full mt-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
                       height && weight && parseFloat(height) >= 100 && parseFloat(weight) >= 30
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]'
-                        : 'bg-white/5 text-white/20 cursor-not-allowed'
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
                     Continue to Camera →
@@ -552,9 +552,9 @@ export default function SmartSize() {
                 </div>
 
                 {/* Tips */}
-                <div className="mt-6 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
-                  <h3 className="text-sm font-bold text-white/60 mb-3">📌 Tips for best results</h3>
-                  <ul className="text-xs text-white/30 space-y-1.5">
+                <div className="mt-6 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                  <h3 className="text-sm font-bold text-gray-600 mb-3">📌 Tips for best results</h3>
+                  <ul className="text-xs text-gray-500 space-y-1.5">
                     <li>• Stand 2–3 meters from the camera</li>
                     <li>• Wear fitted clothing (not baggy)</li>
                     <li>• Ensure full body is visible (head to feet)</li>
@@ -571,11 +571,11 @@ export default function SmartSize() {
             <div className="animate-step-in">
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
-                  <h2 className="text-xl font-bold">Front View Photo</h2>
-                  <p className="text-white/40 text-sm mt-1">Face the camera, align yourself with the silhouette below</p>
+                  <h2 className="text-xl font-bold text-gray-800">Front View Photo</h2>
+                  <p className="text-gray-500 text-sm mt-1">Face the camera, align yourself with the silhouette below</p>
                 </div>
 
-                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-white/10 shadow-2xl shadow-purple-900/20" style={{ aspectRatio: '3/4' }}>
+                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
                   {/* Live webcam feed */}
                   <video
                     ref={videoRef}
@@ -636,7 +636,7 @@ export default function SmartSize() {
                     <div className="absolute inset-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 </div>
-                <p className="text-center text-white/30 text-xs mt-2">Tap to capture (3s countdown)</p>
+                <p className="text-center text-gray-400 text-xs mt-2">Tap to capture (3s countdown)</p>
               </div>
             </div>
           )}
@@ -646,11 +646,11 @@ export default function SmartSize() {
             <div className="animate-step-in">
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
-                  <h2 className="text-xl font-bold">Side View Photo</h2>
-                  <p className="text-white/40 text-sm mt-1">Turn sideways (90°), stand straight, arms by your side</p>
+                  <h2 className="text-xl font-bold text-gray-800">Side View Photo</h2>
+                  <p className="text-gray-500 text-sm mt-1">Turn sideways (90°), stand straight, arms by your side</p>
                 </div>
 
-                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-white/10 shadow-2xl shadow-pink-900/20" style={{ aspectRatio: '3/4' }}>
+                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
                   <video
                     ref={videoRef}
                     autoPlay
@@ -705,7 +705,7 @@ export default function SmartSize() {
                     <div className="absolute inset-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 </div>
-                <p className="text-center text-white/30 text-xs mt-2">Tap to capture (3s countdown)</p>
+                <p className="text-center text-gray-400 text-xs mt-2">Tap to capture (3s countdown)</p>
               </div>
             </div>
           )}
@@ -716,7 +716,7 @@ export default function SmartSize() {
               <div className="max-w-md mx-auto text-center py-16">
                 {/* Spinner */}
                 <div className="relative w-28 h-28 mx-auto mb-8">
-                  <div className="absolute inset-0 rounded-full border-4 border-white/5" />
+                  <div className="absolute inset-0 rounded-full border-4 border-gray-200" />
                   <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-pink-500 animate-process-spin" />
                   <div className="absolute inset-3 rounded-full border-4 border-transparent border-b-purple-400 border-l-pink-400 animate-process-spin" style={{ animationDirection: 'reverse', animationDuration: '1.8s' }} />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -724,8 +724,8 @@ export default function SmartSize() {
                   </div>
                 </div>
 
-                <h2 className="text-2xl font-bold mb-2">Analyzing Your Photos</h2>
-                <p className="text-white/40 text-sm mb-6">Detecting body landmarks & calculating measurements</p>
+                <h2 className="text-2xl font-bold mb-2 text-gray-800">Analyzing Your Photos</h2>
+                <p className="text-gray-500 text-sm mb-6">Detecting body landmarks & calculating measurements</p>
 
                 {/* Animated dots */}
                 <div className="flex items-center justify-center gap-2">
@@ -737,12 +737,12 @@ export default function SmartSize() {
                 {/* Captured previews */}
                 <div className="flex justify-center gap-4 mt-10">
                   {frontImage && (
-                    <div className="w-24 h-32 rounded-xl overflow-hidden border border-white/10 opacity-60">
+                    <div className="w-24 h-32 rounded-xl overflow-hidden border border-gray-200 opacity-60">
                       <img src={frontImage} alt="Front" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
                     </div>
                   )}
                   {sideImage && (
-                    <div className="w-24 h-32 rounded-xl overflow-hidden border border-white/10 opacity-60">
+                    <div className="w-24 h-32 rounded-xl overflow-hidden border border-gray-200 opacity-60">
                       <img src={sideImage} alt="Side" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
                     </div>
                   )}
@@ -757,15 +757,15 @@ export default function SmartSize() {
               <div className="max-w-3xl mx-auto">
                 {/* Fallback notice */}
                 {measurements.fallback && (
-                  <div className="mb-6 p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-sm text-center animate-result-reveal">
+                  <div className="mb-6 p-4 rounded-2xl bg-yellow-50 border border-yellow-200 text-yellow-700 text-sm text-center animate-result-reveal">
                     ⚠️ Pose detection wasn't available — results are estimated from BMI & height. For best accuracy, try again with good lighting and full body visible.
                   </div>
                 )}
 
                 {/* BMI Badge */}
                 <div className="text-center mb-8 animate-result-reveal">
-                  <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10">
-                    <span className="text-white/40 text-sm">BMI</span>
+                  <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-50 border border-purple-100">
+                    <span className="text-gray-500 text-sm">BMI</span>
                     <span className="text-2xl font-black text-purple-400">{measurements.bmi}</span>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-medium">
                       {parseFloat(measurements.bmi) < 18.5 ? 'Underweight' :
@@ -779,7 +779,7 @@ export default function SmartSize() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                   {/* Measurements Table */}
-                  <div className="glass-dark rounded-3xl p-6 sm:p-8 shadow-2xl animate-result-reveal result-delay-1">
+                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg animate-result-reveal result-delay-1">
                     <h3 className="text-lg font-bold mb-5 flex items-center gap-2">
                       <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm">📏</span>
                       Your Measurements
@@ -794,10 +794,10 @@ export default function SmartSize() {
                       ].map((item, i) => (
                         <div key={item.label} className="group">
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">{item.label}</span>
-                            <span className="text-sm font-bold font-mono text-white">{item.value} <span className="text-white/30 font-normal">cm</span></span>
+                            <span className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">{item.label}</span>
+                            <span className="text-sm font-bold font-mono text-gray-800">{item.value} <span className="text-gray-400 font-normal">cm</span></span>
                           </div>
-                          <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full bg-gradient-to-r ${item.color} animate-bar-fill`}
                               style={{ width: `${Math.min(100, (parseFloat(item.value) / item.max) * 100)}%`, animationDelay: `${i * 0.15}s` }}
@@ -809,7 +809,7 @@ export default function SmartSize() {
                   </div>
 
                   {/* Size Recommendations */}
-                  <div className="glass-dark rounded-3xl p-6 sm:p-8 shadow-2xl animate-result-reveal result-delay-2">
+                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg animate-result-reveal result-delay-2">
                     <h3 className="text-lg font-bold mb-5 flex items-center gap-2">
                       <span className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center text-sm">👕</span>
                       Recommended Sizes
@@ -817,33 +817,33 @@ export default function SmartSize() {
 
                     <div className="space-y-4">
                       {/* T-Shirt */}
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-purple-500/30 transition-colors">
+                      <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-purple-300 transition-colors">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-white/30 uppercase tracking-wider">T-Shirt / Top</p>
-                            <p className="text-white/50 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
+                            <p className="text-xs text-gray-400 uppercase tracking-wider">T-Shirt / Top</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
                           </div>
                           <div className="text-3xl font-black text-purple-400">{measurements.tshirtSize}</div>
                         </div>
                       </div>
 
                       {/* Pants */}
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-pink-500/30 transition-colors">
+                      <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-pink-300 transition-colors">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-white/30 uppercase tracking-wider">Pants / Trousers</p>
-                            <p className="text-white/50 text-xs mt-0.5">Based on waist: {measurements.waistCircumference} cm</p>
+                            <p className="text-xs text-gray-400 uppercase tracking-wider">Pants / Trousers</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Based on waist: {measurements.waistCircumference} cm</p>
                           </div>
                           <div className="text-3xl font-black text-pink-400">{measurements.pantsSize}</div>
                         </div>
                       </div>
 
                       {/* Formal Shirt */}
-                      <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-blue-500/30 transition-colors">
+                      <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-300 transition-colors">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-xs text-white/30 uppercase tracking-wider">Formal Shirt</p>
-                            <p className="text-white/50 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
+                            <p className="text-xs text-gray-400 uppercase tracking-wider">Formal Shirt</p>
+                            <p className="text-gray-500 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
                           </div>
                           <div className="text-3xl font-black text-blue-400">{measurements.formalShirtSize}</div>
                         </div>
@@ -851,16 +851,16 @@ export default function SmartSize() {
                     </div>
 
                     {/* Size chart reference */}
-                    <div className="mt-5 pt-4 border-t border-white/5">
-                      <p className="text-[10px] text-white/20 uppercase tracking-wider mb-3">Size Chart Reference (Chest — T-shirts)</p>
+                    <div className="mt-5 pt-4 border-t border-gray-200">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-3">Size Chart Reference (Chest — T-shirts)</p>
                       <div className="flex flex-wrap gap-1.5">
                         {TSHIRT_SIZES.map((s) => (
                           <span
                             key={s.size}
                             className={`text-[10px] px-2 py-1 rounded-lg border font-medium ${
                               measurements.tshirtSize === s.size
-                                ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
-                                : 'bg-white/[0.02] border-white/5 text-white/20'
+                                ? 'bg-purple-100 border-purple-300 text-purple-600'
+                                : 'bg-gray-50 border-gray-200 text-gray-400'
                             }`}
                           >
                             {s.size} {s.max < 999 ? `(<${s.max})` : `(>${s.min})`}
@@ -875,18 +875,18 @@ export default function SmartSize() {
                 <div className="mt-6 flex justify-center gap-4 animate-result-reveal result-delay-3">
                   {frontImage && (
                     <div className="relative group">
-                      <div className="w-28 h-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                      <div className="w-28 h-36 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
                         <img src={frontImage} alt="Front view" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
                       </div>
-                      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 bg-white/10 rounded-full text-white/50 whitespace-nowrap">Front</span>
+                      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 whitespace-nowrap">Front</span>
                     </div>
                   )}
                   {sideImage && (
                     <div className="relative group">
-                      <div className="w-28 h-36 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                      <div className="w-28 h-36 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
                         <img src={sideImage} alt="Side view" className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
                       </div>
-                      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 bg-white/10 rounded-full text-white/50 whitespace-nowrap">Side</span>
+                      <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] px-2 py-0.5 bg-gray-100 rounded-full text-gray-500 whitespace-nowrap">Side</span>
                     </div>
                   )}
                 </div>
@@ -899,35 +899,35 @@ export default function SmartSize() {
                     <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                       <span className="gradient-text">Size Chart</span> Reference
                     </h2>
-                    <p className="text-white/40 text-sm mt-2">Standard body measurement guides for men & women</p>
+                    <p className="text-gray-500 text-sm mt-2">Standard body measurement guides for men & women</p>
                   </div>
 
                   {/* ─── MEN'S SIZE CHARTS ──────────────────────────── */}
-                  <div className="glass-dark rounded-3xl p-6 sm:p-8 shadow-2xl mb-6 border border-white/5">
+                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
                       <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">👔</span>
                       <span>Men's Size Chart</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-medium uppercase tracking-wider">Body Measurements</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 font-medium uppercase tracking-wider">Body Measurements</span>
                     </h3>
 
                     {/* T-Shirt / Casual Top */}
                     <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-gray-600 mb-3 flex items-center gap-2">
                         <span className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs">👕</span>
                         T-Shirt / Casual Top
                       </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-white/5">
+                      <div className="overflow-x-auto rounded-2xl border border-gray-200">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-gradient-to-r from-purple-500/10 to-pink-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Chest (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Chest (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Shoulder (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Length (cm)</th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Size</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Length (cm)</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-white/5">
+                          <tbody className="divide-y divide-gray-100">
                             {[
                               { sz: 'XS', chest: '80 – 88', chestIn: '31 – 34', shoulder: '42', length: '66' },
                               { sz: 'S', chest: '88 – 96', chestIn: '34 – 38', shoulder: '44', length: '69' },
@@ -936,14 +936,14 @@ export default function SmartSize() {
                               { sz: 'XL', chest: '112 – 120', chestIn: '44 – 47', shoulder: '50', length: '76' },
                               { sz: 'XXL', chest: '120 – 128', chestIn: '47 – 50', shoulder: '52', length: '78' },
                             ].map((row, i) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-white/[0.03] ${
-                                measurements.tshirtSize === row.sz ? 'bg-purple-500/10 border-l-2 border-l-purple-500' : ''
+                              <tr key={row.sz} className={`transition-colors hover:bg-purple-50/50 ${
+                                measurements.tshirtSize === row.sz ? 'bg-purple-50 border-l-2 border-l-purple-500' : ''
                               }`}>
-                                <td className="px-4 py-2.5 font-bold text-white/80">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.chest}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.chestIn}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.shoulder}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.length}</td>
+                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chest}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chestIn}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.length}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -962,11 +962,11 @@ export default function SmartSize() {
                           <thead>
                             <tr className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10">
                               <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Collar (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Chest (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Waist (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Shoulder (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Sleeve (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Collar (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Sleeve (cm)</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -978,15 +978,15 @@ export default function SmartSize() {
                               { sz: 'XXL', collar: '45 – 46', chest: '126', waist: '122', shoulder: '52', sleeve: '91' },
                               { sz: '3XL', collar: '47 – 48', chest: '132', waist: '128', shoulder: '54', sleeve: '92' },
                             ].map((row) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-white/[0.03] ${
-                                measurements.formalShirtSize && measurements.formalShirtSize.startsWith(row.sz) ? 'bg-blue-500/10 border-l-2 border-l-blue-500' : ''
+                              <tr key={row.sz} className={`transition-colors hover:bg-gray-50 ${
+                                measurements.formalShirtSize && measurements.formalShirtSize.startsWith(row.sz) ? 'bg-blue-50 border-l-2 border-l-blue-500' : ''
                               }`}>
-                                <td className="px-4 py-2.5 font-bold text-white/80">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.collar}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.chest}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.shoulder}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.sleeve}</td>
+                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.collar}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chest}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.sleeve}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1005,10 +1005,10 @@ export default function SmartSize() {
                           <thead>
                             <tr className="bg-gradient-to-r from-orange-500/10 to-pink-500/10">
                               <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Waist (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Hip (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Length (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (cm)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Length (in)</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -1021,14 +1021,14 @@ export default function SmartSize() {
                               { sz: '38', waist: '96', waistIn: '38', hip: '114', length: '33' },
                               { sz: '40', waist: '101', waistIn: '40', hip: '119', length: '33' },
                             ].map((row) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-white/[0.03] ${
-                                measurements.pantsSize === row.sz ? 'bg-orange-500/10 border-l-2 border-l-orange-500' : ''
+                              <tr key={row.sz} className={`transition-colors hover:bg-gray-50 ${
+                                measurements.pantsSize === row.sz ? 'bg-orange-50 border-l-2 border-l-orange-500' : ''
                               }`}>
-                                <td className="px-4 py-2.5 font-bold text-white/80">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.waistIn}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.length}</td>
+                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waistIn}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.length}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1038,11 +1038,11 @@ export default function SmartSize() {
                   </div>
 
                   {/* ─── WOMEN'S SIZE CHARTS ────────────────────────── */}
-                  <div className="glass-dark rounded-3xl p-6 sm:p-8 shadow-2xl mb-6 border border-white/5">
+                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
                       <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-lg shadow-lg shadow-pink-500/20">👗</span>
                       <span>Women's Size Chart</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 font-medium uppercase tracking-wider">Body Measurements</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-50 text-pink-500 font-medium uppercase tracking-wider">Body Measurements</span>
                     </h3>
 
                     {/* Women's Top / Dress */}
@@ -1056,10 +1056,10 @@ export default function SmartSize() {
                           <thead>
                             <tr className="bg-gradient-to-r from-pink-500/10 to-rose-500/10">
                               <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Bust (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Hip (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Shoulder (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Bust (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (in)</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -1073,11 +1073,11 @@ export default function SmartSize() {
                               { sz: '3XL', bust: '42', waist: '38', hip: '46', shoulder: '16.5' },
                             ].map((row) => (
                               <tr key={row.sz} className="transition-colors hover:bg-white/[0.03]">
-                                <td className="px-4 py-2.5 font-bold text-white/80">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.bust}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.shoulder}</td>
+                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.bust}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1096,10 +1096,10 @@ export default function SmartSize() {
                           <thead>
                             <tr className="bg-gradient-to-r from-rose-500/10 to-pink-500/10">
                               <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Hip (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Knee Length (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-white/60 uppercase tracking-wider">Full Length (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Knee Length (in)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Full Length (in)</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -1113,11 +1113,11 @@ export default function SmartSize() {
                               { sz: '3XL (38)', waist: '38', hip: '46', knee: '37', full: '55.5' },
                             ].map((row) => (
                               <tr key={row.sz} className="transition-colors hover:bg-white/[0.03]">
-                                <td className="px-4 py-2.5 font-bold text-white/80">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.knee}</td>
-                                <td className="px-4 py-2.5 text-center text-white/50">{row.full}</td>
+                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.knee}</td>
+                                <td className="px-4 py-2.5 text-center text-gray-500">{row.full}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1127,7 +1127,7 @@ export default function SmartSize() {
                   </div>
 
                   {/* How to Measure Guide */}
-                  <div className="glass-dark rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/5">
+                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg border border-gray-100">
                     <h3 className="text-lg font-bold mb-5 flex items-center gap-3">
                       <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-lg shadow-lg shadow-green-500/20">📐</span>
                       <span>How to Measure</span>
@@ -1139,9 +1139,9 @@ export default function SmartSize() {
                         { part: 'Hip', desc: 'Stand with feet together and measure around the fullest part of the hips, approximately 20 cm below the waist.' },
                         { part: 'Shoulder', desc: 'Measure from the edge of one shoulder to the other across the back, following the natural shoulder line.' },
                       ].map((item) => (
-                        <div key={item.part} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-green-500/20 transition-colors">
-                          <p className="text-sm font-bold text-green-400 mb-1">{item.part}</p>
-                          <p className="text-xs text-white/40 leading-relaxed">{item.desc}</p>
+                        <div key={item.part} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-green-300 transition-colors">
+                          <p className="text-sm font-bold text-green-500 mb-1">{item.part}</p>
+                          <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
                         </div>
                       ))}
                     </div>
@@ -1156,7 +1156,7 @@ export default function SmartSize() {
                   >
                     🔄 Measure Again
                   </button>
-                  <p className="text-white/20 text-xs mt-3">Results are estimates — try multiple times for best accuracy</p>
+                  <p className="text-gray-400 text-xs mt-3">Results are estimates — try multiple times for best accuracy</p>
                 </div>
               </div>
             </div>

@@ -17,6 +17,10 @@ def recommend():
     if file.filename == '':
         return jsonify({'error': 'No image selected'}), 400
 
+    # Get user gender from form data
+    user_gender = request.form.get('gender')  # 'Men' or 'Women'
+    print(f"User Gender: {user_gender}")  # DEBUG
+
     try:
         # Save temp file
         if not os.path.exists('uploads'):
@@ -25,12 +29,12 @@ def recommend():
         temp_path = os.path.join('uploads', file.filename)
         file.save(temp_path)
         
-        # Get recommendations
-        # recommend returns list of absolute paths
-        rec_paths = get_recommendations(temp_path)
+        # Get recommendations - now returns list of (path, similarity)
+        print(f"Calling recommend with gender: {user_gender}")  # DEBUG
+        rec_results = get_recommendations(temp_path, user_gender)
         
         results = []
-        for abs_path in rec_paths:
+        for abs_path, similarity in rec_results:
             # Convert absolute path to relative URL
             filename = os.path.basename(abs_path)
             
@@ -40,7 +44,7 @@ def recommend():
             
             results.append({
                 'url': image_url,
-                'similarity': 0.85 # Placeholder, model update needed for real score
+                'similarity': round(float(similarity), 4)  # Real similarity score
             })
             
         # Clean up temp file

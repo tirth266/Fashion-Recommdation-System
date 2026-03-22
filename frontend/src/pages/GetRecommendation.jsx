@@ -101,7 +101,7 @@ export default function GetRecommendation() {
 
       if (response.ok) {
         console.log('Recommendations received:', data);
-        setRecommendedImages(data.recommended_images || []);
+        setRecommendedImages(Array.isArray(data) ? data : data.recommended_images || []);
       } else if (response.status === 401) {
         // Unauthorized - prompt user to sign in
         alert('Unauthorized. Please sign in to get recommendations.');
@@ -331,7 +331,7 @@ export default function GetRecommendation() {
                 >
                   <div className="aspect-square relative overflow-hidden bg-gray-100">
                     <img
-                      src={item.url}
+                      src={item.image || item.url}
                       alt={`Recommendation ${index + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       onError={(e) => {
@@ -341,7 +341,7 @@ export default function GetRecommendation() {
                   </div>
                   <div className="p-3">
                     <p className="text-xs text-gray-500 truncate">
-                      Similarity: {(item.similarity * 100).toFixed(1)}%
+                      Similarity: {((item.similarity || item.score || 0) * 100).toFixed(1)}%
                     </p>
                   </div>
                 </div>

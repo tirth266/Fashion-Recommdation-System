@@ -11,9 +11,9 @@ scikit-learn
 requests
 Werkzeug
 flask-session
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
+google-auth>=2.49.0
+google-auth-oauthlib>=1.3.0
+google-auth-httplib2>=0.3.0
 opencv-python-headless
 tensorflow
 tqdm

@@ -33,7 +33,7 @@ print("Server configured with Session (Filesystem)")
 
 # Import routes after app initialization to avoid circular imports
 # Import routes after app initialization to avoid circular imports
-from app.routes import auth, profile, size_estimation, recommendations
+from app.routes import auth, profile, size_estimation, recommendations, wardrobe
 
 # Register blueprints
 app.register_blueprint(auth.bp)
@@ -42,7 +42,7 @@ app.register_blueprint(recommendations.bp)
 
 # app.register_blueprint(search.bp)
 app.register_blueprint(size_estimation.bp)
-# app.register_blueprint(wardrobe.bp) # Module missing
+app.register_blueprint(wardrobe.bp)
 
 
 
@@ -53,8 +53,8 @@ def home():
 
 @app.route('/static/dataset_images/<path:filename>')
 def serve_dataset_images(filename):
-    # Go up two levels from app (backend/app -> backend -> root) then into data/datasets/images
-    images_dir = os.path.join(app.root_path, '..', '..', 'data', 'datasets', 'images')
+    # Go up two levels from app (backend/app -> backend -> root) then into myntradataset/images
+    images_dir = os.path.join(app.root_path, '..', '..', 'myntradataset', 'images')
     return send_from_directory(images_dir, filename)
 
 @app.route('/api/health')

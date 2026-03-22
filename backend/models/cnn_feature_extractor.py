@@ -45,7 +45,7 @@ if __name__ == "__main__":
         exit(1)
 
     # Limit to first 1000 images for speed, remove suffix if you want all
-    filenames = filenames[:10000]
+    filenames = filenames[:44400]
 
     feature_list = []
 

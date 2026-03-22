@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import os
 import pickle
@@ -21,7 +22,7 @@ FILENAMES_PATH = os.path.join(BASE_DIR, "filenames.pkl")
 
 # Check if files exist
 if not os.path.exists(EMBEDDINGS_PATH) or not os.path.exists(FILENAMES_PATH):
-    print("❌ Error: Model files not found in models directory")
+    print("[ERROR] Error: Model files not found in models directory")
     embeddings = []
     filenames = []
 else:
@@ -29,11 +30,11 @@ else:
         embeddings = pickle.load(open(EMBEDDINGS_PATH, "rb"))
         filenames = pickle.load(open(FILENAMES_PATH, "rb"))
         embeddings = np.array(embeddings)
-        print("✅ Recommender Loaded")
+        print("[SUCCESS] Recommender Loaded")
         print("Embeddings:", embeddings.shape)
         print("Filenames:", len(filenames))
     except Exception as e:
-        print(f"❌ Error loading pickle files: {e}")
+        print(f"[ERROR] Error loading pickle files: {e}")
         embeddings = []
         filenames = []
 
@@ -44,7 +45,7 @@ def recommend(image_path, top_k=5):
     Returns a list of image filenames (absolute paths).
     """
     if len(embeddings) == 0:
-        print("❌ Embeddings not loaded, cannot recommend.")
+        print("[ERROR] Embeddings not loaded, cannot recommend.")
         return []
 
     try:
@@ -62,9 +63,9 @@ def recommend(image_path, top_k=5):
 
         results = [filenames[i] for i in indices]
 
-        print("✅ Recommendations generated")
+        print("[SUCCESS] Recommendations generated")
         return results
 
     except Exception as e:
-        print("❌ Recommendation Error:", e)
+        print("[ERROR] Recommendation Error:", e)
         return []

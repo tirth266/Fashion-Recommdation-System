@@ -67,7 +67,7 @@ def get_valid_images(dataset_path):
     print(f"Scanning dataset folder: {dataset_path}")
     
     if not os.path.exists(dataset_path):
-        print(f"❌ Error: Dataset path not found: {dataset_path}")
+        print(f"[ERROR] Error: Dataset path not found: {dataset_path}")
         return []
     
     for filename in os.listdir(dataset_path):
@@ -110,9 +110,9 @@ def generate_embeddings(model, image_paths):
             failed_images.append(img_path)
     
     # Report statistics
-    print(f"\n✅ Successfully processed: {len(embeddings)} images")
+    print(f"\n[SUCCESS] Successfully processed: {len(embeddings)} images")
     if failed_images:
-        print(f"⚠️  Failed to process: {len(failed_images)} images")
+        print(f"[WARNING] Failed to process: {len(failed_images)} images")
     
     return np.array(embeddings), filenames, failed_images
 
@@ -127,7 +127,7 @@ def save_embeddings(embeddings, filenames):
     with open(FILENAMES_FILE, 'wb') as f:
         pickle.dump(filenames, f)
     
-    print(f"✅ Embeddings saved successfully!")
+    print(f"\n[SUCCESS] Embeddings saved successfully!")
     print(f"   - Embeddings shape: {embeddings.shape}")
     print(f"   - Number of images: {len(filenames)}")
 
@@ -140,14 +140,14 @@ def main():
     
     # Check dataset exists
     if not os.path.exists(DATASET_PATH):
-        print(f"❌ Error: Dataset not found at {DATASET_PATH}")
+        print(f"[ERROR] Error: Dataset not found at {DATASET_PATH}")
         print(f"Please ensure myntradataset/images/ folder exists")
         return
     
     # Get image paths
     image_paths = get_valid_images(DATASET_PATH)
     if not image_paths:
-        print("❌ No valid images found in dataset")
+        print("[ERROR] No valid images found in dataset")
         return
     
     # Build model
@@ -157,14 +157,14 @@ def main():
     embeddings, filenames, failed = generate_embeddings(model, image_paths)
     
     if len(embeddings) == 0:
-        print("❌ No embeddings were generated")
+        print("[ERROR] No embeddings were generated")
         return
     
     # Save embeddings
     save_embeddings(embeddings, filenames)
     
     print("\n" + "=" * 60)
-    print("✅ Embedding generation complete!")
+    print("[SUCCESS] Embedding generation complete!")
     print("=" * 60)
 
 

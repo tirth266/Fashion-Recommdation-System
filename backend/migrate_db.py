@@ -10,10 +10,10 @@ def migrate_database():
     db_path = os.path.join(os.path.dirname(__file__), '..', '..', 'instance', 'fashion.db')
     
     if not os.path.exists(db_path):
-        print("❌ Database not found. It will be created automatically when you run the app.")
+        print("[ERROR] Database not found. It will be created automatically when you run the app.")
         return
     
-    print(f"📁 Found database at: {db_path}")
+    print(f"[INFO] Found database at: {db_path}")
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -24,31 +24,31 @@ def migrate_database():
         columns = [column[1] for column in cursor.fetchall()]
         
         if 'google_id' in columns:
-            print("✅ google_id column already exists!")
+            print("[SUCCESS] google_id column already exists!")
         else:
-            print("➕ Adding google_id column...")
+            print("[INFO] Adding google_id column...")
             try:
                 cursor.execute("ALTER TABLE users ADD COLUMN google_id VARCHAR(255)")
                 cursor.execute("CREATE INDEX IF NOT EXISTS ix_users_google_id ON users (google_id)")
                 conn.commit()
-                print("✅ google_id column added successfully!")
+                print("[SUCCESS] google_id column added successfully!")
             except Exception as e:
                 print(f"Error adding google_id: {e}")
 
         # Check if profile_image column exists
         if 'profile_image' not in columns:
-            print("➕ Adding profile_image column...")
+            print("[INFO] Adding profile_image column...")
             try:
                 cursor.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
                 conn.commit()
-                print("✅ profile_image column added!")
+                print("[SUCCESS] profile_image column added!")
             except Exception as e:
                 print(f"Error adding profile_image: {e}")
         
-        print("\n✅ Database migration completed successfully!")
+        print("\n[SUCCESS] Database migration completed successfully!")
         
     except Exception as e:
-        print(f"❌ Error during migration: {e}")
+        print(f"[ERROR] Error during migration: {e}")
         conn.rollback()
     finally:
         conn.close()

@@ -55,7 +55,7 @@ def main():
     print("=" * 60)
     
     if not os.path.exists(DATASET_PATH):
-        print(f"❌ Dataset not found")
+        print(f"[ERROR] Dataset not found")
         return
     
     # Get only first 1000 images
@@ -81,7 +81,7 @@ def main():
     
     embeddings = np.array(embeddings)
     
-    print(f"\n✅ Processed {len(embeddings)} images")
+    print(f"\n[SUCCESS] Processed {len(embeddings)} images")
     print(f"Saving to temporary test files...")
     
     with open(EMBEDDINGS_FILE, 'wb') as f:
@@ -89,9 +89,9 @@ def main():
     with open(FILENAMES_FILE, 'wb') as f:
         pickle.dump(filenames, f)
     
-    print(f"✅ Test embeddings ready!")
+    print(f"[SUCCESS] Test embeddings ready!")
     print(f"   Shape: {embeddings.shape}")
-    print(f"\n⚠️  IMPORTANT:")
+    print(f"\n[WARNING] IMPORTANT:")
     print(f"   These are TEST files. Replace with full embeddings when done.")
     print(f"   To use full dataset, rename:")
     print(f"   - embeddings.pkl (not test)")

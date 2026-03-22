@@ -11,31 +11,36 @@ const STEPS = [
 ];
 
 const TSHIRT_SIZES = [
-  { size: 'XS', min: 0, max: 88 },
+  { size: 'XS', min: 80, max: 88 },
   { size: 'S', min: 88, max: 96 },
   { size: 'M', min: 96, max: 104 },
   { size: 'L', min: 104, max: 112 },
   { size: 'XL', min: 112, max: 120 },
-  { size: 'XXL', min: 120, max: 999 },
+  { size: 'XXL', min: 120, max: 128 },
 ];
 
 const PANTS_SIZES = [
-  { size: '28', min: 0, max: 73 },
-  { size: '30', min: 73, max: 78 },
-  { size: '32', min: 78, max: 83 },
-  { size: '34', min: 83, max: 88 },
-  { size: '36', min: 88, max: 93 },
-  { size: '38', min: 93, max: 98 },
-  { size: '40', min: 98, max: 999 },
+  { size: '28', min: 71, max: 73 },
+  { size: '30', min: 76, max: 78 },
+  { size: '32', min: 81, max: 83 },
+  { size: '34', min: 86, max: 88 },
+  { size: '36', min: 91, max: 93 },
+  { size: '38', min: 96, max: 98 },
 ];
 
 const SHIRT_SIZES = [
-  { size: 'S (14.5–15")', min: 0, max: 102 },
-  { size: 'M (15.25–15.75")', min: 102, max: 108 },
-  { size: 'L (16–16.5")', min: 108, max: 114 },
-  { size: 'XL (17–17.5")', min: 114, max: 120 },
-  { size: 'XXL (17.75–18")', min: 120, max: 128 },
-  { size: '3XL (18.5–18.75")', min: 128, max: 999 },
+  { size: 'S (14–14.5")', min: 96, max: 100 },
+  { size: 'M (15–15.5")', min: 100, max: 108 },
+  { size: 'L (16–16.5")', min: 108, max: 116 },
+  { size: 'XL (17–17.5")', min: 116, max: 124 },
+];
+
+const WOMEN_TOP_SIZES = [
+  { size: 'XS', bust: { min: 76, max: 81 }, waist: { min: 60, max: 65 }, hip: { min: 84, max: 89 } },
+  { size: 'S', bust: { min: 82, max: 87 }, waist: { min: 66, max: 71 }, hip: { min: 90, max: 95 } },
+  { size: 'M', bust: { min: 88, max: 93 }, waist: { min: 72, max: 77 }, hip: { min: 96, max: 101 } },
+  { size: 'L', bust: { min: 94, max: 100 }, waist: { min: 78, max: 84 }, hip: { min: 102, max: 108 } },
+  { size: 'XL', bust: { min: 101, max: 107 }, waist: { min: 85, max: 91 }, hip: { min: 109, max: 115 } },
 ];
 
 // MediaPipe Pose landmark indices
@@ -365,22 +370,13 @@ export default function SmartSize() {
           }
         }
 
-        // BMI correction
-        let bmiCorrectionChest = 1.0;
-        let bmiCorrectionWaist = 1.0;
-        if (bmi > 25) {
-          const t = Math.min((bmi - 25) / 15, 1);
-          bmiCorrectionChest = lerp(1.05, 1.15, t);
-          bmiCorrectionWaist = lerp(1.05, 1.18, t);
-        } else if (bmi < 18.5) {
-          const t = Math.min((18.5 - bmi) / 5, 1);
-          bmiCorrectionChest = lerp(0.95, 0.90, t);
-          bmiCorrectionWaist = lerp(0.95, 0.88, t);
-        }
+        // BMI factor adjustment (more accurate, continuous scale)
+        const bmiFactorChest = 1 + ((bmi - 22) * 0.02);
+        const bmiFactorWaist = 1 + ((bmi - 22) * 0.04);
 
-        chestCirc *= bmiCorrectionChest;
-        waistCirc *= bmiCorrectionWaist;
-        hipCirc *= bmiCorrectionWaist;
+        chestCirc *= bmiFactorChest;
+        waistCirc *= bmiFactorWaist;
+        hipCirc *= bmiFactorWaist;
 
         setMeasurements({
           shoulderWidth: shoulderWidth.toFixed(1),

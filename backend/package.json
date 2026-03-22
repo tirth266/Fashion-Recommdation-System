@@ -4,7 +4,7 @@
      "description": "Backend for Fashion Recommendation System",
      "main": "run.py",
      "scripts": {
-          "start": ".venv\\Scripts\\python run.py"
+          "start": "python run.py"
      },
      "keywords": [],
      "author": "",

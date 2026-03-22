@@ -25,7 +25,7 @@ export default function Home() {
   const [wardrobeItems, setWardrobeItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-
+  
   useEffect(() => {
     if (currentUser) {
       fetch('/api/wardrobe/', { credentials: 'include' })
@@ -41,7 +41,6 @@ export default function Home() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validation (optional)
     if (file.size > 5 * 1024 * 1024) {
       alert("File size too large (max 5MB)");
       return;
@@ -50,7 +49,6 @@ export default function Home() {
     setIsUploading(true);
     const formData = new FormData();
     formData.append('image', file);
-    // formData.append('category', 'Top'); // Could add a selector later
 
     try {
       const res = await fetch('/api/wardrobe/', {
@@ -74,6 +72,24 @@ export default function Home() {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
+
+  const handleDeleteWardrobeItem = async (id, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this wardrobe item?")) return;
+    try {
+      const res = await fetch(`/api/wardrobe/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (res.ok) {
+        setWardrobeItems(wardrobeItems.filter(item => item.id !== id));
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete item");
+      }
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      alert("Error deleting item");
+    }
+  };
+
   return (
     <MainLayout>
 
@@ -92,14 +108,11 @@ export default function Home() {
               Experience the future of style with our Deep Learning engine. Get outfit suggestions tailored to your body type, occasion, and current trends.
             </p>
             <div className="flex space-x-4 pt-4">
-              <Link to="/get-recommendations">
+              <Link to="/recommendation">
                 <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 dark:bg-white dark:text-black dark:hover:bg-gray-200">
-                  Get Recommendations
+                  Get Recommendation
                 </button>
               </Link>
-              <button className="border border-gray-300 text-primary px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-all duration-300 dark:border-gray-600 dark:text-white dark:hover:bg-white/10">
-                Explore Styles
-              </button>
             </div>
           </div>
 
@@ -114,117 +127,114 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16 lg:mt-24">
+      {/* SECTION 1.5: AI SIZE ESTIMATION OVERVIEW */}
+      <section className="px-6 lg:px-8 py-20 bg-gray-50 dark:bg-black/40 border-y border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left Column: Image */}
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] lg:aspect-square group bg-white dark:bg-gray-800">
+              <img
+                src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2000&auto=format&fit=crop"
+                alt="AI Body Measurement Visualization"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              <div className="absolute bottom-8 left-8 right-8">
+                 <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl flex items-center shadow-lg">
+                    <div className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center mr-4">
+                      <span className="text-white dark:text-black">✨</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">Precision Mapping</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Advanced body shape detection</p>
+                    </div>
+                 </div>
+              </div>
+            </div>
+
+            {/* Right Column: Content */}
+            <div className="space-y-8 animate-fade-in">
+              <div>
+                <h2 className="text-4xl lg:text-5xl font-serif font-bold text-primary dark:text-white mb-4">
+                  AI Size Estimation
+                </h2>
+                <p className="text-lg text-secondary dark:text-gray-400 leading-relaxed">
+                  Upload a full-body photo and let AI estimate your body measurements and recommend the perfect clothing size.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  { step: 1, title: 'Upload Photo', desc: 'Upload a full-body photo from your device.' },
+                  { step: 2, title: 'AI Analysis', desc: 'The AI model analyzes body proportions and measurements.' },
+                  { step: 3, title: 'Size Prediction', desc: 'The system estimates your clothing size (S, M, L, XL).' },
+                  { step: 4, title: 'Perfect Fit', desc: 'FashionAI recommends clothing that fits your body.' }
+                ].map((item) => (
+                  <div key={item.step} className="flex flex-row items-stretch group">
+                    <div className="mr-6 flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center font-bold text-lg text-gray-900 dark:text-white border-2 border-gray-100 dark:border-gray-700 group-hover:border-black dark:group-hover:border-white transition-colors duration-300">
+                        {item.step}
+                      </div>
+                      {item.step !== 4 && (
+                        <div className="w-0.5 h-full bg-gray-200 dark:bg-gray-700 my-3"></div>
+                      )}
+                    </div>
+                    <div className="pb-6 pt-2">
+                      <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2">
+                <Link to="/recommendation">
+                  <button className="bg-black text-white px-8 py-4 rounded-xl font-medium hover:bg-gray-800 transition-transform active:scale-95 duration-300 flex items-center gap-3 shadow-xl dark:bg-white dark:text-black dark:hover:bg-gray-200">
+                    Try Size Estimation
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION EX-2: HERO FEATURE GRID */}
+      <section className="px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:mt-12">
           {[
             { title: "AI Outfit Recs", desc: "Deep learning algorithms match your style.", icon: "🧥" },
-            { title: "Smart Sizing", desc: "Computer vision body measurement analysis.", icon: "📏" },
+            { title: "Size Estimation", desc: "AI-powered body measurement using an uploaded photo.", icon: "📏", link: "/size-estimation" },
             { title: "Occasion Styling", desc: "Perfect looks for work, party, or casual.", icon: "📅" },
             { title: "Trend Awareness", desc: "Real-time analysis of global fashion trends.", icon: "📈" },
           ].map((feature, idx) => (
-            <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer group dark:bg-gray-800/50 dark:border-gray-700">
+            <div key={idx} className="bg-background border border-gray-100 p-8 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group dark:bg-gray-800/50 dark:border-gray-700 flex flex-col items-start h-full">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-6 group-hover:scale-110 transition-transform dark:bg-gray-700 dark:text-white">
                 {feature.icon}
               </div>
               <h3 className="font-serif text-lg font-bold mb-2 text-primary dark:text-white">{feature.title}</h3>
-              <p className="text-secondary text-sm leading-relaxed dark:text-gray-400">{feature.desc}</p>
+              <p className="text-secondary text-sm leading-relaxed dark:text-gray-400 flex-grow w-full">{feature.desc}</p>
+              
+              {feature.link && (
+                <Link to={feature.link} className="mt-6 w-full hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <button className="w-full bg-black text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition-all active:scale-95 shadow-md dark:bg-white dark:text-black dark:hover:bg-gray-200">
+                    Get Recommendation
+                  </button>
+                </Link>
+              )}
+              {feature.link && (
+                <Link to={feature.link} className="mt-6 w-full block md:hidden">
+                  <button className="w-full bg-black text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition-all active:scale-95 shadow-md dark:bg-white dark:text-black dark:hover:bg-gray-200">
+                    Get Recommendation
+                  </button>
+                </Link>
+              )}
             </div>
           ))}
         </div>
       </section>
-
-      {/* SECTION 3: RECOMMENDED OUTFITS */}
-      <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-12 flex justify-between items-end">
-            <div>
-              <h2 className="text-3xl font-serif font-bold mb-2 dark:text-white">Recommended For You</h2>
-              <p className="text-secondary text-sm dark:text-gray-400">Based on your recent uploads and preferences.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            {[
-              { name: "Urban Chic Set", score: "98%", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" },
-              { name: "Minimalist Coat", score: "95%", img: "https://images.unsplash.com/photo-1544923246-77307dd654cb?q=80&w=1974&auto=format&fit=crop" },
-              { name: "Evening Elegance", score: "92%", img: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=2108&auto=format&fit=crop" },
-              { name: "Weekend Casual", score: "89%", img: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=2005&auto=format&fit=crop" },
-            ].map((item, i) => (
-              <div key={i} className="group cursor-pointer relative">
-                <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-4 bg-gray-200 relative">
-                  <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-
-                  {/* Similarity Badge */}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-green-700 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    {item.score} Match
-                  </div>
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      View Details
-                    </button>
-                  </div>
-                </div>
-                <h3 className="font-serif text-lg font-bold text-primary dark:text-white">{item.name}</h3>
-                <p className="text-secondary text-xs uppercase tracking-wider mt-1 dark:text-gray-400">AI Suggestion</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: SMART SIZE PREDICTION */}
-      <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 dark:bg-black dark:border-white/10">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
-            <div className="inline-block px-3 py-1 rounded bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider dark:bg-blue-900/40 dark:text-blue-200">
-              Computer Vision
-            </div>
-            <h2 className="text-4xl font-serif font-bold leading-tight dark:text-white">
-              Smart Size <br /> Prediction
-            </h2>
-            <p className="text-secondary leading-relaxed text-lg dark:text-gray-300">
-              Say goodbye to returns. Our computer vision technology analyzes your body measurements from a single photo to predict your perfect size with 99.5% accuracy.
-            </p>
-            <ul className="space-y-4 pt-4">
-              {['Camera-based body landmark detection', 'Height & shoulder width analysis', 'Brand-specific size mapping'].map((item, i) => (
-                <li key={i} className="flex items-center space-x-3 text-primary font-medium">
-                  <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm">✓</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Link to="/smart-size-estimation">
-              <button className="bg-black text-white px-8 py-4 rounded-full font-medium hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 mt-8 dark:bg-white dark:text-black dark:hover:bg-gray-200">Try Body Measurement</button>
-            </Link>
-          </div>
-
-          {/* Visual Mock of Body Scanning */}
-          <div className="relative h-[550px] bg-gray-50 rounded-3xl border border-gray-100 overflow-hidden flex items-center justify-center dark:bg-gray-800 dark:border-gray-700">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" className="absolute inset-0 w-full h-full object-cover opacity-50 grayscale" alt="Size scanning" />
-
-            {/* Abstract Skeleton Overlay */}
-            <div className="relative z-10 w-64 h-[400px] border-2 border-blue-500/50 rounded-xl flex flex-col items-center justify-between py-8 animate-pulse">
-              <div className="w-20 h-20 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              </div>
-              <div className="w-40 h-1 border-t-2 border-dashed border-blue-400 relative">
-                <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs bg-black text-white px-2 py-0.5 rounded">42cm</span>
-              </div>
-              <div className="w-32 h-1 border-t-2 border-dashed border-blue-400 relative">
-                <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs bg-black text-white px-2 py-0.5 rounded">28cm</span>
-              </div>
-              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur rounded px-3 py-2 shadow-lg">
-                <p className="text-xs text-gray-500 uppercase">Estimated Size</p>
-                <p className="text-lg font-bold text-gray-900">Medium (US 6)</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
 
       {/* SECTION 5: OCCASION-BASED STYLING */}
       <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
@@ -297,10 +307,25 @@ export default function Home() {
             {currentUser ? (
               wardrobeItems.length > 0 ? (
                 wardrobeItems.map((item) => (
-                  <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group bg-gray-100">
-                    <img src={item.image_url} alt="Wardrobe item" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
+                  <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group bg-gray-100 dark:bg-gray-800">
+                    <img 
+                      src={item.image_url.startsWith('/uploads') ? `/api${item.image_url}` : item.image_url} 
+                      alt="Wardrobe item" 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                      onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&auto=format&fit=crop'; }}
+                    />
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold ring-2 ring-white/50">
                       <div className="w-3 h-3 rounded-full bg-primary"></div>
+                    </div>
+                    {/* Delete Option Overlay */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                      <button 
+                        onClick={(e) => handleDeleteWardrobeItem(item.id, e)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-red-600 shadow-xl flex items-center gap-1.5 transition-transform active:scale-95"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))
@@ -356,7 +381,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
     </MainLayout >
   )

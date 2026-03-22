@@ -23,18 +23,23 @@ export default function Navbar() {
           {[
             { name: 'Home', href: '/' },
             { name: 'AI Recommendations', href: '#ai-recommendations' },
-            { name: 'Body Measure', href: '/smart-size-estimation' },
+            { name: 'Smart Size', href: '/size-estimation', icon: (
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            ) },
             { name: 'Wardrobe', href: '#wardrobe' },
             { name: 'Trends', href: '#trends' }
           ].map((item) => (
-            <a
+            <Link
               key={item.name}
-              href={item.href}
-              className="text-sm font-medium text-primary hover:text-secondary relative group transition-colors dark:text-gray-300 dark:hover:text-white"
+              to={item.href}
+              className="text-sm font-medium text-primary hover:text-secondary relative group transition-colors dark:text-gray-300 dark:hover:text-white flex items-center"
             >
+              {item.icon && <span className="mr-1">{item.icon}</span>}
               {item.name}
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full dark:bg-white"></span>
-            </a>
+            </Link>
           ))}
         </div>
 

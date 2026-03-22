@@ -11,10 +11,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_PERMANENT'] = True  # Keep sessions persistent
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # Session lasts 7 days
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_COOKIE_SECURE'] = False # Important for localhost (HTTP)
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # Important for localhost
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JS access for security
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fashion.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

@@ -216,15 +216,13 @@ def register():
             mongo.db.users.insert_one({
                 "username": username,
                 "email": email.lower(),
-                # Store rudimentary info or extended profile info here
                 "full_name": data.get('full_name'),
                 "created_at": datetime.utcnow(),
                 "role": "user",
-                # Note: We typically don't store the password twice. 
-                # The SQL DB handles authentication. Mongo can store extra profile data.
-                "sql_user_id": new_user.id
+                "sql_user_id": new_user.id,
+                "auth_provider": "email"  # Track authentication method
             })
-            print(f"User {username} synced to MongoDB")
+            print(f"User {username} synced to MongoDB with email auth provider")
         except Exception as e:
             print(f"MongoDB Sync Error: {e}")
         # ---------------------------
@@ -269,6 +267,9 @@ def login():
             'picture': user.profile_image,
             'profile': user.to_dict()
         }
+        # Update last login time
+        user.last_login = datetime.utcnow()
+        db.session.commit()
         return jsonify({
             'message': 'Login successful',
             'user': session['user']

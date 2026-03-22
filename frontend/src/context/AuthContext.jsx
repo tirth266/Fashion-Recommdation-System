@@ -61,7 +61,18 @@ export function AuthProvider({ children }) {
                }
 
                const data = await response.json();
-               setCurrentUser(data.user); // Set user from backend response
+               setCurrentUser(data.user);
+               
+               // Verify session was properly set before returning
+               await new Promise(resolve => setTimeout(resolve, 500));
+               const verifyResponse = await fetch('/api/auth/user', {
+                    credentials: 'include'
+               });
+               if (verifyResponse.ok) {
+                    const verifyData = await verifyResponse.json();
+                    setCurrentUser(verifyData.user);
+               }
+               
                return data.user;
           } catch (err) {
                console.error("Login Error:", err);
@@ -79,18 +90,6 @@ export function AuthProvider({ children }) {
                // Validate inputs
                if (!email || !password) throw new Error('Email and password are required');
 
-               // Mock API call for now (replace with actual backend endpoint later or simulate)
-               // Since there is no explicit /api/auth/login endpoint in the python code shown earlier (only /google), 
-               // I will implement a simulation or assume the user wants me to add that endpoint?
-               // "Fallback to JWT with localStorage..." - The user wants me to BUILD this.
-               // But the backend is Python Flask with Sessions.
-               // I need to check if there is a 'login' route in existing backend code or if I need to add one.
-               // I checked `auth.py` and it only had `/google`.
-               // I should use the Google Auth for now or add a basic session endpoint?
-               // Realistically, for this task, I should add the Basic Auth endpoints to `auth.py` as well?
-               // The prompt says "Build (or update) ... fallback to JWT...". 
-               // I will add `login` and `register` to `AuthContext` assuming I will implement them in backend too.
-
                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -105,6 +104,17 @@ export function AuthProvider({ children }) {
 
                const data = await response.json();
                setCurrentUser(data.user);
+               
+               // Verify session was properly set before returning
+               await new Promise(resolve => setTimeout(resolve, 500));
+               const verifyResponse = await fetch('/api/auth/user', {
+                    credentials: 'include'
+               });
+               if (verifyResponse.ok) {
+                    const verifyData = await verifyResponse.json();
+                    setCurrentUser(verifyData.user);
+               }
+               
                return true;
           } catch (err) {
                console.error("Login Error:", err);
@@ -133,6 +143,17 @@ export function AuthProvider({ children }) {
 
                const data = await response.json();
                setCurrentUser(data.user);
+               
+               // Verify session was properly set before returning
+               await new Promise(resolve => setTimeout(resolve, 500));
+               const verifyResponse = await fetch('/api/auth/user', {
+                    credentials: 'include'
+               });
+               if (verifyResponse.ok) {
+                    const verifyData = await verifyResponse.json();
+                    setCurrentUser(verifyData.user);
+               }
+               
                return true;
           } catch (err) {
                console.error("Registration Error:", err);

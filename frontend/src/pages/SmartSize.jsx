@@ -160,16 +160,21 @@ export default function SmartSize() {
   const [step, setStep] = useState(1);
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
+  const [gender, setGender] = useState('');
   const [frontImage, setFrontImage] = useState(null);
   const [sideImage, setSideImage] = useState(null);
   const [measurements, setMeasurements] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [countdown, setCountdown] = useState(null);
   const [cameraError, setCameraError] = useState(null);
+  const [inputMode, setInputMode] = useState(null);
+  const [showModeSelect, setShowModeSelect] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const frontFileRef = useRef(null);
+  const sideFileRef = useRef(null);
 
   // ─── Camera management ─────────────────────────────────────────
   const startCamera = useCallback(async () => {
@@ -199,13 +204,13 @@ export default function SmartSize() {
 
   // Start/stop camera when entering/leaving capture steps
   useEffect(() => {
-    if (step === 2 || step === 3) {
+    if ((step === 2 || step === 3) && inputMode === 'camera') {
       startCamera();
     } else {
       stopCamera();
     }
     return () => stopCamera();
-  }, [step, startCamera, stopCamera]);
+  }, [step, inputMode, startCamera, stopCamera]);
 
   // ─── Capture photo with countdown ──────────────────────────────
   const capturePhoto = useCallback(() => {
@@ -239,6 +244,14 @@ export default function SmartSize() {
     }, 1000);
   }, [step]);
 
+  // ─── File upload → data URL ───────────────────────────────────
+  const handleFileToDataUrl = useCallback((file, setter) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setter(e.target.result);
+    reader.readAsDataURL(file);
+  }, []);
+
   // ─── MediaPipe Processing (Step 4) ─────────────────────────────
   useEffect(() => {
     if (step !== 4) return;
@@ -270,6 +283,27 @@ export default function SmartSize() {
 
         if (!frontLandmarks) {
           throw new Error('Could not detect pose in front photo. Please try again with better lighting and full body visible.');
+        }
+
+        const requiredFront = [
+          POSE.NOSE, POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER, 
+          POSE.LEFT_HIP, POSE.RIGHT_HIP, POSE.LEFT_ANKLE, POSE.RIGHT_ANKLE
+        ];
+        for (let p of requiredFront) {
+          if (!frontLandmarks[p] || frontLandmarks[p].visibility < 0.65) {
+            throw new Error('Please ensure your full body (head to toe) gets clearly captured in the front photo.');
+          }
+        }
+
+        if (sideLandmarks) {
+          const sideIsVisible = (p) => sideLandmarks[p] && sideLandmarks[p].visibility > 0.60;
+          const hasShoulder = sideIsVisible(POSE.LEFT_SHOULDER) || sideIsVisible(POSE.RIGHT_SHOULDER);
+          const hasHip = sideIsVisible(POSE.LEFT_HIP) || sideIsVisible(POSE.RIGHT_HIP);
+          const hasAnkle = sideIsVisible(POSE.LEFT_ANKLE) || sideIsVisible(POSE.RIGHT_ANKLE);
+          
+          if (!hasShoulder || !hasHip || !hasAnkle) {
+            throw new Error('Please ensure your full body gets clearly captured in the side photo.');
+          }
         }
 
         const heightCm = parseFloat(height);
@@ -396,39 +430,11 @@ export default function SmartSize() {
         }, 1500);
       } catch (err) {
         console.error('Processing error:', err);
-        // Fallback: estimate from BMI + height alone
-        const heightCm = parseFloat(height);
-        const weightKg = parseFloat(weight);
-        const bmi = weightKg / ((heightCm / 100) ** 2);
-
-        let chestEst = 80 + (bmi - 18) * 2.0;
-        let waistEst = 64 + (bmi - 18) * 2.2;
-        let hipEst = 85 + (bmi - 18) * 1.8;
-        let shoulderEst = chestEst / 2.4;
-        let inseamEst = heightCm * 0.45;
-
-        chestEst = Math.max(75, Math.min(140, chestEst));
-        waistEst = Math.max(60, Math.min(120, waistEst));
-        hipEst = Math.max(80, Math.min(130, hipEst));
-        shoulderEst = Math.max(35, Math.min(55, shoulderEst));
-
-        setMeasurements({
-          shoulderWidth: shoulderEst.toFixed(1),
-          chestCircumference: chestEst.toFixed(1),
-          waistCircumference: waistEst.toFixed(1),
-          hipCircumference: hipEst.toFixed(1),
-          inseam: inseamEst.toFixed(1),
-          bmi: bmi.toFixed(1),
-          tshirtSize: getSize(TSHIRT_SIZES, chestEst),
-          pantsSize: getSize(PANTS_SIZES, waistEst),
-          formalShirtSize: getSize(SHIRT_SIZES, chestEst),
-          fallback: true,
-        });
-
-        setTimeout(() => {
-          setProcessing(false);
-          setStep(5);
-        }, 2000);
+        alert(err.message || 'Failed to detect full body pose. Please try again.');
+        setProcessing(false);
+        setStep(1);
+        setFrontImage(null);
+        setSideImage(null);
       }
     };
 
@@ -440,12 +446,15 @@ export default function SmartSize() {
     setStep(1);
     setHeight('');
     setWeight('');
+    setGender('');
     setFrontImage(null);
     setSideImage(null);
     setMeasurements(null);
     setCountdown(null);
     setCameraError(null);
     setProcessing(false);
+    setInputMode(null);
+    setShowModeSelect(false);
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -478,7 +487,7 @@ export default function SmartSize() {
         <div className="min-h-[500px]">
 
           {/* ─── STEP 1: Input ─────────────────────────────── */}
-          {step === 1 && (
+          {step === 1 && !showModeSelect && (
             <div className="animate-step-in">
               <div className="max-w-md mx-auto">
                 <div className="glass-light rounded-3xl p-8 sm:p-10 shadow-xl">
@@ -524,6 +533,33 @@ export default function SmartSize() {
                         <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-medium">kg</span>
                       </div>
                     </div>
+                    
+                    {/* Gender */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Gender</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => setGender('male')}
+                          className={`py-3 rounded-2xl border-2 font-bold transition-all ${
+                            gender === 'male'
+                              ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-md shadow-purple-500/10'
+                              : 'border-gray-200 bg-white text-gray-500 hover:border-purple-200'
+                          }`}
+                        >
+                          👨 Male
+                        </button>
+                        <button
+                          onClick={() => setGender('female')}
+                          className={`py-3 rounded-2xl border-2 font-bold transition-all ${
+                            gender === 'female'
+                              ? 'border-pink-500 bg-pink-50 text-pink-700 shadow-md shadow-pink-500/10'
+                              : 'border-gray-200 bg-white text-gray-500 hover:border-pink-200'
+                          }`}
+                        >
+                          👩 Female
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* BMI Preview */}
@@ -539,15 +575,15 @@ export default function SmartSize() {
                   )}
 
                   <button
-                    onClick={() => setStep(2)}
-                    disabled={!height || !weight || parseFloat(height) < 100 || parseFloat(weight) < 30}
+                    onClick={() => setShowModeSelect(true)}
+                    disabled={!height || !weight || parseFloat(height) < 100 || parseFloat(weight) < 30 || !gender}
                     className={`w-full mt-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
-                      height && weight && parseFloat(height) >= 100 && parseFloat(weight) >= 30
+                      height && weight && parseFloat(height) >= 100 && parseFloat(weight) >= 30 && gender
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]'
                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    Continue to Camera →
+                    Continue →
                   </button>
                 </div>
 
@@ -566,8 +602,88 @@ export default function SmartSize() {
             </div>
           )}
 
-          {/* ─── STEP 2: Front Photo ─────────────────────────── */}
-          {step === 2 && (
+          {/* ─── MODE SELECT ───────────────────────────────── */}
+          {showModeSelect && (
+            <div className="animate-step-in">
+              <div className="max-w-lg mx-auto">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-800">How would you like to provide photos?</h2>
+                  <p className="text-gray-500 text-sm mt-1">Choose camera capture or upload existing photos</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button onClick={() => { setInputMode('camera'); setShowModeSelect(false); setStep(2); }}
+                    className="glass-light rounded-3xl p-8 text-center hover:border-purple-400 border-2 border-transparent transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] group cursor-pointer">
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">📸</div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Camera Capture</h3>
+                    <p className="text-gray-500 text-xs">Use your webcam to take front & side photos with guided silhouettes</p>
+                  </button>
+                  <button onClick={() => { setInputMode('upload'); setShowModeSelect(false); setStep(2); }}
+                    className="glass-light rounded-3xl p-8 text-center hover:border-pink-400 border-2 border-transparent transition-all hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] group cursor-pointer">
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-3xl mb-4 shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">📤</div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">Upload Photos</h3>
+                    <p className="text-gray-500 text-xs">Upload existing full-body photos from your device</p>
+                  </button>
+                </div>
+                <button onClick={() => setShowModeSelect(false)} className="block mx-auto mt-6 text-gray-400 text-sm hover:text-gray-600 transition-colors">← Back</button>
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 2 (upload): Upload Photos ────────────────── */}
+          {step === 2 && inputMode === 'upload' && (
+            <div className="animate-step-in">
+              <div className="max-w-lg mx-auto">
+                <div className="text-center mb-5">
+                  <h2 className="text-xl font-bold text-gray-800">Upload Your Photos</h2>
+                  <p className="text-gray-500 text-sm mt-1">Front photo required · side photo optional for better accuracy</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600 mb-2 text-center">Front View <span className="text-red-400 text-xs">*required</span></p>
+                    <div onClick={() => frontFileRef.current?.click()}
+                      className={`relative rounded-2xl border-2 border-dashed cursor-pointer transition-all overflow-hidden ${frontImage ? 'border-purple-400 bg-purple-50' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/30'}`}
+                      style={{ aspectRatio: '3/4' }}>
+                      {frontImage ? (
+                        <img src={frontImage} alt="Front" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                          <span className="text-4xl mb-2">📸</span>
+                          <span className="text-sm font-medium">Click to upload</span>
+                          <span className="text-xs mt-1">Front facing photo</span>
+                        </div>
+                      )}
+                    </div>
+                    <input ref={frontFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files[0]) handleFileToDataUrl(e.target.files[0], setFrontImage); }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-600 mb-2 text-center">Side View <span className="text-gray-400 text-xs">(optional)</span></p>
+                    <div onClick={() => sideFileRef.current?.click()}
+                      className={`relative rounded-2xl border-2 border-dashed cursor-pointer transition-all overflow-hidden ${sideImage ? 'border-pink-400 bg-pink-50' : 'border-gray-300 hover:border-pink-400 hover:bg-pink-50/30'}`}
+                      style={{ aspectRatio: '3/4' }}>
+                      {sideImage ? (
+                        <img src={sideImage} alt="Side" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                          <span className="text-4xl mb-2">🔄</span>
+                          <span className="text-sm font-medium">Click to upload</span>
+                          <span className="text-xs mt-1">Side profile photo</span>
+                        </div>
+                      )}
+                    </div>
+                    <input ref={sideFileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files[0]) handleFileToDataUrl(e.target.files[0], setSideImage); }} />
+                  </div>
+                </div>
+                <button onClick={() => setStep(4)} disabled={!frontImage}
+                  className={`w-full mt-6 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${frontImage ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98]' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                  Process Measurements →
+                </button>
+                <p className="text-center text-gray-400 text-xs mt-3">📌 Ensure full body is visible for accurate results</p>
+              </div>
+            </div>
+          )}
+
+          {/* ─── STEP 2 (camera): Front Photo ──────────────────── */}
+          {step === 2 && inputMode === 'camera' && (
             <div className="animate-step-in">
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
@@ -641,8 +757,8 @@ export default function SmartSize() {
             </div>
           )}
 
-          {/* ─── STEP 3: Side Photo ──────────────────────────── */}
-          {step === 3 && (
+          {/* ─── STEP 3: Side Photo ────────────────────────── */}
+          {step === 3 && inputMode === 'camera' && (
             <div className="animate-step-in">
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
@@ -838,16 +954,18 @@ export default function SmartSize() {
                         </div>
                       </div>
 
-                      {/* Formal Shirt */}
-                      <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-300 transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-xs text-gray-400 uppercase tracking-wider">Formal Shirt</p>
-                            <p className="text-gray-500 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
+                      {/* Formal Shirt (Men Only) */}
+                      {gender === 'male' && (
+                        <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-blue-300 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-xs text-gray-400 uppercase tracking-wider">Formal Shirt</p>
+                              <p className="text-gray-500 text-xs mt-0.5">Based on chest: {measurements.chestCircumference} cm</p>
+                            </div>
+                            <div className="text-3xl font-black text-blue-400">{measurements.formalShirtSize}</div>
                           </div>
-                          <div className="text-3xl font-black text-blue-400">{measurements.formalShirtSize}</div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     {/* Size chart reference */}
@@ -903,6 +1021,7 @@ export default function SmartSize() {
                   </div>
 
                   {/* ─── MEN'S SIZE CHARTS ──────────────────────────── */}
+                  {gender === 'male' && (
                   <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
                       <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">👔</span>
@@ -1036,8 +1155,10 @@ export default function SmartSize() {
                       </div>
                     </div>
                   </div>
+                  )}
 
                   {/* ─── WOMEN'S SIZE CHARTS ────────────────────────── */}
+                  {gender === 'female' && (
                   <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
                     <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
                       <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-lg shadow-lg shadow-pink-500/20">👗</span>
@@ -1125,6 +1246,7 @@ export default function SmartSize() {
                       </div>
                     </div>
                   </div>
+                  )}
 
                   {/* How to Measure Guide */}
                   <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg border border-gray-100">

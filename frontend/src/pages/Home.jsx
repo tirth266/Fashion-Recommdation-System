@@ -25,7 +25,7 @@ export default function Home() {
   const [wardrobeItems, setWardrobeItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  
+
   useEffect(() => {
     if (currentUser) {
       fetch('/api/wardrobe/', { credentials: 'include' })
@@ -142,15 +142,15 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               <div className="absolute bottom-8 left-8 right-8">
-                 <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl flex items-center shadow-lg">
-                    <div className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center mr-4">
-                      <span className="text-white dark:text-black">✨</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white">Precision Mapping</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Advanced body shape detection</p>
-                    </div>
-                 </div>
+                <div className="bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl flex items-center shadow-lg">
+                  <div className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center mr-4">
+                    <span className="text-white dark:text-black">✨</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">Precision Mapping</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Advanced body shape detection</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -189,7 +189,7 @@ export default function Home() {
               </div>
 
               <div className="pt-2">
-                <Link to="/recommendation">
+                <Link to="/size-estimation">
                   <button className="bg-black text-white px-8 py-4 rounded-xl font-medium hover:bg-gray-800 transition-transform active:scale-95 duration-300 flex items-center gap-3 shadow-xl dark:bg-white dark:text-black dark:hover:bg-gray-200">
                     Try Size Estimation
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
@@ -216,7 +216,7 @@ export default function Home() {
               </div>
               <h3 className="font-serif text-lg font-bold mb-2 text-primary dark:text-white">{feature.title}</h3>
               <p className="text-secondary text-sm leading-relaxed dark:text-gray-400 flex-grow w-full">{feature.desc}</p>
-              
+
               {feature.link && (
                 <Link to={feature.link} className="mt-6 w-full hidden md:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button className="w-full bg-black text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition-all active:scale-95 shadow-md dark:bg-white dark:text-black dark:hover:bg-gray-200">
@@ -308,10 +308,10 @@ export default function Home() {
               wardrobeItems.length > 0 ? (
                 wardrobeItems.map((item) => (
                   <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group bg-gray-100 dark:bg-gray-800">
-                    <img 
-                      src={item.image_url.startsWith('/uploads') ? `/api${item.image_url}` : item.image_url} 
-                      alt="Wardrobe item" 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                    <img
+                      src={item.image_url.startsWith('/uploads') ? `/api${item.image_url}` : item.image_url}
+                      alt="Wardrobe item"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&auto=format&fit=crop'; }}
                     />
                     <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold ring-2 ring-white/50">
@@ -319,7 +319,7 @@ export default function Home() {
                     </div>
                     {/* Delete Option Overlay */}
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                      <button 
+                      <button
                         onClick={(e) => handleDeleteWardrobeItem(item.id, e)}
                         className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-red-600 shadow-xl flex items-center gap-1.5 transition-transform active:scale-95"
                       >

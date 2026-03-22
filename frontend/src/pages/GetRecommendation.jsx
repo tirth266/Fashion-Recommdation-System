@@ -8,6 +8,7 @@ export default function GetRecommendation() {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState(null); // 'text' or 'image'
   const [recommendedImages, setRecommendedImages] = useState(null); // Store API results
+  const [gender, setGender] = useState(''); // Add gender state
   const fileInputRef = useRef(null);
 
   // Constants
@@ -82,7 +83,7 @@ export default function GetRecommendation() {
   };
 
   const handleImageSubmit = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !gender) return;
 
     setIsLoading(true);
     setLoadingType('image');
@@ -90,6 +91,7 @@ export default function GetRecommendation() {
     try {
       const formData = new FormData();
       formData.append('image', selectedFile);
+      formData.append('gender', gender);
 
       const response = await fetch('/api/recommendations/recommend', {
         method: 'POST',
@@ -227,6 +229,22 @@ export default function GetRecommendation() {
               Upload a screenshot, moodboard, or sketch to find projects with a similar visual style.
             </p>
 
+            <div className="mb-6">
+              <label htmlFor="gender-select" className="block text-sm font-semibold text-gray-900 mb-2">
+                Your Gender (for accurate recommendations)
+              </label>
+              <select
+                id="gender-select"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option value="">Select Gender</option>
+                <option value="Men">Male</option>
+                <option value="Women">Female</option>
+              </select>
+            </div>
+
             <div className="flex-1 flex flex-col">
               {!previewUrl ? (
                 <div
@@ -278,9 +296,9 @@ export default function GetRecommendation() {
 
             <button
               onClick={handleImageSubmit}
-              disabled={!isImageReady || isLoading}
+              disabled={!isImageReady || !gender || isLoading}
               className={`mt-8 w-full py-3.5 px-6 rounded-xl font-semibold text-white shadow-sm transition-all duration-200 flex items-center justify-center space-x-2
-                ${!isImageReady || isLoading
+                ${!isImageReady || !gender || isLoading
                   ? 'bg-gray-300 cursor-not-allowed text-gray-500'
                   : 'bg-emerald-600 hover:bg-emerald-700 hover:shadow-emerald-200 hover:-translate-y-0.5 active:translate-y-0'
                 }`}

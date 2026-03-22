@@ -3,6 +3,7 @@ import os
 import pickle
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
 # Try importing from models package (app context) or fallback to local import
 try:
     from models.cnn_feature_extractor import extract_features, model
@@ -37,11 +38,39 @@ else:
         embeddings = []
         filenames = []
 
+# Load metadata
+STYLES_CSV = os.path.join(BASE_DIR, "../../data/datasets/styles.csv")
+gender_dict = {}
+if os.path.exists(STYLES_CSV):
+    try:
+        with open(STYLES_CSV, 'r', encoding='utf-8') as f:
+            next(f)  # skip header
+            for line in f:
+                parts = line.strip().split(',')
+                if len(parts) >= 2:
+                    try:
+                        item_id = int(parts[0])
+                        gender = parts[1]
+                        gender_dict[item_id] = gender
+                    except ValueError:
+                        continue  # skip bad lines
+        print(f"✅ Metadata loaded: {len(gender_dict)} items")
+    except Exception as e:
+        print(f"❌ Error loading CSV: {e}")
+else:
+    print("❌ styles.csv not found")
 
-def recommend(image_path, top_k=5):
+def get_id_from_path(path):
+    filename = os.path.basename(path)
+    id_str = filename.split('.')[0]
+    return int(id_str)
+
+
+def recommend(image_path, user_gender=None, top_k=5):
     """
     Generate recommendations for a given image path.
-    Returns a list of image filenames (absolute paths).
+    Returns a list of tuples (image_path, similarity_score).
+    If user_gender is provided, filters results to match the gender.
     """
     if len(embeddings) == 0:
         print("❌ Embeddings not loaded, cannot recommend.")
@@ -57,13 +86,25 @@ def recommend(image_path, top_k=5):
             [query_embedding], embeddings
         )[0]
 
-        # Get top matches
-        indices = np.argsort(similarities)[-top_k:][::-1]
+        # Get all indices sorted by similarity descending
+        all_indices = np.argsort(similarities)[::-1]
 
-        results = [filenames[i] for i in indices]
+        # Filter by gender
+        filtered_results = []
+        for idx in all_indices:
+            if user_gender is None:
+                filtered_results.append((filenames[idx], similarities[idx]))
+            else:
+                item_id = get_id_from_path(filenames[idx])
+                item_gender = gender_dict.get(item_id)
+                if item_gender == user_gender:
+                    filtered_results.append((filenames[idx], similarities[idx]))
+            
+            if len(filtered_results) == top_k:
+                break
 
-        print("✅ Recommendations generated")
-        return results
+        print(f"✅ Recommendations generated: {len(filtered_results)} items")
+        return filtered_results
 
     except Exception as e:
         print("❌ Recommendation Error:", e)

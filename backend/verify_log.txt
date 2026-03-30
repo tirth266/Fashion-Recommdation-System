@@ -1,5 +1,0 @@
-Current columns in 'users': ['id', 'username', 'email', 'password_hash', 'full_name', 'phone', 'location', 'profile_image', 'created_at', 'updated_at', 'style_preference', 'budget_range', 'chest_inches', 'waist_inches', 'hips_inches', 'height_inches', 'calculated_size', 'google_id']
-PASS: google_id column exists.
-PASS: profile_image column exists.
-FAIL: last_login column MISSING. Attempting to fix...
-FIXED: Added last_login column.

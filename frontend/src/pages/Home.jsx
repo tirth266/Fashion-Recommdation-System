@@ -118,47 +118,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 3: RECOMMENDED OUTFITS */}
-      <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-12 flex justify-between items-end">
-            <div>
-              <h2 className="text-3xl font-serif font-bold mb-2 dark:text-white">Recommended For You</h2>
-              <p className="text-secondary text-sm dark:text-gray-400">Based on your recent uploads and preferences.</p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-            {[
-              { name: "Urban Chic Set", score: "98%", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop" },
-              { name: "Minimalist Coat", score: "95%", img: "https://images.unsplash.com/photo-1544923246-77307dd654cb?q=80&w=1974&auto=format&fit=crop" },
-              { name: "Evening Elegance", score: "92%", img: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=2108&auto=format&fit=crop" },
-              { name: "Weekend Casual", score: "89%", img: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=2005&auto=format&fit=crop" },
-            ].map((item, i) => (
-              <div key={i} className="group cursor-pointer relative">
-                <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-4 bg-gray-200 relative">
-                  <img src={item.img} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-
-                  {/* Similarity Badge */}
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-green-700 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    {item.score} Match
-                  </div>
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <button className="bg-white text-black px-6 py-2 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      View Details
-                    </button>
-                  </div>
-                </div>
-                <h3 className="font-serif text-lg font-bold text-primary dark:text-white">{item.name}</h3>
-                <p className="text-secondary text-xs uppercase tracking-wider mt-1 dark:text-gray-400">AI Suggestion</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* SECTION 4: SMART SIZE PREDICTION */}
       <section id="smart-sizing" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 dark:bg-black dark:border-white/10">

@@ -3,24 +3,9 @@ import { useState, useEffect, useRef } from 'react'
 import MainLayout from '../components/MainLayout'
 import { useAuth } from '../context/AuthContext'
 
-// Mock Data for Occasion Styling
-const occasionOutfits = {
-  Casual: [
-    { id: 1, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2020&auto=format&fit=crop", name: "Weekend Brunch" },
-    { id: 2, image: "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=2005&auto=format&fit=crop", name: "City Walk" },
-  ],
-  Office: [
-    { id: 3, image: "https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=1995&auto=format&fit=crop", name: "Executive Meeting" },
-    { id: 4, image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?q=80&w=1957&auto=format&fit=crop", name: "Workday Chic" },
-  ],
-  Party: [
-    { id: 5, image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=2108&auto=format&fit=crop", name: "Evening Gala" },
-    { id: 6, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2083&auto=format&fit=crop", name: "Cocktail Hour" },
-  ],
-};
+
 
 export default function Home() {
-  const [activeOccasion, setActiveOccasion] = useState('Casual');
   const { currentUser } = useAuth();
   const [wardrobeItems, setWardrobeItems] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -226,41 +211,6 @@ export default function Home() {
       </section>
 
 
-      {/* SECTION 5: OCCASION-BASED STYLING */}
-      <section className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-bold mb-4 dark:text-white">Style For Every Occasion</h2>
-            <div className="flex justify-center space-x-2 md:space-x-4 overflow-x-auto pb-4">
-              {Object.keys(occasionOutfits).map((occasion) => (
-                <button
-                  key={occasion}
-                  onClick={() => setActiveOccasion(occasion)}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap ${activeOccasion === occasion
-                    ? 'bg-black text-white shadow-lg dark:bg-white dark:text-black'
-                    : 'bg-white border border-gray-200 text-secondary hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700'
-                    }`}
-                >
-                  {occasion}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-            {occasionOutfits[activeOccasion].map((outfit) => (
-              <div key={outfit.id} className="relative aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden group cursor-pointer shadow-sm">
-                <img src={outfit.image} alt={outfit.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-6 left-6 text-white">
-                  <span className="text-xs uppercase tracking-wider font-semibold opacity-80">{activeOccasion}</span>
-                  <h3 className="text-2xl font-serif font-bold">{outfit.name}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* SECTION 6: VIRTUAL WARDROBE MOCKUP */}
       <section id="wardrobe" className="px-6 lg:px-8 py-24 bg-white border-y border-gray-100 dark:bg-black dark:border-white/10">
@@ -333,29 +283,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 7: LATEST TRENDS */}
-      <section id="trends" className="px-6 lg:px-8 py-24 bg-background dark:bg-black">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-serif font-bold mb-12 dark:text-white">Latest Trends</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: "The Return of Y2K", desc: "Why early 2000s fashion is dominating the runway again.", img: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop" },
-              { title: "Sustainable Footwear", desc: "Top brands pivoting to mushroom leather and recycled plastics.", img: "https://images.unsplash.com/photo-1543087903-1ac2ec7aa8c5?q=80&w=2098&auto=format&fit=crop" },
-              { title: "Color of the Year", desc: "How to style 'Digital Lavender' for maximum impact.", img: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1976&auto=format&fit=crop" },
-            ].map((trend, i) => (
-              <div key={i} className="group cursor-pointer">
-                <div className="aspect-[4/3] rounded-xl overflow-hidden mb-4">
-                  <img src={trend.img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                </div>
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Trend Report</p>
-                <h3 className="text-xl font-serif font-bold mb-2 group-hover:text-secondary transition-colors dark:text-white dark:group-hover:text-gray-300">{trend.title}</h3>
-                <p className="text-secondary text-sm leading-relaxed mb-3 dark:text-gray-400">{trend.desc}</p>
-                <span className="text-xs font-bold uppercase border-b border-black pb-0.5 dark:text-white dark:border-white">Read Article</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
 
     </MainLayout >

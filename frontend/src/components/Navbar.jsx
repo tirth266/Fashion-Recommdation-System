@@ -22,10 +22,9 @@ export default function Navbar() {
         <div className="hidden md:flex items-center justify-center space-x-8">
           {[
             { name: 'Home', href: '/' },
-            { name: 'AI Recommendations', href: '#ai-recommendations' },
+            { name: 'AI Recommendations', href: '/get-recommendations' },
             { name: 'Body Measure', href: '/smart-size-estimation' },
-            { name: 'Wardrobe', href: '#wardrobe' },
-            { name: 'Trends', href: '#trends' }
+            { name: 'Wardrobe', href: '/#wardrobe' }
           ].map((item) => (
             <a
               key={item.name}

@@ -3,8 +3,6 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import ImageSearch from './pages/ImageSearch'
 import PriceComparison from './pages/PriceComparison'
-import Recommendations from './pages/Recommendations'
-
 import SmartSize from './pages/SmartSize'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
@@ -12,7 +10,6 @@ import Dashboard from './pages/Dashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import GetRecommendation from './pages/GetRecommendation'
 
-import APITest from './pages/APITest'
 
 
 import AuthGuard from './components/Auth/AuthGuard'
@@ -36,13 +33,10 @@ function App() {
 
             {/* Protected Features */}
             <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-            <Route path="/recommendations" element={<AuthGuard><Recommendations /></AuthGuard>} />
             <Route path="/smart-size-estimation" element={<AuthGuard><SmartSize /></AuthGuard>} />
             <Route path="/get-recommendations" element={<AuthGuard><GetRecommendation /></AuthGuard>} />
 
             <Route path="/profile" element={<AuthGuard><Profile /></AuthGuard>} />
-
-            <Route path="/api-test" element={<APITest />} />
           </Routes>
         </div>
       </AuthProvider>

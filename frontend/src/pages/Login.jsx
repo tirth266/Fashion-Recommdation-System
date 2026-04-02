@@ -25,14 +25,11 @@ export default function Login() {
           brands: []
      });
 
-     useEffect(() => {
-          if (currentUser) {
-               // If user is already logged in, check if they need to complete onboarding (Step 2)
-               // For now, we'll just redirect to recommendations if they are done
-               // You might want to add logic here to check a 'profile.completed_onboarding' flag
-               navigate('/');
-          }
-     }, [currentUser, navigate]);
+      useEffect(() => {
+           if (currentUser) {
+                navigate('/profile', { replace: true });
+           }
+      }, [currentUser, navigate]);
 
      const handleInputChange = (e) => {
           const { name, value } = e.target;
@@ -61,42 +58,44 @@ export default function Login() {
           setStep(2);
      };
 
-     const handleComplete = async () => {
-          setIsSubmitting(true);
-          setError('');
+      const handleComplete = async (e) => {
+           e.preventDefault();
+           setIsSubmitting(true);
+           setError('');
 
-          try {
-               // Call the register API
-               const success = await register({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password,
-                    full_name: formData.username, // Can be updated later
-                    // Additional profile data can be saved separately
-                    profile_data: {
-                         gender: formData.gender,
-                         favoriteColor: formData.favoriteColor,
-                         measurements: {
-                              chest: formData.chest,
-                              shoulder: formData.shoulder,
-                              wrist: formData.wrist,
-                              height: formData.height,
-                              weight: formData.weight
-                         },
-                         brands: formData.brands
-                    }
-               });
+           try {
+                const success = await register({
+                     username: formData.username,
+                     email: formData.email,
+                     password: formData.password,
+                     full_name: formData.username,
+                     profile_data: {
+                          gender: formData.gender,
+                          favoriteColor: formData.favoriteColor,
+                          measurements: {
+                               chest: formData.chest,
+                               shoulder: formData.shoulder,
+                               wrist: formData.wrist,
+                               height: formData.height,
+                               weight: formData.weight
+                          },
+                          brands: formData.brands
+                     }
+                });
 
-               if (success) {
-                    console.log("Registration successful!");
-                    navigate('/profile');
-               }
-          } catch (err) {
-               console.error("Registration error:", err);
-          } finally {
-               setIsSubmitting(false);
-          }
-     };
+                if (success) {
+                     console.log("Registration successful!");
+                     navigate('/profile');
+                } else {
+                     setError(error || 'Registration failed. Please try again.');
+                }
+           } catch (err) {
+                console.error("Registration error:", err);
+                setError(err.message || 'An unexpected error occurred.');
+           } finally {
+                setIsSubmitting(false);
+           }
+      };
 
      const colors = ['#000000', '#FFFFFF', '#F5F5DC', '#000080', '#556B2F', '#8B0000', '#FFC0CB', '#808080'];
 
@@ -131,10 +130,10 @@ export default function Login() {
 
                          <div className="text-center lg:text-left">
                               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                                   {step === 1 ? 'Welcome Back' : 'Get Your Perfect Fit'}
+                                   {step === 1 ? 'Create an Account' : 'Get Your Perfect Fit'}
                               </h2>
                               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                                   {step === 1 ? 'Please enter your details to sign in.' : 'Help us find clothes that fit you perfectly.'}
+                                   {step === 1 ? 'Please enter your details to sign up.' : 'Help us find clothes that fit you perfectly.'}
                               </p>
                          </div>
 
@@ -223,7 +222,7 @@ export default function Login() {
                          {/* STEP 2: MEASUREMENTS & ONBOARDING */}
                          {step === 2 && (
                               <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
-                                   <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleComplete(); }}>
+                                   <form className="space-y-6" onSubmit={handleComplete}>
 
                                         <div className="grid grid-cols-2 gap-6">
                                              <div>

@@ -5,24 +5,36 @@ import GoogleLoginButton from '../GoogleLoginButton';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'register', onSuccess, intendedDestination }) {
      const [mode, setMode] = useState(initialMode); // 'login' or 'register'
-     const { login, register, error, setError } = useAuth();
+     const { login, register, error, setError, currentUser } = useAuth();
      const navigate = useNavigate();
      const location = useLocation();
 
-     // Form States
-     const [formData, setFormData] = useState({
-          username: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-     });
+     useEffect(() => {
+          if (currentUser && isOpen) {
+               onClose();
+               const stored = sessionStorage.getItem('intendedDestination');
+               const target = intendedDestination || stored || location.state?.from?.pathname || '/profile';
+               sessionStorage.removeItem('intendedDestination');
+               navigate(target, { replace: true });
+          }
+     }, [currentUser, isOpen, onClose, navigate, intendedDestination, location.state]);
+
+      // Form States
+      const [formData, setFormData] = useState({
+           username: '',
+           email: '',
+           password: '',
+           confirmPassword: '',
+           gender: '',
+           favoriteColor: ''
+      });
 
      // Remember dismissal
      useEffect(() => {
           if (!isOpen) return;
-          // Reset form on open
-          setFormData({ username: '', email: '', password: '', confirmPassword: '' });
-          setError('');
+           // Reset form on open
+           setFormData({ username: '', email: '', password: '', confirmPassword: '', gender: '', favoriteColor: '' });
+           setError('');
      }, [isOpen]);
 
      const handleInputChange = (e) => {
@@ -42,11 +54,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'register', o
                     setError("Password must be at least 6 characters");
                     return;
                }
-               const success = await register({
-                    username: formData.username,
-                    email: formData.email,
-                    password: formData.password
-               });
+                const success = await register({
+                     username: formData.username,
+                     email: formData.email,
+                     password: formData.password,
+                     gender: formData.gender,
+                     favorite_color: formData.favoriteColor
+                });
                if (success) {
                     if (onSuccess) {
                          onSuccess();
@@ -174,18 +188,57 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'register', o
                               </div>
 
                               {mode === 'register' && (
-                                   <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
-                                        <input
-                                             type="password"
-                                             name="confirmPassword"
-                                             value={formData.confirmPassword}
-                                             onChange={handleInputChange}
-                                             required
-                                             className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                             placeholder="••••••••"
-                                        />
-                                   </div>
+                                   <>
+                                        <div>
+                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
+                                             <input
+                                                  type="password"
+                                                  name="confirmPassword"
+                                                  value={formData.confirmPassword}
+                                                  onChange={handleInputChange}
+                                                  required
+                                                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                                  placeholder="••••••••"
+                                             />
+                                        </div>
+                                        <div>
+                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+                                             <select
+                                                  name="gender"
+                                                  value={formData.gender}
+                                                  onChange={handleInputChange}
+                                                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                             >
+                                                  <option value="">Select Gender</option>
+                                                  <option value="Male">Male</option>
+                                                  <option value="Female">Female</option>
+                                                  <option value="Other">Other</option>
+                                             </select>
+                                        </div>
+                                        <div>
+                                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Favorite Color</label>
+                                             <select
+                                                  name="favoriteColor"
+                                                  value={formData.favoriteColor}
+                                                  onChange={handleInputChange}
+                                                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                             >
+                                                  <option value="">Select Color</option>
+                                                  <option value="Black">Black</option>
+                                                  <option value="White">White</option>
+                                                  <option value="Blue">Blue</option>
+                                                  <option value="Red">Red</option>
+                                                  <option value="Green">Green</option>
+                                                  <option value="Pink">Pink</option>
+                                                  <option value="Yellow">Yellow</option>
+                                                  <option value="Purple">Purple</option>
+                                                  <option value="Orange">Orange</option>
+                                                  <option value="Brown">Brown</option>
+                                                  <option value="Gray">Gray</option>
+                                                  <option value="Navy">Navy</option>
+                                             </select>
+                                        </div>
+                                   </>
                               )}
 
                               <button

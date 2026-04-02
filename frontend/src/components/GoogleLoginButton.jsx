@@ -1,27 +1,42 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+
+let isGoogleInitialized = false;
 
 export default function GoogleLoginButton() {
-     const { loginWithGoogle, setError } = useAuth();
+     const { loginWithGoogle, setError, currentUser } = useAuth();
      const navigate = useNavigate();
+     const [isReady, setIsReady] = useState(false);
+
+     useEffect(() => {
+          if (!isGoogleInitialized) {
+               isGoogleInitialized = true;
+               setIsReady(true);
+          } else {
+               setIsReady(true);
+          }
+     }, []);
+
+     useEffect(() => {
+          if (currentUser) {
+               const stored = sessionStorage.getItem('intendedDestination');
+               const target = stored || '/profile';
+               sessionStorage.removeItem('intendedDestination');
+               navigate(target, { replace: true });
+          }
+     }, [currentUser, navigate]);
 
      const handleSuccess = async (credentialResponse) => {
           console.log("Google Login Success:", credentialResponse);
           try {
                const user = await loginWithGoogle(credentialResponse.credential);
-               if (user) {
-                    const stored = sessionStorage.getItem('intendedDestination');
-                    const target = stored || '/profile';
-                    sessionStorage.removeItem('intendedDestination');
-                    navigate(target);
-               } else {
+               if (!user) {
                     console.error("Login failed after Google success");
-                    // Error is already set inside loginWithGoogle
                }
           } catch (err) {
                console.error("Exception in handleSuccess:", err);
-               console.error("Full error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
                setError('An unexpected error occurred during login. Please try again.');
           }
      };
@@ -30,6 +45,8 @@ export default function GoogleLoginButton() {
           console.error("Google Login Failed");
           setError('Google Login failed. Please check your internet connection or disable ad blockers.');
      };
+
+     if (!isReady) return null;
 
      return (
           <div className="w-full flex justify-center">

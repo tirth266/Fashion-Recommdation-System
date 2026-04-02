@@ -17,3 +17,4 @@ google-auth-httplib2>=0.3.0
 opencv-python-headless
 tensorflow
 tqdm
+pymongo>=4.6.0

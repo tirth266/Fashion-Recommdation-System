@@ -1,308 +1,249 @@
 from flask import Blueprint, request, jsonify, session
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import secrets
-from ..extensions import db
-from ..database.init_db import User
-from sqlalchemy.exc import IntegrityError
 
-bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+from ..database.mongodb import (
+    create_user,
+    find_user_by_email,
+    find_user_by_username,
+    find_user_by_google_id,
+    verify_user_password,
+    update_user,
+    update_user_last_login,
+    link_google_account,
+)
 
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '737685649419-2b6lgqusjcrqdusipt5o8ngn1orpdodr.apps.googleusercontent.com')
+bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
-@bp.route('/google', methods=['POST'])
+GOOGLE_CLIENT_ID = os.environ.get(
+    "GOOGLE_CLIENT_ID",
+    "745025914415-o7l3snr79321qpqvoh1uqa5u4fks068o.apps.googleusercontent.com",
+)
+
+
+def _build_session_user(mongo_user):
+    """Build session user object from MongoDB user document."""
+    return {
+        "user_id": str(mongo_user["_id"]),
+        "google_id": mongo_user.get("google_id", ""),
+        "email": mongo_user.get("email", ""),
+        "name": mongo_user.get("name", ""),
+        "username": mongo_user.get("username", ""),
+        "picture": mongo_user.get("profile_pic", ""),
+        "auth_type": mongo_user.get("auth_type", "manual"),
+        "profile": mongo_user,
+    }
+
+
+def _update_session(user_id):
+    """Update last login and refresh session."""
+    update_user_last_login(user_id)
+    user = find_user_by_google_id(user_id) or find_user_by_email(user_id)
+    if not user:
+        user = find_user_by_google_id(user_id)
+    if user:
+        session["user"] = _build_session_user(user)
+        session.modified = True
+
+
+# ═══════════════════════════════════════════════════════════════════
+# POST /api/auth/google  — Google OAuth Login/Register
+# ═══════════════════════════════════════════════════════════════════
+@bp.route("/google", methods=["POST"])
 def google_auth():
-    print("Received /api/auth/google request") # DEBUG
+    print("Received /api/auth/google request")
     try:
         data = request.get_json()
         print(f"Payload keys: {data.keys() if data else 'None'}")
     except Exception as e:
         print(f"Failed to parse JSON: {e}")
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({"error": "Invalid JSON"}), 400
 
-    token = data.get('token')
-    
+    token = data.get("token")
+
     if not token:
-        print("Error: Missing token") # DEBUG
-        return jsonify({'error': 'Missing token'}), 400
+        print("Error: Missing token")
+        return jsonify({"error": "Missing token"}), 400
 
     try:
-        print(f"Verifying token with Client ID: {GOOGLE_CLIENT_ID[:10]}...") # DEBUG
-        # Specify the CLIENT_ID of the app that accesses the backend:
-        # Added clock_skew_in_seconds to handle minor time discrepancies (e.g. "Token used too early")
+        print(f"Verifying token with Client ID: {GOOGLE_CLIENT_ID[:10]}...")
         id_info = id_token.verify_oauth2_token(
-            token, 
-            requests.Request(), 
-            GOOGLE_CLIENT_ID, 
-            clock_skew_in_seconds=10
+            token, requests.Request(), GOOGLE_CLIENT_ID, clock_skew_in_seconds=10
         )
 
-        # ID token is valid. Get the user's Google Account information from the decoded token.
-        user_google_id = id_info['sub']
-        email = id_info['email']
-        name = id_info.get('name')
-        picture = id_info.get('picture')
+        user_google_id = id_info["sub"]
+        email = id_info["email"]
+        name = id_info.get("name")
+        picture = id_info.get("picture")
 
-        print(f"Token verified! User: {email}, ID: {user_google_id}") # DEBUG
+        print(f"Token verified! User: {email}, Google ID: {user_google_id}")
 
         if not email:
-             raise ValueError("Email not found in Google token")
+            raise ValueError("Email not found in Google token")
 
-        # Database integration
-        # 1. Try to find by Google ID first
-        user = User.query.filter_by(google_id=user_google_id).first()
-        
-        # 2. If not found, try by email (legacy or manual account)
-        if not user:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                # Link existing account to Google ID
-                user.google_id = user_google_id
-                if not user.profile_image and picture:
-                    user.profile_image = picture
-                db.session.commit()
-                print(f"Linked existing user {email} to Google ID")
-        
-        if not user:
-            # Create new user from Google info
-            from datetime import datetime
-            random_password = secrets.token_urlsafe(16)
-            new_user = User(
-                email=email,
-                username=email.split('@')[0], # Fallback username
-                full_name=name,
-                profile_image=picture,
-                google_id=user_google_id
+        existing_user = find_user_by_google_id(user_google_id)
+
+        if existing_user:
+            update_user_last_login(str(existing_user["_id"]))
+            session["user"] = _build_session_user(existing_user)
+            print(f"Session created for existing user ID: {existing_user['_id']}")
+            return jsonify(
+                {"message": "Login successful", "user": session["user"]}
+            ), 200
+
+        existing_by_email = find_user_by_email(email)
+        if existing_by_email:
+            updated_user, error = link_google_account(
+                str(existing_by_email["_id"]), user_google_id, picture
             )
-            try:
-                new_user.set_password(random_password)
-                db.session.add(new_user)
-                db.session.commit()
-                user = new_user
-                print(f"New Google user created: {email}")
-                
-                 # --- MongoDB Integration (New User) ---
-                from ..extensions import mongo
-                try:
-                    mongo.db.users.insert_one({
-                        "username": user.username,
-                        "email": user.email,
-                        "full_name": user.full_name,
-                        "picture": user.profile_image,
-                        "google_id": user_google_id,
-                        "created_at": datetime.utcnow(),
-                        "role": "user",
-                        "sql_user_id": user.id,
-                        "auth_provider": "google"
-                    })
-                    print(f"Google User {email} synced to MongoDB")
-                except Exception as e:
-                    print(f"MongoDB Sync Error (Google New): {e}")
-                # --------------------------------------
+            if updated_user:
+                session["user"] = _build_session_user(updated_user)
+                return jsonify(
+                    {"message": "Google account linked", "user": session["user"]}
+                ), 200
+            return jsonify({"error": error or "Failed to link Google account"}), 409
 
-            except IntegrityError:
-                db.session.rollback()
-                # Handle race condition or username collision
-                user = User.query.filter_by(email=email).first()
-                if not user:
-                     # Try with random suffix if username collision
-                     new_user.username = f"{email.split('@')[0]}_{secrets.token_hex(4)}"
-                     db.session.add(new_user)
-                     db.session.commit()
-                     user = new_user
-                     
-                     # Retry Mongo Sync? (Simplified for now)
+        username = email.split("@")[0]
+        counter = 1
+        while find_user_by_username(username):
+            username = f"{email.split('@')[0]}_{counter}"
+            counter += 1
 
-        # Update last login
-        from datetime import datetime
-        user.last_login = datetime.utcnow()
-        db.session.commit()
-        
-        # --- MongoDB Integration (Update Login Time) ---
-        from ..extensions import mongo
-        try:
-             # Ensure user exists in Mongo if they were created before Mongo integration
-            existing_mongo_user = mongo.db.users.find_one({"email": email})
-            if not existing_mongo_user:
-                 mongo.db.users.insert_one({
-                    "username": user.username,
-                    "email": email,
-                    "full_name": user.full_name,
-                    "picture": user.profile_image,
-                    "google_id": user_google_id,
-                    "created_at": user.created_at or datetime.utcnow(),
-                    "role": "user",
-                    "sql_user_id": user.id,
-                    "auth_provider": "google"
-                })
+        new_user, error = create_user(
+            username=username,
+            email=email,
+            password=None,
+            name=name,
+            auth_type="google",
+            google_id=user_google_id,
+            profile_pic=picture,
+        )
 
-            mongo.db.users.update_one(
-                {"email": email},
-                {"$set": {"last_login": datetime.utcnow()}}
-            )
-        except Exception as e:
-             print(f"MongoDB Update Error (Google Login): {e}")
-        # -----------------------------------------------
+        if not new_user:
+            print(f"Failed to create user: {error}")
+            return jsonify({"error": error or "Failed to create user"}), 409
 
-        # Create a user session
-        session.permanent = True
-        session['user'] = {
-            'user_id': user.id,
-            'email': user.email,
-            'name': user.full_name or user.username,
-            'picture': user.profile_image or picture,
-            'profile': user.to_dict()
-        }
-        print(f"Session created for user ID: {user.id}") # DEBUG
-        
-        return jsonify({
-            'message': 'Login successful',
-            'user': session['user']
-        }), 200
+        session["user"] = _build_session_user(new_user)
+        print(f"Session created for new user ID: {new_user['_id']}")
+        return jsonify({"message": "Login successful", "user": session["user"]}), 200
 
     except ValueError as e:
-        # Invalid token
-        import sys
-        print(f"Token verification failed: {e}", file=sys.stderr) # DEBUG to stderr
-        print(f"Token received (first 20 chars): {token[:20] if token else 'None'}", file=sys.stderr)
-        return jsonify({'error': 'Invalid token', 'details': str(e)}), 401
+        print(f"Token verification failed: {e}")
+        return jsonify({"error": "Invalid token", "details": str(e)}), 401
     except Exception as e:
-        import sys
-        import traceback
-        
-        # Log to file
-        try:
-            with open("auth_error.log", "a") as f:
-                f.write(f"\n[{datetime.utcnow()}] Error in /google:\n")
-                f.write(f"Error: {str(e)}\n")
-                f.write(traceback.format_exc())
-                f.write("-" * 20 + "\n")
-        except:
-            pass
+        import sys, traceback
 
-        print(f"Unexpected error in /google: {e}", file=sys.stderr) # DEBUG to stderr
+        print(f"Unexpected error in /google: {e}", file=sys.stderr)
         traceback.print_exc()
-        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
-@bp.route('/register', methods=['POST'])
+
+# ═══════════════════════════════════════════════════════════════════
+# POST /api/auth/register  — Email/Password Registration
+# ═══════════════════════════════════════════════════════════════════
+@bp.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    username = data.get('username')
-    
-    if not email or not password or not username:
-        return jsonify({'error': 'Missing required fields'}), 400
-        
-    # Check if user exists
-    if User.query.filter((User.email == email) | (User.username == username)).first():
-        return jsonify({'error': 'User already exists'}), 409
-        
-    try:
-        new_user = User(
-            email=email,
-            username=username,
-            full_name=data.get('full_name')
-        )
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # --- MongoDB Integration ---
-        from ..extensions import mongo
-        try:
-            mongo.db.users.insert_one({
-                "username": username,
-                "email": email.lower(),
-                "full_name": data.get('full_name'),
-                "created_at": datetime.utcnow(),
-                "role": "user",
-                "sql_user_id": new_user.id,
-                "auth_provider": "email"  # Track authentication method
-            })
-            print(f"User {username} synced to MongoDB with email auth provider")
-        except Exception as e:
-            print(f"MongoDB Sync Error: {e}")
-        # ---------------------------
-        
-        # Auto-login
-        session.permanent = True
-        session['user'] = {
-            'user_id': new_user.id,
-            'email': new_user.email,
-            'name': new_user.full_name or new_user.username,
-            'picture': None, # Default or Gravatar could be added
-            'profile': new_user.to_dict()
-        }
-        
-        return jsonify({
-            'message': 'Registration successful',
-            'user': session['user']
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        print(f"Registration error: {e}")
-        return jsonify({'error': 'Registration failed', 'details': str(e)}), 500
+    email = data.get("email")
+    password = data.get("password")
+    username = data.get("username")
 
-@bp.route('/login', methods=['POST'])
+    if not email or not password or not username:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    existing_email = find_user_by_email(email)
+    if existing_email:
+        return jsonify({"error": "Email is already registered"}), 409
+
+    existing_username = find_user_by_username(username)
+    if existing_username:
+        return jsonify(
+            {"error": "Username is already taken, please choose another"}
+        ), 409
+
+    full_name = data.get("full_name")
+    gender = data.get("gender")
+    favorite_color = data.get("favorite_color")
+    profile_data = data.get("profile_data", {})
+
+    new_user, error = create_user(
+        username=username,
+        email=email,
+        password=password,
+        name=full_name or username,
+        auth_type="manual",
+    )
+
+    if not new_user:
+        return jsonify({"error": error or "Registration failed"}), 500
+
+    if profile_data:
+        update_data = {
+            "gender": gender or profile_data.get("gender", ""),
+            "favorite_color": favorite_color or profile_data.get("favoriteColor", ""),
+            "body_measurements": profile_data.get("measurements", {}),
+            "preferences": {
+                "colors": profile_data.get("favoriteColor", "").split(",")
+                if profile_data.get("favoriteColor")
+                else [],
+                "brands": profile_data.get("brands", []),
+                "fit": "",
+            },
+        }
+        update_user(str(new_user["_id"]), update_data)
+        new_user = find_user_by_email(email)
+
+    session["user"] = _build_session_user(new_user)
+    return jsonify({"message": "Registration successful", "user": session["user"]}), 201
+
+
+# ═══════════════════════════════════════════════════════════════════
+# POST /api/auth/login  — Email/Password Login
+# ═══════════════════════════════════════════════════════════════════
+@bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    
-    if not email or not password:
-        return jsonify({'error': 'Missing email or password'}), 400
-        
-    user = User.query.filter_by(email=email).first()
-    
-    if user and user.check_password(password):
-        session.permanent = True
-        session['user'] = {
-            'user_id': user.id,
-            'email': user.email,
-            'name': user.full_name or user.username,
-            'picture': user.profile_image,
-            'profile': user.to_dict()
-        }
-        # Update last login time
-        user.last_login = datetime.utcnow()
-        db.session.commit()
-        return jsonify({
-            'message': 'Login successful',
-            'user': session['user']
-        }), 200
-    
-    return jsonify({'error': 'Invalid email or password'}), 401
+    email = data.get("email")
+    password = data.get("password")
 
-@bp.route('/user', methods=['GET'])
+    if not email or not password:
+        return jsonify({"error": "Missing email or password"}), 400
+
+    user = verify_user_password(email, password)
+
+    if not user:
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    update_user_last_login(str(user["_id"]))
+    session["user"] = _build_session_user(user)
+    return jsonify({"message": "Login successful", "user": session["user"]}), 200
+
+
+# ═══════════════════════════════════════════════════════════════════
+# GET /api/auth/user  — Get Current Session User
+# ═══════════════════════════════════════════════════════════════════
+@bp.route("/user", methods=["GET"])
 def get_current_user():
     try:
-        user = session.get('user')
+        user = session.get("user")
         if not user:
-            return jsonify({'error': 'Not authenticated'}), 401
-        return jsonify({'user': user}), 200
+            return jsonify({"error": "Not authenticated"}), 401
+        return jsonify({"user": user}), 200
     except Exception as e:
-        import sys
-        import traceback
-        
-        # Log to file
-        try:
-            with open("auth_error.log", "a") as f:
-                f.write(f"\n[{datetime.utcnow()}] Error in /user:\n")
-                f.write(f"Error: {str(e)}\n")
-                f.write(traceback.format_exc())
-                f.write("-" * 20 + "\n")
-        except:
-            pass
+        print(f"Error in /user: {e}")
+        return jsonify({"error": "Not authenticated"}), 401
 
-        print(f"Error in /user: {e}", file=sys.stderr)
-        traceback.print_exc()
-        return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
-@bp.route('/logout', methods=['POST'])
+# ═══════════════════════════════════════════════════════════════════
+# POST /api/auth/logout
+# ═══════════════════════════════════════════════════════════════════
+@bp.route("/logout", methods=["POST"])
 def logout():
     session.clear()
-    return jsonify({'message': 'Logged out successfully'}), 200
+    return jsonify({"message": "Logged out successfully"}), 200

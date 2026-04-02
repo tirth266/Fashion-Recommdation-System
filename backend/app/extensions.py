@@ -1,5 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-from flask_pymongo import PyMongo
-
-db = SQLAlchemy()
-mongo = PyMongo()
+# SQLite/SQLAlchemy has been removed
+# All data is now stored in MongoDB
+# See app/database/mongodb.py for all database operations

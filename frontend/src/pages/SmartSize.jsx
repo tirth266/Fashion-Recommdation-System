@@ -11,28 +11,28 @@ const STEPS = [
 ];
 
 const TSHIRT_SIZES = [
-  { size: 'XS', min: 80, max: 88 },
+  { size: 'XS', min: 0, max: 88 },
   { size: 'S', min: 88, max: 96 },
   { size: 'M', min: 96, max: 104 },
   { size: 'L', min: 104, max: 112 },
   { size: 'XL', min: 112, max: 120 },
-  { size: 'XXL', min: 120, max: 128 },
+  { size: 'XXL', min: 120, max: 999 },
 ];
 
 const PANTS_SIZES = [
-  { size: '28', min: 71, max: 73 },
-  { size: '30', min: 76, max: 78 },
-  { size: '32', min: 81, max: 83 },
-  { size: '34', min: 86, max: 88 },
-  { size: '36', min: 91, max: 93 },
-  { size: '38', min: 96, max: 98 },
+  { size: '28', min: 0, max: 74 },
+  { size: '30', min: 74, max: 79 },
+  { size: '32', min: 79, max: 84 },
+  { size: '34', min: 84, max: 89 },
+  { size: '36', min: 89, max: 94 },
+  { size: '38', min: 94, max: 999 },
 ];
 
 const SHIRT_SIZES = [
-  { size: 'S (14–14.5")', min: 96, max: 100 },
+  { size: 'S (14–14.5")', min: 0, max: 100 },
   { size: 'M (15–15.5")', min: 100, max: 108 },
   { size: 'L (16–16.5")', min: 108, max: 116 },
-  { size: 'XL (17–17.5")', min: 116, max: 124 },
+  { size: 'XL (17–17.5")', min: 116, max: 999 },
 ];
 
 const WOMEN_TOP_SIZES = [
@@ -388,19 +388,30 @@ export default function SmartSize() {
           console.log('Side hip depth cm:', sideHipDepth.toFixed(1));
 
           // Ellipse circumference: π × √(2 × (a² + b²))
-          if (sideChestDepth > 5) {
-            chestCirc = ellipseCircumference(shoulderWidth, sideChestDepth);
-            console.log('Chest circ (ellipse):', chestCirc.toFixed(1), 'cm');
+          // Only use ellipse if side depth is realistic (> 15cm for chest/hip)
+          if (sideChestDepth > 15) {
+            const ellipseChest = ellipseCircumference(shoulderWidth, sideChestDepth);
+            // Only use ellipse result if it's reasonable (not smaller than front-only estimate)
+            if (ellipseChest > chestCirc * 0.85) {
+              chestCirc = ellipseChest;
+            }
+            console.log('Chest circ (ellipse):', ellipseChest.toFixed(1), 'cm, using:', chestCirc.toFixed(1));
           }
 
-          if (sideHipDepth > 5) {
-            waistCirc = ellipseCircumference(hipWidth, sideHipDepth);
-            console.log('Waist circ (ellipse):', waistCirc.toFixed(1), 'cm');
+          if (sideHipDepth > 12) {
+            const ellipseWaist = ellipseCircumference(hipWidth, sideHipDepth);
+            if (ellipseWaist > waistCirc * 0.85) {
+              waistCirc = ellipseWaist;
+            }
+            console.log('Waist circ (ellipse):', ellipseWaist.toFixed(1), 'cm, using:', waistCirc.toFixed(1));
           }
 
-          if (sideHipDepth > 5) {
-            hipCirc = ellipseCircumference(hipWidth, sideHipDepth);
-            console.log('Hip circ (ellipse):', hipCirc.toFixed(1), 'cm');
+          if (sideHipDepth > 12) {
+            const ellipseHip = ellipseCircumference(hipWidth, sideHipDepth);
+            if (ellipseHip > hipCirc * 0.85) {
+              hipCirc = ellipseHip;
+            }
+            console.log('Hip circ (ellipse):', ellipseHip.toFixed(1), 'cm, using:', hipCirc.toFixed(1));
           }
         }
 

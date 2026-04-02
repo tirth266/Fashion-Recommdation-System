@@ -126,7 +126,7 @@ export default function GetRecommendation() {
 
           <div className="mb-6">
             <label htmlFor="gender-select" className="block text-sm font-semibold text-gray-900 mb-2">
-              Your Gender (for accurate recommendations)
+              Select Category (for accurate recommendations)
             </label>
             <select
               id="gender-select"
@@ -134,9 +134,10 @@ export default function GetRecommendation() {
               onChange={(e) => setGender(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
-              <option value="">Select Gender</option>
+              <option value="">Select Category</option>
               <option value="Men">Male</option>
               <option value="Women">Female</option>
+              <option value="Unisex">Unisex / Other</option>
             </select>
           </div>
 

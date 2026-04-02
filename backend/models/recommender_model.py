@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+
 # Try importing from models package (app context) or fallback to local import
 try:
     from models.cnn_feature_extractor import extract_features, model
@@ -12,9 +13,10 @@ except ImportError:
     try:
         from cnn_feature_extractor import extract_features, model
     except ImportError:
-         import sys
-         sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-         from cnn_feature_extractor import extract_features, model
+        import sys
+
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        from cnn_feature_extractor import extract_features, model
 
 # Load saved data
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,10 +46,10 @@ STYLES_CSV = os.path.join(BASE_DIR, "../../data/datasets/styles.csv")
 gender_dict = {}
 if os.path.exists(STYLES_CSV):
     try:
-        with open(STYLES_CSV, 'r', encoding='utf-8') as f:
+        with open(STYLES_CSV, "r", encoding="utf-8") as f:
             next(f)  # skip header
             for line in f:
-                parts = line.strip().split(',')
+                parts = line.strip().split(",")
                 if len(parts) >= 2:
                     try:
                         item_id = int(parts[0])
@@ -61,9 +63,10 @@ if os.path.exists(STYLES_CSV):
 else:
     print("❌ styles.csv not found")
 
+
 def get_id_from_path(path):
     filename = os.path.basename(path)
-    id_str = filename.split('.')[0]
+    id_str = filename.split(".")[0]
     return int(id_str)
 
 
@@ -83,9 +86,7 @@ def recommend(image_path, user_gender=None, top_k=5):
         query_embedding = extract_features(image_path, model)
 
         # Compute similarity
-        similarities = cosine_similarity(
-            [query_embedding], embeddings
-        )[0]
+        similarities = cosine_similarity([query_embedding], embeddings)[0]
 
         # Get all indices sorted by similarity descending
         all_indices = np.argsort(similarities)[::-1]
@@ -93,14 +94,16 @@ def recommend(image_path, user_gender=None, top_k=5):
         # Filter by gender
         filtered_results = []
         for idx in all_indices:
-            if user_gender is None:
+            if user_gender is None or user_gender == "Unisex":
+                # Return all items for "Unisex" or no filter
                 filtered_results.append((filenames[idx], similarities[idx]))
             else:
                 item_id = get_id_from_path(filenames[idx])
                 item_gender = gender_dict.get(item_id)
-                if item_gender == user_gender:
+                # Include matching gender OR items marked as Unisex
+                if item_gender == user_gender or item_gender == "Unisex":
                     filtered_results.append((filenames[idx], similarities[idx]))
-            
+
             if len(filtered_results) == top_k:
                 break
 

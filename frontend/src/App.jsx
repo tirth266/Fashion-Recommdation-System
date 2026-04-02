@@ -16,6 +16,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/wardrobe" element={<Navigate to="/#wardrobe" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/size-estimation" element={<SmartSize />} />
             <Route path="/recommendation" element={<GetRecommendation />} />

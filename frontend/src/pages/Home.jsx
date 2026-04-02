@@ -11,6 +11,18 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Scroll to wardrobe section if URL has #wardrobe hash
+  useEffect(() => {
+    if (window.location.hash === '#wardrobe') {
+      setTimeout(() => {
+        const element = document.getElementById('wardrobe');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
+
   useEffect(() => {
     if (currentUser) {
       fetch('/api/wardrobe/', { credentials: 'include' })
@@ -58,13 +70,18 @@ export default function Home() {
     }
   };
 
-  const handleDeleteWardrobeItem = async (id, e) => {
+  const handleDeleteWardrobeItem = async (itemId, e) => {
     e.stopPropagation();
     if (!window.confirm("Are you sure you want to delete this wardrobe item?")) return;
+    
+    // Use the _id field that comes from MongoDB
+    const deleteId = itemId._id || itemId.id || itemId;
+    console.log("Deleting item with ID:", deleteId);
+    
     try {
-      const res = await fetch(`/api/wardrobe/${id}`, { method: 'DELETE', credentials: 'include' });
+      const res = await fetch(`/api/wardrobe/${deleteId}`, { method: 'DELETE', credentials: 'include' });
       if (res.ok) {
-        setWardrobeItems(wardrobeItems.filter(item => item.id !== id));
+        setWardrobeItems(wardrobeItems.filter(item => (item._id || item.id) !== deleteId));
       } else {
         const err = await res.json();
         alert(err.error || "Failed to delete item");
@@ -236,7 +253,8 @@ export default function Home() {
             {/* Upload Card */}
             <div
               onClick={() => currentUser ? fileInputRef.current?.click() : alert("Please login to add items")}
-              className="aspect-square border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-white dark:hover:text-white"
+              className="border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center text-gray-400 hover:border-black hover:text-black transition-colors cursor-pointer bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-white dark:hover:text-white"
+              style={{ aspectRatio: '3/4' }}
             >
               <input
                 type="file"
@@ -259,25 +277,25 @@ export default function Home() {
             {currentUser ? (
               wardrobeItems.length > 0 ? (
                 wardrobeItems.map((item) => (
-                  <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group bg-gray-100 dark:bg-gray-800">
+                  <div key={item.id} className="relative group bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4' }}>
                     <img
                       src={item.image_url.startsWith('/uploads') ? `/api${item.image_url}` : item.image_url}
                       alt="Wardrobe item"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-contain bg-gray-100 dark:bg-gray-800"
                       onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&auto=format&fit=crop'; }}
                     />
                     <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold ring-2 ring-white/50">
                       <div className="w-3 h-3 rounded-full bg-primary"></div>
                     </div>
                     {/* Delete Option Overlay */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                      <button
-                        onClick={(e) => handleDeleteWardrobeItem(item.id, e)}
-                        className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-red-600 shadow-xl flex items-center gap-1.5 transition-transform active:scale-95"
-                      >
+                    <div 
+                      onClick={(e) => handleDeleteWardrobeItem(item, e)}
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px] cursor-pointer"
+                    >
+                      <div className="bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-red-600 shadow-xl flex items-center gap-1.5 transition-transform active:scale-95">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         Delete
-                      </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -294,7 +312,7 @@ export default function Home() {
                 "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=1964&auto=format&fit=crop",
                 "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1935&auto=format&fit=crop"
               ].map((img, i) => (
-                <div key={i} className="aspect-square rounded-2xl overflow-hidden relative group">
+                <div key={i} className="relative group rounded-2xl overflow-hidden" style={{ aspectRatio: '3/4' }}>
                   <img src={img} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold">
                     <div className="w-3 h-3 rounded-full bg-primary"></div>

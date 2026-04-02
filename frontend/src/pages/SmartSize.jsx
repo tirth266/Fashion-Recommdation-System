@@ -77,11 +77,164 @@ function lerp(a, b, t) {
 }
 
 // Ellipse circumference: π × √(2 × (a² + b²))
-// where a = width/2, b = (depth * 1.3)/2
 function ellipseCircumference(width, depth) {
   const a = width / 2;
-  const b = (depth * 1.3) / 2; // 🔥 depth correction
+  const b = depth / 2;
   return Math.PI * Math.sqrt(2 * (a * a + b * b));
+}
+
+// Clamp value between min and max
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+// ─── Robust Size Estimation Engine ─────────────────────────────────────
+// Key improvements:
+// 1. Clamp scale factor to prevent extreme values
+// 2. Use ellipse formula for circumference (front width + side depth)
+// 3. BMI-based adaptive correction (continuous, not hardcoded)
+// 4. Sanity bounds for all measurements
+// 5. Clear error messages for poor detection
+function calculateMeasurements(frontLandmarks, sideLandmarks, frontResult, sideResult, heightCm, weightKg, gender) {
+  const bmi = weightKg / ((heightCm / 100) ** 2);
+  const fl = frontLandmarks;
+  
+  // Validate minimum visibility scores
+  const requiredLandmarks = [POSE.NOSE, POSE.LEFT_SHOULDER, POSE.RIGHT_SHOULDER, POSE.LEFT_HIP, POSE.RIGHT_HIP, POSE.LEFT_ANKLE, POSE.RIGHT_ANKLE];
+  for (let p of requiredLandmarks) {
+    if (!fl[p] || fl[p].visibility < 0.5) {
+      throw new Error('full_body_required');
+    }
+  }
+
+  // Extract pixel coordinates
+  const imgW = frontResult.width;
+  const imgH = frontResult.height;
+  
+  const getCoord = (landmark) => ({
+    x: Math.round(landmark.x * imgW),
+    y: Math.round(landmark.y * imgH)
+  });
+
+  const lShoulder = getCoord(fl[POSE.LEFT_SHOULDER]);
+  const rShoulder = getCoord(fl[POSE.RIGHT_SHOULDER]);
+  const lHip = getCoord(fl[POSE.LEFT_HIP]);
+  const rHip = getCoord(fl[POSE.RIGHT_HIP]);
+  const lAnkle = getCoord(fl[POSE.LEFT_ANKLE]);
+  const rAnkle = getCoord(fl[POSE.RIGHT_ANKLE]);
+
+  // Calculate pixel distances
+  const shoulderPx = dist(lShoulder, rShoulder);
+  const hipPx = dist(lHip, rHip);
+  
+  // Calculate actual body height in image from shoulder to ankle
+  // Using more accurate measurement: distance between shoulder midpoint and ankle midpoint
+  const shoulderMidY = (lShoulder.y + rShoulder.y) / 2;
+  const ankleMidY = (lAnkle.y + rAnkle.y) / 2;
+  const heightPx = Math.abs(ankleMidY - shoulderMidY);
+
+  // Sanity check: reject unrealistic height pixels
+  // Valid human height in image: 150px to 2500px
+  if (heightPx < 150 || heightPx > 2500) {
+    throw new Error('invalid_pose_scale');
+  }
+
+  // STABILITY: Clamp scale factor to safe range
+  // This prevents extreme values from bad detections
+  // For typical phone camera at 2-3m distance: scale ≈ 0.4 to 1.2 cm/px
+  const rawScale = heightCm / heightPx;
+  const scaleFactor = clamp(rawScale, 0.35, 1.5);
+
+  // Front-view widths in cm
+  const shoulderWidth = shoulderPx * scaleFactor;
+  const hipWidth = hipPx * scaleFactor;
+  
+  // Inseam calculation - from hip to ankle
+  const inseamPx = Math.abs(lAnkle.y - lHip.y);
+  let inseam = inseamPx * scaleFactor;
+
+  // ─── GEOMETRY: Ellipse-based circumference estimation ───────────────
+  // Using both front width and (optionally) side depth
+  
+  let chestCirc, waistCirc, hipCirc;
+  
+  if (sideLandmarks && sideResult) {
+    // Use ellipse formula with side depth
+    const sideW = sideResult.width;
+    const sideH = sideResult.height;
+    const sl = sideLandmarks;
+    
+    const sLShoulder = { x: Math.round(sl[POSE.LEFT_SHOULDER].x * sideW), y: Math.round(sl[POSE.LEFT_SHOULDER].y * sideH) };
+    const sRShoulder = { x: Math.round(sl[POSE.RIGHT_SHOULDER].x * sideW), y: Math.round(sl[POSE.RIGHT_SHOULDER].y * sideH) };
+    const sLHip = { x: Math.round(sl[POSE.LEFT_HIP].x * sideW), y: Math.round(sl[POSE.LEFT_HIP].y * sideH) };
+    const sRHip = { x: Math.round(sl[POSE.RIGHT_HIP].x * sideW), y: Math.round(sl[POSE.RIGHT_HIP].y * sideH) };
+    
+    const sideChestDepth = Math.max(dist(sLShoulder, sRShoulder) * scaleFactor, 15);
+    const sideHipDepth = Math.max(dist(sLHip, sRHip) * scaleFactor, 15);
+    
+    // Ellipse: more accurate than simple multipliers
+    chestCirc = ellipseCircumference(shoulderWidth, sideChestDepth);
+    waistCirc = ellipseCircumference(hipWidth * 0.9, sideHipDepth * 0.85);
+    hipCirc = ellipseCircumference(hipWidth, sideHipDepth);
+  } else {
+    // Fallback without side image - use proven multipliers
+    // Based on CDC/ANSUR anthropometric data
+    // Chest circumference ≈ shoulder width × 2.8-3.0
+    // Waist circumference ≈ hip width × 2.5-2.8
+    // Hip circumference ≈ hip width × 2.8-3.0
+    chestCirc = shoulderWidth * 2.9;
+    waistCirc = hipWidth * 2.6;
+    hipCirc = hipWidth * 2.9;
+  }
+
+  // ─── ADAPTIVE CORRECTION: BMI-based adjustment ───────────────────────
+  // Use BMI as continuous factor (NOT hardcoded if-else)
+  // BMI affects chest and waist proportionally
+  
+  // BMI factor: 22 is baseline. 
+  // Below 22: reduce measurements slightly (slimmer)
+  // Above 22: increase measurements (broader)
+  const bmiFactor = (bmi - 22) * 0.025; // 0.025 per BMI point
+  
+  chestCirc = chestCirc * (1 + bmiFactor);
+  waistCirc = waistCirc * (1 + bmiFactor * 1.2); // Waist affected more by BMI
+  hipCirc = hipCirc * (1 + bmiFactor * 0.8);
+  inseam = inseam * (1 + (bmi - 22) * 0.008); // Inseam slightly affected
+
+  // Gender-specific adjustments
+  if (gender === 'female') {
+    // Women typically have smaller shoulders relative to hips
+    chestCirc = chestCirc * 0.9;
+    // Women have higher waist-to-hip ratio
+    waistCirc = waistCirc * 1.05;
+  }
+
+  // ─── SANITY BOUNDS: Clamp to realistic ranges ───────────────────────
+  // Prevents unrealistic values from bad detections
+  const bounds = {
+    chestCirc: { min: 70, max: 140 },
+    waistCirc: { min: 55, max: 130 },
+    hipCirc: { min: 70, max: 150 },
+    inseam: { min: 50, max: 110 },
+    shoulderWidth: { min: 25, max: 60 }
+  };
+
+  chestCirc = clamp(chestCirc, bounds.chestCirc.min, bounds.chestCirc.max);
+  waistCirc = clamp(waistCirc, bounds.waistCirc.min, bounds.waistCirc.max);
+  hipCirc = clamp(hipCirc, bounds.hipCirc.min, bounds.hipCirc.max);
+  inseam = clamp(inseam, bounds.inseam.min, bounds.inseam.max);
+  const finalShoulderWidth = clamp(shoulderWidth, bounds.shoulderWidth.min, bounds.shoulderWidth.max);
+
+  return {
+    bmi,
+    shoulderWidth: finalShoulderWidth,
+    chestCircumference: chestCirc,
+    waistCircumference: waistCirc,
+    hipCircumference: hipCirc,
+    inseam: inseam,
+    scaleFactor: scaleFactor,
+    hasSideImage: !!sideLandmarks
+  };
 }
 
 // ─── Silhouette SVG Paths ───────────────────────────────────────────
@@ -292,7 +445,46 @@ export default function SmartSize() {
         const sideLandmarks = sideResult ? sideResult.landmarks : null;
 
         if (!frontLandmarks) {
-          throw new Error('Could not detect pose in front photo. Please try again with better lighting and full body visible.');
+          throw new Error(' pose_not_detected');
+        }
+
+        // Image quality validation
+        const validationErrors = [];
+        const imgWidth = frontResult.width;
+        const imgHeight = frontResult.height;
+        const pixelCount = imgWidth * imgHeight;
+        
+        // Check resolution (need at least 200x300 for reliable detection)
+        if (imgWidth < 200 || imgHeight < 300) {
+          validationErrors.push('resolution_too_low');
+        }
+        
+        // Check if body is too small in frame (shoulder span should be > 15% of image width)
+        const land_lShoulder = frontResult.landmarks[POSE.LEFT_SHOULDER];
+        const land_rShoulder = frontResult.landmarks[POSE.RIGHT_SHOULDER];
+        const shoulderSpanPx = Math.abs(land_rShoulder.x - land_lShoulder.x) * imgWidth;
+        const shoulderRatio = shoulderSpanPx / imgWidth;
+        
+        if (shoulderRatio < 0.15) {
+          validationErrors.push('body_too_small');
+        }
+        
+        // Check for proper lighting (brightness check)
+        const brightness = await checkImageBrightness(frontImage);
+        if (brightness < 50) {
+          validationErrors.push('too_dark');
+        } else if (brightness > 230) {
+          validationErrors.push('too_bright');
+        }
+
+        if (validationErrors.length > 0) {
+          const errorMessages = {
+            'resolution_too_low': 'Image resolution is too low. Please use a higher quality photo (at least 200x300 pixels).',
+            'body_too_small': 'Your body appears too small in the photo. Please stand closer to the camera.',
+            'too_dark': 'Photo is too dark. Please use better lighting.',
+            'too_bright': 'Photo is too bright/overexposed. Please reduce lighting.',
+          };
+          throw new Error(validationErrors.map(e => errorMessages[e]).join('\n'));
         }
 
         const requiredFront = [
@@ -318,131 +510,38 @@ export default function SmartSize() {
 
         const heightCm = parseFloat(height);
         const weightKg = parseFloat(weight);
-        const bmi = weightKg / ((heightCm / 100) ** 2);
 
-        // Calculate measurements from front image
-        const fl = frontLandmarks; // normalized 0-1 coords
-        // Use ACTUAL image dimensions from the captured photo, not hardcoded values
-        const imgWidth = frontResult.width;
-        const imgHeight = frontResult.height;
-
-        console.log('=== Measurement Debug ===');
-        console.log('Actual image dimensions:', imgWidth, '×', imgHeight);
-
-        // Step 1: Convert normalized landmarks → pixel coordinates
-        const lShoulder = { x: Math.round(fl[POSE.LEFT_SHOULDER].x * imgWidth), y: Math.round(fl[POSE.LEFT_SHOULDER].y * imgHeight) };
-        const rShoulder = { x: Math.round(fl[POSE.RIGHT_SHOULDER].x * imgWidth), y: Math.round(fl[POSE.RIGHT_SHOULDER].y * imgHeight) };
-        const lHip = { x: Math.round(fl[POSE.LEFT_HIP].x * imgWidth), y: Math.round(fl[POSE.LEFT_HIP].y * imgHeight) };
-        const rHip = { x: Math.round(fl[POSE.RIGHT_HIP].x * imgWidth), y: Math.round(fl[POSE.RIGHT_HIP].y * imgHeight) };
-        const lAnkle = { x: Math.round(fl[POSE.LEFT_ANKLE].x * imgWidth), y: Math.round(fl[POSE.LEFT_ANKLE].y * imgHeight) };
-        const rAnkle = { x: Math.round(fl[POSE.RIGHT_ANKLE].x * imgWidth), y: Math.round(fl[POSE.RIGHT_ANKLE].y * imgHeight) };
-
-        // Debug: show raw normalized → pixel conversion
-        console.log('Raw L_SHOULDER normalized:', fl[POSE.LEFT_SHOULDER].x.toFixed(4), fl[POSE.LEFT_SHOULDER].y.toFixed(4));
-        console.log('Raw R_SHOULDER normalized:', fl[POSE.RIGHT_SHOULDER].x.toFixed(4), fl[POSE.RIGHT_SHOULDER].y.toFixed(4));
-        console.log('L_SHOULDER px:', lShoulder.x, lShoulder.y);
-        console.log('R_SHOULDER px:', rShoulder.x, rShoulder.y);
-
-        // Step 2: Compute pixel distances
-        const shoulderPx = dist(lShoulder, rShoulder);
-        const hipPx = dist(lHip, rHip);
-        const shoulderMidY = (lShoulder.y + rShoulder.y) / 2;
-        const ankleY = (lAnkle.y + rAnkle.y) / 2;
-        const heightPx = Math.abs(ankleY - shoulderMidY) * 1.3; // shoulder→ankle × 1.3 ≈ full height
-
-        console.log('Shoulder px distance:', shoulderPx.toFixed(1));
-        console.log('Hip px distance:', hipPx.toFixed(1));
-        console.log('Height px (shoulder_mid→ankle×1.3):', heightPx.toFixed(1));
-
-        // Step 3: Scale factor — convert pixel distances to cm
-        const scaleFactor = heightCm / heightPx;
-        console.log('Scale factor (cm/px):', scaleFactor.toFixed(4));
-
-        // Step 4: Width in cm (front-view only, NOT circumference yet)
-        let shoulderWidth = shoulderPx * scaleFactor;
-        let hipWidth = hipPx * scaleFactor;
-        const inseamPx = dist(lHip, lAnkle);
-        let inseam = inseamPx * scaleFactor;
-
-        console.log('Shoulder width cm:', shoulderWidth.toFixed(1));
-        console.log('Hip width cm:', hipWidth.toFixed(1));
-
-        // Step 5: Convert front-view width → full body circumference
-        // Shoulder width ≠ chest width (chest is bigger than shoulder span)
-        // So we use chest expansion factor ×2.8 and waist ×2.6
-        // chest_cm = shoulder_px × scale × 2.8
-        // waist_cm = hip_px × scale × 2.6
-        let chestCirc = shoulderWidth * 2.8;
-        let waistCirc = hipWidth * 2.6;
-        let hipCirc = hipWidth * 2.8;
-
-        console.log('Chest circumference (width×2.8):', chestCirc.toFixed(1), 'cm');
-        console.log('Waist circumference (width×2.6):', waistCirc.toFixed(1), 'cm');
-        console.log('Hip circumference (width×2.8):', hipCirc.toFixed(1), 'cm');
-
-        // Side image: use correct formula (frontWidth + sideDepth) × 2
-        // This gives true circumference from two perpendicular views
-        if (sideLandmarks) {
-          const sl = sideLandmarks;
-          const sideW = sideResult.width;
-          const sideH = sideResult.height;
-          const sLShoulder = { x: Math.round(sl[POSE.LEFT_SHOULDER].x * sideW), y: Math.round(sl[POSE.LEFT_SHOULDER].y * sideH) };
-          const sRShoulder = { x: Math.round(sl[POSE.RIGHT_SHOULDER].x * sideW), y: Math.round(sl[POSE.RIGHT_SHOULDER].y * sideH) };
-          const sLHip = { x: Math.round(sl[POSE.LEFT_HIP].x * sideW), y: Math.round(sl[POSE.LEFT_HIP].y * sideH) };
-          const sRHip = { x: Math.round(sl[POSE.RIGHT_HIP].x * sideW), y: Math.round(sl[POSE.RIGHT_HIP].y * sideH) };
-
-          const sideChestDepth = dist(sLShoulder, sRShoulder) * scaleFactor;
-          const sideHipDepth = dist(sLHip, sRHip) * scaleFactor;
-
-          console.log('Side chest depth cm:', sideChestDepth.toFixed(1));
-          console.log('Side hip depth cm:', sideHipDepth.toFixed(1));
-
-          // Ellipse circumference: π × √(2 × (a² + b²))
-          // Only use ellipse if side depth is realistic (> 15cm for chest/hip)
-          if (sideChestDepth > 15) {
-            const ellipseChest = ellipseCircumference(shoulderWidth, sideChestDepth);
-            // Only use ellipse result if it's reasonable (not smaller than front-only estimate)
-            if (ellipseChest > chestCirc * 0.85) {
-              chestCirc = ellipseChest;
-            }
-            console.log('Chest circ (ellipse):', ellipseChest.toFixed(1), 'cm, using:', chestCirc.toFixed(1));
+        // Use robust measurement calculation
+        let measurements;
+        try {
+          measurements = calculateMeasurements(
+            frontLandmarks,
+            sideLandmarks,
+            frontResult,
+            sideResult,
+            heightCm,
+            weightKg,
+            gender
+          );
+        } catch (calcError) {
+          if (calcError.message === 'full_body_required') {
+            throw new Error('full_body_required');
+          } else if (calcError.message === 'invalid_pose_scale') {
+            throw new Error('invalid_pose_scale');
           }
-
-          if (sideHipDepth > 12) {
-            const ellipseWaist = ellipseCircumference(hipWidth, sideHipDepth);
-            if (ellipseWaist > waistCirc * 0.85) {
-              waistCirc = ellipseWaist;
-            }
-            console.log('Waist circ (ellipse):', ellipseWaist.toFixed(1), 'cm, using:', waistCirc.toFixed(1));
-          }
-
-          if (sideHipDepth > 12) {
-            const ellipseHip = ellipseCircumference(hipWidth, sideHipDepth);
-            if (ellipseHip > hipCirc * 0.85) {
-              hipCirc = ellipseHip;
-            }
-            console.log('Hip circ (ellipse):', ellipseHip.toFixed(1), 'cm, using:', hipCirc.toFixed(1));
-          }
+          throw calcError;
         }
 
-        // BMI factor adjustment (more accurate, continuous scale)
-        const bmiFactorChest = 1 + ((bmi - 22) * 0.02);
-        const bmiFactorWaist = 1 + ((bmi - 22) * 0.04);
-
-        chestCirc *= bmiFactorChest;
-        waistCirc *= bmiFactorWaist;
-        hipCirc *= bmiFactorWaist;
-
         const finalMeasurements = {
-          shoulderWidth: shoulderWidth.toFixed(1),
-          chestCircumference: chestCirc.toFixed(1),
-          waistCircumference: waistCirc.toFixed(1),
-          hipCircumference: hipCirc.toFixed(1),
-          inseam: inseam.toFixed(1),
-          bmi: bmi.toFixed(1),
-          tshirtSize: getSize(TSHIRT_SIZES, chestCirc),
-          pantsSize: getSize(PANTS_SIZES, waistCirc),
-          formalShirtSize: getSize(SHIRT_SIZES, chestCirc),
+          shoulderWidth: measurements.shoulderWidth.toFixed(1),
+          chestCircumference: measurements.chestCircumference.toFixed(1),
+          waistCircumference: measurements.waistCircumference.toFixed(1),
+          hipCircumference: measurements.hipCircumference.toFixed(1),
+          inseam: measurements.inseam.toFixed(1),
+          bmi: measurements.bmi.toFixed(1),
+          tshirtSize: getSize(TSHIRT_SIZES, measurements.chestCircumference),
+          pantsSize: getSize(PANTS_SIZES, measurements.waistCircumference),
+          formalShirtSize: getSize(SHIRT_SIZES, measurements.chestCircumference),
         };
 
         setMeasurements(finalMeasurements);
@@ -476,11 +575,27 @@ export default function SmartSize() {
         }, 1500);
       } catch (err) {
         console.error('Processing error:', err);
-        alert(err.message || 'Failed to detect full body pose. Please try again.');
+        let errorMsg = err.message || 'Failed to detect full body pose. Please try again.';
+        
+        // Map technical errors to user-friendly messages
+        if (errorMsg.includes('pose_not_detected') || errorMsg.includes('full_body_required')) {
+          errorMsg = 'Could not detect your body in the photo. Please ensure:\n• Full body is visible (head to feet)\n• Good lighting\n• Standing straight facing the camera';
+        } else if (errorMsg.includes('invalid_pose_scale')) {
+          errorMsg = 'Pose detection scale seems wrong. Please ensure:\n• Full body is visible in the photo\n• You are standing at appropriate distance from camera';
+        }
+        
+        alert(errorMsg);
         setProcessing(false);
-        setStep(1);
+        // Go back to photo step (step 2) instead of step 1 so user can retry
+        // Keep inputMode so user stays in their selected mode (camera or upload)
+        setStep(2);
         setFrontImage(null);
         setSideImage(null);
+        
+        // If camera mode, restart camera for easy retry
+        if (inputMode === 'camera') {
+          startCamera();
+        }
       }
     };
 
@@ -687,14 +802,14 @@ export default function SmartSize() {
                     <p className="text-sm font-semibold text-gray-600 mb-2 text-center">Front View <span className="text-red-400 text-xs">*required</span></p>
                     <div onClick={() => frontFileRef.current?.click()}
                       className={`relative rounded-2xl border-2 border-dashed cursor-pointer transition-all overflow-hidden ${frontImage ? 'border-purple-400 bg-purple-50' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50/30'}`}
-                      style={{ aspectRatio: '3/4' }}>
+                      style={{ aspectRatio: '3/5', minHeight: '350px' }}>
                       {frontImage ? (
-                        <img src={frontImage} alt="Front" className="w-full h-full object-cover" />
+                        <img src={frontImage} alt="Front" className="w-full h-full object-contain" />
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                           <span className="text-4xl mb-2">📸</span>
                           <span className="text-sm font-medium">Click to upload</span>
-                          <span className="text-xs mt-1">Front facing photo</span>
+                          <span className="text-xs mt-1">Full body photo (head to toe)</span>
                         </div>
                       )}
                     </div>
@@ -704,14 +819,14 @@ export default function SmartSize() {
                     <p className="text-sm font-semibold text-gray-600 mb-2 text-center">Side View <span className="text-gray-400 text-xs">(optional)</span></p>
                     <div onClick={() => sideFileRef.current?.click()}
                       className={`relative rounded-2xl border-2 border-dashed cursor-pointer transition-all overflow-hidden ${sideImage ? 'border-pink-400 bg-pink-50' : 'border-gray-300 hover:border-pink-400 hover:bg-pink-50/30'}`}
-                      style={{ aspectRatio: '3/4' }}>
+                      style={{ aspectRatio: '3/5', minHeight: '350px' }}>
                       {sideImage ? (
-                        <img src={sideImage} alt="Side" className="w-full h-full object-cover" />
+                        <img src={sideImage} alt="Side" className="w-full h-full object-contain" />
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
                           <span className="text-4xl mb-2">🔄</span>
                           <span className="text-sm font-medium">Click to upload</span>
-                          <span className="text-xs mt-1">Side profile photo</span>
+                          <span className="text-xs mt-1">Full body side photo</span>
                         </div>
                       )}
                     </div>
@@ -736,7 +851,7 @@ export default function SmartSize() {
                   <p className="text-gray-500 text-sm mt-1">Align yourself with the silhouette below</p>
                 </div>
 
-                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
+                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '9/16', minHeight: '500px' }}>
                   {/* Live webcam feed */}
                   <video
                     ref={videoRef}
@@ -835,7 +950,7 @@ export default function SmartSize() {
                   <p className="text-gray-500 text-sm mt-1">Turn 90° and stand straight</p>
                 </div>
 
-                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
+                <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '9/16', minHeight: '500px' }}>
                   <video
                     ref={videoRef}
                     autoPlay
@@ -1160,6 +1275,33 @@ function detectPose(pose, dataUrl) {
       pose.send({ image: img }).catch(() => resolve(null));
     };
     img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+// ─── Utility: Check image brightness ───────────────────────────────
+function checkImageBrightness(dataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      // Sample at lower res for performance
+      const sampleSize = 100;
+      canvas.width = sampleSize;
+      canvas.height = sampleSize;
+      ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+      const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize);
+      const data = imageData.data;
+      let totalBrightness = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        // Convert RGB to luminance
+        totalBrightness += (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+      }
+      const avgBrightness = totalBrightness / (data.length / 4);
+      resolve(avgBrightness);
+    };
+    img.onerror = () => resolve(128); // Default medium brightness
     img.src = dataUrl;
   });
 }

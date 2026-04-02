@@ -1,144 +1,198 @@
-# 👗 AI-Powered Fashion Recommendation & Smart Sizing System
+# 👗 Fashion Recommendation System
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)](https://flask.palletsprojects.com/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.13+-orange.svg)](https://www.tensorflow.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-An intelligent fashion recommendation system that delivers personalized outfit suggestions using machine learning and computer vision. The system analyzes user preferences, browsing history, and fashion trends to provide context-aware recommendations for various occasions (office, party, casual, formal, sports). Additionally, it features camera-based body measurement estimation to predict accurate clothing sizes, reducing size mismatch issues in online shopping.
-
-It focuses on personalized styling, smart sizing, and occasion-based recommendations, making it ideal for e-commerce platforms, fashion startups, academic projects, and personal wardrobe management.
+An AI-powered fashion recommendation system that suggests visually similar outfits and provides personalized size recommendations using deep learning and user preferences.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Features
 
-* **Hybrid Recommendation Engine**
-   * Combines collaborative filtering and content-based filtering
-   * Learns from user behavior and product similarities
-   * Delivers highly personalized outfit suggestions
+* 🔍 **Image-based Recommendations**
+  Upload an image and get visually similar fashion items using deep learning (CNN + embeddings)
 
-* **Occasion-Based Styling**
-   * Specific recommendations for office, party, casual, formal, sports wear
-   * Context-aware suggestions based on event type
-   * Supports multiple style categories
+* 👤 **User Authentication (Google + Manual Login)**
+  Secure login using Google OAuth and manual signup
 
-* **Smart Size Prediction (Computer Vision)**
-   * Camera-based body measurement estimation
-   * Detects height, shoulder width, and body shape
-   * Recommends accurate clothing sizes to reduce returns
+* 🧠 **Personalized Recommendations**
+  Uses user preferences like:
 
-* **Virtual Wardrobe Management**
-   * Upload and organize existing clothes
-   * AI-powered color extraction and analysis
-   * Generates outfit combinations from your wardrobe
+  * Favorite colors
+  * Preferred brands
+  * Fit type
 
-* **Weather-Based Recommendations**
-   * Integrates real-time weather data
-   * Suggests appropriate outfits for current conditions
-   * Location-aware clothing suggestions
+* 📏 **Smart Size Estimation**
+  Suggests clothing size based on user body measurements
 
-* **Trend Analysis**
-   * Tracks current fashion trends
-   * Recommends trending items based on user style
-   * Combines personal taste with popular styles
+* 🧥 **Wardrobe Management**
+  Users can upload and manage their clothing items
 
-* **User Profile & Preferences**
-   * Customizable style preferences
-   * Browsing history tracking
-   * Color and budget preferences
+* ☁️ **MongoDB Integration**
+  Stores user profiles, preferences, and activity in cloud database
 
 ---
 
-## 🧩 System Architecture
+## 🧱 Tech Stack
+
+### Frontend
+
+* React (Vite)
+* Tailwind CSS
+
+### Backend
+
+* Flask (Python)
+* REST APIs
+
+### Machine Learning
+
+* CNN Feature Extraction (ResNet)
+* Image similarity using embeddings (cosine similarity)
+
+### Database
+
+* MongoDB Atlas (Primary)
+* SQLite (Fallback during development)
+
+---
+
+## 📁 Project Structure
 
 ```
-+-----------------+      API      +-----------------+      API      +-----------------+
-|   Frontend UI   | <-----------> |  Flask Backend  | <-----------> |   ML Services   |
-| (User Interface)|               | (API + Logic)   |               | (Recommendation)|
-+-----------------+               +-----------------+               +-----------------+
-                                          |
-                                          | Database Access
-                                          ▼
-                                  +-----------------+
-                                  |   PostgreSQL    |
-                                  |   (User Data)   |
-                                  +-----------------+
+Fashion-Recommdation-System/
+│
+├── frontend/                # React frontend
+│   ├── src/
+│   └── public/
+│
+├── backend/
+│   ├── app/
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   └── database/
+│   │
+│   ├── models/             # ML models & embeddings
+│   ├── run.py              # Entry point
+│   └── requirements.txt
+│
+├── data/                   # Dataset (not included in repo)
+├── .gitignore
+└── README.md
 ```
 
-**Frontend** (HTML/CSS/JS) ↔ **Backend** (Flask API) ↔ **ML Engine** (Scikit-learn/TensorFlow) ↔ **Database** (SQLite/PostgreSQL)
+---
+
+## ⚙️ Setup Instructions
+
+### 1️⃣ Clone the repository
+
+```
+git clone https://github.com/tirth266/Fashion-Recommdation-System.git
+cd Fashion-Recommdation-System
+```
 
 ---
 
-## 🔄 Recommendation Lifecycle
+### 2️⃣ Backend Setup
 
-1. **User Registration** - User creates account and sets style preferences
-2. **Browse Products** - User explores fashion items, system tracks behavior
-3. **ML Model Training** - Collaborative filtering learns from user interactions
-4. **Recommendation Generation** - Hybrid model combines CF + content-based filtering
-5. **Personalized Display** - User sees tailored outfit suggestions by occasion
-6. **Feedback Loop** - User likes/purchases items → model improves over time
+```
+cd backend
+pip install -r requirements.txt
+```
 
----
+Create `.env` file:
 
-## 📸 Body Measurement Workflow
+```
+MONGO_URI=your_mongodb_connection_string
+SECRET_KEY=your_secret_key
+```
 
-1. **Camera Activation** - User allows camera access on sizing page
-2. **Pose Detection** - MediaPipe identifies 33 body landmarks
-3. **Measurement Calculation** - Algorithms compute height, shoulder width, body shape
-4. **Size Recommendation** - System maps measurements to standard clothing sizes
-5. **Product Filtering** - Shows only items that fit user's size
+Run backend:
 
----
-
-
-## 💻 Technologies Used
-
-**Backend & ML:**
-- Python 3.9+ (Core language)
-- Flask (Web framework & REST API)
-- Scikit-learn (Collaborative filtering, clustering)
-- TensorFlow/Keras (Deep learning for image features)
-- Pandas & NumPy (Data processing)
-
-**Computer Vision:**
-- OpenCV (Image processing)
-- MediaPipe (Pose detection & body landmarks)
-- PIL/Pillow (Image handling)
-
-**Frontend:**
-- HTML5, CSS3, JavaScript
-- Bootstrap 5 (Responsive UI)
-- Axios (API calls)
-
-**Database:**
-- SQLite (Development)
-- PostgreSQL (Production - optional)
-
-**Additional Tools:**
-- BeautifulSoup4 (Web scraping fashion data)
-- OpenWeather API (Weather-based recommendations)
-- Git & GitHub (Version control)
+```
+python run.py
+```
 
 ---
 
-## 🎯 Project Goals
+### 3️⃣ Frontend Setup
 
-* Deliver personalized fashion recommendations using hybrid ML approach
-* Reduce online shopping return rates through accurate size prediction
-* Provide occasion-specific outfit suggestions for diverse scenarios
-* Enable users to maximize their existing wardrobe with AI-powered combinations
-* Create a learning-focused yet industry-aligned recommendation system
-* Demonstrate practical applications of ML and computer vision in e-commerce
+```
+cd frontend
+npm install
+npm run dev
+```
 
 ---
 
-## 📚 Use Cases
+## 🔐 Google Authentication Setup
 
-* **E-commerce Platforms** - Integrate smart recommendations and sizing
-* **Fashion Startups** - Build personalized shopping experiences
-* **Personal Styling Apps** - AI-powered wardrobe management
-* **Academic Projects** - ML & CV demonstration for students
-* **Fashion Retail** - Reduce returns and improve customer satisfaction
-* **Wardrobe Planning Tools** - Occasion-based outfit suggestions
+1. Go to Google Cloud Console
+2. Create OAuth Client ID
+3. Add:
 
+```
+http://localhost:5173
+http://127.0.0.1:5173
+```
+
+to **Authorized JavaScript origins**
+
+---
+
+## 🗄️ MongoDB Setup
+
+* Create cluster in MongoDB Atlas
+* Add IP address (0.0.0.0/0 for development)
+* Create database user
+* Add connection string in `.env`
+
+---
+
+## 🧠 How It Works
+
+1. User uploads an image
+2. CNN extracts features (embeddings)
+3. Compare with dataset using cosine similarity
+4. Return top matching fashion items
+
+Additionally:
+
+* User preferences refine results
+* Size estimation uses body measurements
+
+---
+
+## 📊 Dataset
+
+* Based on Fashion Product Images dataset
+* Not included due to size
+* Can be downloaded from Kaggle
+
+---
+
+## ⚠️ Notes
+
+* Large files (dataset, embeddings) are excluded from GitHub
+* MongoDB is used for scalable cloud storage
+* SQLite fallback ensures system reliability during development
+
+---
+
+## 👨‍💻 Contributors
+
+* Savan Patel
+* Team Members
+
+---
+
+## 📌 Future Improvements
+
+* Improve recommendation accuracy with metadata filtering
+* Add outfit pairing suggestions
+* Deploy on cloud (AWS / Render)
+* Mobile app integration
+
+---
+
+## ⭐ Conclusion
+
+This project demonstrates the integration of **AI + Web Development + Cloud Database** to build a real-world fashion recommendation system with personalization and scalability.

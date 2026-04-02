@@ -1000,8 +1000,40 @@ export default function SmartSize() {
                   </div>
                 </div>
 
+                {/* Photo Reference Guide */}
+                <div className="mt-6 animate-result-reveal result-delay-3">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-bold text-gray-700">Photo Reference Guide</h3>
+                    <p className="text-sm text-gray-500">How to take proper photos for accurate measurements</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-purple-200 shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=300&h=400&fit=crop" 
+                        alt="Front pose reference"
+                        className="w-full aspect-[3/4] object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                        <p className="text-white text-xs font-medium">Front View</p>
+                        <p className="text-white/70 text-[10px]">Face camera, arms slightly out</p>
+                      </div>
+                    </div>
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=400&fit=crop" 
+                        alt="Side pose reference"
+                        className="w-full aspect-[3/4] object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                        <p className="text-white text-xs font-medium">Side View</p>
+                        <p className="text-white/70 text-[10px]">Turn 90 degrees</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Captured photos preview */}
-                <div className="mt-6 flex justify-center gap-4 animate-result-reveal result-delay-3">
+                <div className="mt-6 flex justify-center gap-4 animate-result-reveal result-delay-4">
                   {frontImage && (
                     <div className="relative group">
                       <div className="w-28 h-36 rounded-2xl overflow-hidden border border-gray-200 shadow-lg">
@@ -1020,276 +1052,14 @@ export default function SmartSize() {
                   )}
                 </div>
 
-                {/* ═══════════════════════════════════════════════════════ */}
-                {/* 📊 COMPREHENSIVE SIZE CHART REFERENCE TABLES           */}
-                {/* ═══════════════════════════════════════════════════════ */}
-                <div className="mt-12 animate-result-reveal result-delay-4">
-                  <div className="text-center mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                      <span className="gradient-text">Size Chart</span> Reference
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-2">Standard body measurement guides for men & women</p>
-                  </div>
-
-                  {/* ─── MEN'S SIZE CHARTS ──────────────────────────── */}
-                  {gender === 'male' && (
-                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
-                    <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
-                      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">👔</span>
-                      <span>Men's Size Chart</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-500 font-medium uppercase tracking-wider">Body Measurements</span>
-                    </h3>
-
-                    {/* T-Shirt / Casual Top */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-gray-600 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-xs">👕</span>
-                        T-Shirt / Casual Top
-                      </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-gray-200">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-gradient-to-r from-purple-500/10 to-pink-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Length (cm)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100">
-                            {[
-                              { sz: 'XS', chest: '80 – 88', chestIn: '31 – 34', shoulder: '42', length: '66' },
-                              { sz: 'S', chest: '88 – 96', chestIn: '34 – 38', shoulder: '44', length: '69' },
-                              { sz: 'M', chest: '96 – 104', chestIn: '38 – 41', shoulder: '46', length: '72' },
-                              { sz: 'L', chest: '104 – 112', chestIn: '41 – 44', shoulder: '48', length: '74' },
-                              { sz: 'XL', chest: '112 – 120', chestIn: '44 – 47', shoulder: '50', length: '76' },
-                              { sz: 'XXL', chest: '120 – 128', chestIn: '47 – 50', shoulder: '52', length: '78' },
-                            ].map((row, i) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-purple-50/50 ${
-                                measurements.tshirtSize === row.sz ? 'bg-purple-50 border-l-2 border-l-purple-500' : ''
-                              }`}>
-                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chest}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chestIn}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.length}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Formal Shirt */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs">👔</span>
-                        Formal / Dress Shirt
-                      </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-white/5">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Collar (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Chest (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Sleeve (cm)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {[
-                              { sz: 'S', collar: '37 – 38', chest: '102', waist: '98', shoulder: '44', sleeve: '87' },
-                              { sz: 'M', collar: '39 – 40', chest: '108', waist: '104', shoulder: '46', sleeve: '88' },
-                              { sz: 'L', collar: '41 – 42', chest: '114', waist: '110', shoulder: '48', sleeve: '89' },
-                              { sz: 'XL', collar: '43 – 44', chest: '120', waist: '116', shoulder: '50', sleeve: '90' },
-                              { sz: 'XXL', collar: '45 – 46', chest: '126', waist: '122', shoulder: '52', sleeve: '91' },
-                              { sz: '3XL', collar: '47 – 48', chest: '132', waist: '128', shoulder: '54', sleeve: '92' },
-                            ].map((row) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-gray-50 ${
-                                measurements.formalShirtSize && measurements.formalShirtSize.startsWith(row.sz) ? 'bg-blue-50 border-l-2 border-l-blue-500' : ''
-                              }`}>
-                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.collar}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.chest}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.sleeve}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Men's Pants / Trousers */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-orange-500/20 flex items-center justify-center text-xs">👖</span>
-                        Pants / Trousers / Chinos
-                      </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-white/5">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-gradient-to-r from-orange-500/10 to-pink-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (cm)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Length (in)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {[
-                              { sz: '28', waist: '71', waistIn: '28', hip: '89', length: '30' },
-                              { sz: '30', waist: '76', waistIn: '30', hip: '94', length: '31' },
-                              { sz: '32', waist: '81', waistIn: '32', hip: '99', length: '32' },
-                              { sz: '34', waist: '86', waistIn: '34', hip: '104', length: '32' },
-                              { sz: '36', waist: '91', waistIn: '36', hip: '109', length: '33' },
-                              { sz: '38', waist: '96', waistIn: '38', hip: '114', length: '33' },
-                              { sz: '40', waist: '101', waistIn: '40', hip: '119', length: '33' },
-                            ].map((row) => (
-                              <tr key={row.sz} className={`transition-colors hover:bg-gray-50 ${
-                                measurements.pantsSize === row.sz ? 'bg-orange-50 border-l-2 border-l-orange-500' : ''
-                              }`}>
-                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waistIn}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.length}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  )}
-
-                  {/* ─── WOMEN'S SIZE CHARTS ────────────────────────── */}
-                  {gender === 'female' && (
-                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg mb-6 border border-gray-100">
-                    <h3 className="text-lg font-bold mb-6 flex items-center gap-3">
-                      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-lg shadow-lg shadow-pink-500/20">👗</span>
-                      <span>Women's Size Chart</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-50 text-pink-500 font-medium uppercase tracking-wider">Body Measurements</span>
-                    </h3>
-
-                    {/* Women's Top / Dress */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-pink-500/20 flex items-center justify-center text-xs">👚</span>
-                        Top / Blouse / Dress
-                      </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-white/5">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-gradient-to-r from-pink-500/10 to-rose-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Bust (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Shoulder (in)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {[
-                              { sz: 'XS', bust: '30', waist: '26', hip: '34', shoulder: '13.5' },
-                              { sz: 'S', bust: '32', waist: '28', hip: '36', shoulder: '14' },
-                              { sz: 'M', bust: '34', waist: '30', hip: '38', shoulder: '14.5' },
-                              { sz: 'L', bust: '36', waist: '32', hip: '40', shoulder: '15' },
-                              { sz: 'XL', bust: '38', waist: '34', hip: '42', shoulder: '15.5' },
-                              { sz: 'XXL', bust: '40', waist: '36', hip: '44', shoulder: '16' },
-                              { sz: '3XL', bust: '42', waist: '38', hip: '46', shoulder: '16.5' },
-                            ].map((row) => (
-                              <tr key={row.sz} className="transition-colors hover:bg-white/[0.03]">
-                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.bust}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.shoulder}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Women's Pants / Bottom */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-white/60 mb-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-rose-500/20 flex items-center justify-center text-xs">👖</span>
-                        Pants / Jeans / Skirt
-                      </h4>
-                      <div className="overflow-x-auto rounded-2xl border border-white/5">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-gradient-to-r from-rose-500/10 to-pink-500/10">
-                              <th className="px-4 py-3 text-left text-xs font-bold text-white/60 uppercase tracking-wider">Size</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Waist (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Hip (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Knee Length (in)</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Full Length (in)</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5">
-                            {[
-                              { sz: 'XS (26)', waist: '26', hip: '34', knee: '35.5', full: '53' },
-                              { sz: 'S (28)', waist: '28', hip: '36', knee: '35.5', full: '53' },
-                              { sz: 'M (30)', waist: '30', hip: '38', knee: '36', full: '54' },
-                              { sz: 'L (32)', waist: '32', hip: '40', knee: '36', full: '54' },
-                              { sz: 'XL (34)', waist: '34', hip: '42', knee: '36.5', full: '55' },
-                              { sz: 'XXL (36)', waist: '36', hip: '44', knee: '36.5', full: '55' },
-                              { sz: '3XL (38)', waist: '38', hip: '46', knee: '37', full: '55.5' },
-                            ].map((row) => (
-                              <tr key={row.sz} className="transition-colors hover:bg-white/[0.03]">
-                                <td className="px-4 py-2.5 font-bold text-gray-700">{row.sz}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.waist}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.hip}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.knee}</td>
-                                <td className="px-4 py-2.5 text-center text-gray-500">{row.full}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  )}
-
-                  {/* How to Measure Guide */}
-                  <div className="glass-light rounded-3xl p-6 sm:p-8 shadow-lg border border-gray-100">
-                    <h3 className="text-lg font-bold mb-5 flex items-center gap-3">
-                      <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center text-lg shadow-lg shadow-green-500/20">📐</span>
-                      <span>How to Measure</span>
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { part: 'Chest / Bust', desc: 'Measure around the fullest part of the chest, keeping the tape horizontal under the arms and across the shoulder blades.' },
-                        { part: 'Waist', desc: 'Measure around the natural waistline (narrowest part of the torso), keeping the tape snug but not tight.' },
-                        { part: 'Hip', desc: 'Stand with feet together and measure around the fullest part of the hips, approximately 20 cm below the waist.' },
-                        { part: 'Shoulder', desc: 'Measure from the edge of one shoulder to the other across the back, following the natural shoulder line.' },
-                      ].map((item) => (
-                        <div key={item.part} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-green-300 transition-colors">
-                          <p className="text-sm font-bold text-green-500 mb-1">{item.part}</p>
-                          <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
                 {/* Measure again */}
-                <div className="text-center mt-10 animate-result-reveal result-delay-4">
+                <div className="text-center mt-10 animate-result-reveal result-delay-5">
                   <button
                     onClick={handleReset}
                     className="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg hover:shadow-xl hover:shadow-purple-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                   >
                     🔄 Measure Again
                   </button>
-                  <p className="text-gray-400 text-xs mt-3">Results are estimates — try multiple times for best accuracy</p>
                 </div>
               </div>
             </div>

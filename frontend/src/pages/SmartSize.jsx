@@ -423,7 +423,7 @@ export default function SmartSize() {
         waistCirc *= bmiFactorWaist;
         hipCirc *= bmiFactorWaist;
 
-        setMeasurements({
+        const finalMeasurements = {
           shoulderWidth: shoulderWidth.toFixed(1),
           chestCircumference: chestCirc.toFixed(1),
           waistCircumference: waistCirc.toFixed(1),
@@ -433,7 +433,32 @@ export default function SmartSize() {
           tshirtSize: getSize(TSHIRT_SIZES, chestCirc),
           pantsSize: getSize(PANTS_SIZES, waistCirc),
           formalShirtSize: getSize(SHIRT_SIZES, chestCirc),
-        });
+        };
+
+        setMeasurements(finalMeasurements);
+
+        // Save to database
+        try {
+          const response = await fetch('/api/size/manual-entry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              height: height,
+              chest: finalMeasurements.chestCircumference,
+              shoulder: finalMeasurements.shoulderWidth,
+              waist: finalMeasurements.waistCircumference,
+              hips: finalMeasurements.hipCircumference,
+              weight: weight,
+              gender: gender
+            })
+          });
+          if (response.ok) {
+            console.log('Size estimate saved to database');
+          }
+        } catch (e) {
+          console.log('Could not save to database:', e);
+        }
 
         setTimeout(() => {
           setProcessing(false);
@@ -699,7 +724,7 @@ export default function SmartSize() {
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
                   <h2 className="text-xl font-bold text-gray-800">Front View Photo</h2>
-                  <p className="text-gray-500 text-sm mt-1">Face the camera, align yourself with the silhouette below</p>
+                  <p className="text-gray-500 text-sm mt-1">Align yourself with the silhouette below</p>
                 </div>
 
                 <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
@@ -717,6 +742,30 @@ export default function SmartSize() {
 
                   {/* Front silhouette overlay */}
                   <FrontSilhouette />
+
+                  {/* Guide arrows and highlights */}
+                  <div className="absolute inset-0 z-10 pointer-events-none">
+                    {/* Head indicator */}
+                    <div className="absolute top-[5%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-purple-400 flex items-center justify-center animate-pulse">
+                        <span className="text-purple-400 text-xs">👤</span>
+                      </div>
+                      <div className="w-0.5 h-6 bg-gradient-to-b from-purple-400 to-transparent"></div>
+                    </div>
+                    {/* Shoulder indicator */}
+                    <div className="absolute top-[20%] left-1/2 -translate-x-1/2 flex items-center gap-2">
+                      <div className="px-3 py-1 bg-purple-500/80 rounded-full text-white text-xs font-medium">Shoulders here</div>
+                    </div>
+                    {/* Hip indicator */}
+                    <div className="absolute top-[45%] left-1/2 -translate-x-1/2 flex items-center gap-2">
+                      <div className="px-3 py-1 bg-pink-500/80 rounded-full text-white text-xs font-medium">Hips here</div>
+                    </div>
+                    {/* Feet indicator */}
+                    <div className="absolute bottom-[8%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                      <div className="w-0.5 h-6 bg-gradient-to-t from-pink-400 to-transparent"></div>
+                      <div className="px-3 py-1 bg-pink-500/80 rounded-full text-white text-xs font-medium">Feet here</div>
+                    </div>
+                  </div>
 
                   {/* Countdown overlay */}
                   {countdown !== null && (
@@ -774,7 +823,7 @@ export default function SmartSize() {
               <div className="max-w-lg mx-auto">
                 <div className="text-center mb-5">
                   <h2 className="text-xl font-bold text-gray-800">Side View Photo</h2>
-                  <p className="text-gray-500 text-sm mt-1">Turn sideways (90°), stand straight, arms by your side</p>
+                  <p className="text-gray-500 text-sm mt-1">Turn 90° and stand straight</p>
                 </div>
 
                 <div className="relative rounded-3xl overflow-hidden bg-black border-2 border-gray-200 shadow-xl" style={{ aspectRatio: '3/4' }}>
@@ -790,6 +839,26 @@ export default function SmartSize() {
 
                   {/* Side silhouette overlay */}
                   <SideSilhouette />
+
+                  {/* Guide arrows and highlights */}
+                  <div className="absolute inset-0 z-10 pointer-events-none">
+                    {/* Turn indicator */}
+                    <div className="absolute top-[30%] right-[5%] flex flex-col items-center">
+                      <div className="w-10 h-10 rounded-full border-2 border-pink-400 flex items-center justify-center animate-bounce">
+                        <span className="text-pink-400">↻</span>
+                      </div>
+                      <div className="text-pink-400 text-xs font-medium mt-1">Turn 90°</div>
+                    </div>
+                    {/* Body outline indicator */}
+                    <div className="absolute top-[25%] left-1/2 -translate-x-1/2 flex items-center gap-2">
+                      <div className="px-3 py-1 bg-pink-500/80 rounded-full text-white text-xs font-medium">Body profile here</div>
+                    </div>
+                    {/* Feet indicator */}
+                    <div className="absolute bottom-[8%] left-1/2 -translate-x-1/2 flex flex-col items-center">
+                      <div className="w-0.5 h-6 bg-gradient-to-t from-pink-400 to-transparent"></div>
+                      <div className="px-3 py-1 bg-pink-500/80 rounded-full text-white text-xs font-medium">Feet together</div>
+                    </div>
+                  </div>
 
                   {/* Countdown */}
                   {countdown !== null && (
@@ -995,38 +1064,6 @@ export default function SmartSize() {
                             {s.size} {s.max < 999 ? `(<${s.max})` : `(>${s.min})`}
                           </span>
                         ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Photo Reference Guide */}
-                <div className="mt-6 animate-result-reveal result-delay-3">
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-700">Photo Reference Guide</h3>
-                    <p className="text-sm text-gray-500">How to take proper photos for accurate measurements</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
-                    <div className="relative rounded-2xl overflow-hidden border-2 border-purple-200 shadow-lg">
-                      <img 
-                        src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=300&h=400&fit=crop" 
-                        alt="Front pose reference"
-                        className="w-full aspect-[3/4] object-cover"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                        <p className="text-white text-xs font-medium">Front View</p>
-                        <p className="text-white/70 text-[10px]">Face camera, arms slightly out</p>
-                      </div>
-                    </div>
-                    <div className="relative rounded-2xl overflow-hidden border-2 border-pink-200 shadow-lg">
-                      <img 
-                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=400&fit=crop" 
-                        alt="Side pose reference"
-                        className="w-full aspect-[3/4] object-cover"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                        <p className="text-white text-xs font-medium">Side View</p>
-                        <p className="text-white/70 text-[10px]">Turn 90 degrees</p>
                       </div>
                     </div>
                   </div>

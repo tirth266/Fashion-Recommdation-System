@@ -1,6 +1,14 @@
 // src/pages/SmartSize.jsx — Body Measurement Wizard with MediaPipe Pose
 import { useState, useRef, useEffect, useCallback } from 'react';
 
+// Suppress MediaPipe clipboard error
+window.addEventListener('error', (e) => {
+  if (e.message && e.message.includes('clipboard')) {
+    e.preventDefault();
+    return true;
+  }
+});
+
 // ─── Constants ──────────────────────────────────────────────────────
 const STEPS = [
   { id: 1, label: 'Your Info', icon: '📋' },
@@ -121,10 +129,12 @@ function SideSilhouette() {
 
 // ─── Progress Bar ───────────────────────────────────────────────────
 function ProgressBar({ currentStep }) {
+  const visibleSteps = STEPS.filter((_, i) => i === 2 || i === 3);
+  
   return (
     <div className="w-full max-w-2xl mx-auto mb-10">
       <div className="flex items-center justify-between mb-3">
-        {STEPS.map((step, i) => {
+        {visibleSteps.map((step, i) => {
           const isDone = currentStep > step.id;
           const isActive = currentStep === step.id;
           return (
@@ -516,8 +526,8 @@ export default function SmartSize() {
           </p>
         </div>
 
-        {/* Progress */}
-        <ProgressBar currentStep={step} />
+        {/* Progress - Hidden as requested */}
+        {/* <ProgressBar currentStep={step} /> */}
 
         {/* Steps Container */}
         <div className="min-h-[500px]">
